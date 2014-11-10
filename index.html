@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=windows-1252" >
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"> 
+	<meta name="format-detection" content="telephone=no" />	
+	
+	<!-- Fonts & Icons -->
+	<link rel="stylesheet" href="fonts/entypo.css">
+	<link rel="stylesheet" href="fonts/flaticon.css">
+	<!-- Maps & Markers -->
+	<link rel="stylesheet" href="css/leaflet.css" />	
+	<link rel="stylesheet" href="css/MarkerCluster.css" />
+	<link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+	
+	<link rel="stylesheet" href="app.css" />
+
+	<title>AppHOF</title>					
+</head>
+
+<body>
+	<!-- mask and overlays -->
+	<div id="info"></div>
+	<div id="mask" class="black-bg-t99">
+	</div>
+	<div id="popup" class="popup-modal darkgray">
+		<div class="popup-head table white">
+			<span class="tr">
+				<span class="td align-center vertical-middle popup-icon"></span>
+				<span class="td align-left vertical-middle popup-title"></span>
+				<span class="td align-center vertical-middle popup-close btn" onclick="helper.popup.hide();">
+					<i class="btn et et-cross"></i>
+				</span>
+			</span>
+		</div>
+		<div class="popup-wrap white-bg lightgray-bd darkgray">
+			<div class="popup-inner">
+			
+			</div>
+			<div class="popup-buttons">
+				<span class="btn btn-ok white green-bd green-bg" title="speichern">
+					<i class="et et-check"></i>
+					Speichern
+				</span>
+				<span class="btn btn-cancel lightgray lightgray-bd white-bg" title="abbrechen">
+					<i class="et et-cross"></i>
+					Abbrechen
+				</span>
+			</div>
+		</div>
+	</div>
+	<!-- main app frame -->
+	<div id="app">
+		<!-- modal pages 
+		
+		<!-- modal pages end -->		
+		
+		<!-- top bar -->
+		<div id="topbar" class="darkgray lightgray-bd white-bg">
+			<div class="table">
+				<ul class="tr">
+					<li class="td btn logo align-left vertical-middle">
+						<img id="btn-menu" src="img/LogoSmall.png"/>
+					</li>
+					<li class="td title vertical-middle align-center ">
+						<h1 id ="top-title" class="darkgray">Start</h1>
+					</li>
+					<li class="td btn btn-pg vertical-middle align-center hide-xs hide-sm" rel="start">
+						<i class="et et-home"></i>
+					</li>
+					<li class="td btn btn-pg vertical-middle align-center hide-xs hide-sm" rel="map">
+						<i class="et et-map"></i>
+					</li>
+					<li class="td btn btn-pg vertical-middle align-center" rel="search">
+						<i class="et et-search"></i>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<!-- header bar end -->
+		
+		<!-- pages area -->
+		<div id="content">
+			<ul class="pages">
+				<li class="page active" rel="start" pghead="Start">
+					<div class="page-inner">
+						<div class="jumbo blue-bg">
+							<!--<img src="img/titleBG.jpg" width="100%"/>-->
+							<span class="top white align-center">
+								<h1 class="white">AppHOF</h1>
+								<p class="white">... Nachhaltigkeit darf kein Luxus sein!</p>
+							</span>
+							<span class="bottom white-bg-t7">
+								<h1>Tipps & aktuelle Themen</h1>
+							</span>
+						</div>
+						<ul id="tippsList" class="tippsList"></ul>
+					</div>
+				</li>
+				<li class="page" rel="map" pghead="Karte">
+					<div id="map"></div>
+				</li>
+				<li class="page" rel="search" pghead="Suche">
+					<div class="page-inner">
+						<div class="page-content">
+							<h1>
+								Suche
+							</h1>
+							<div id="search-panel" class="table">	
+								<div class="tr">
+									<input id="searchMain" class="td searchField darkgray darkgray-bd" type="search" placeholder="Suchen ..."/>
+									<span id="searchNow" class="td searchButton white blue-bd blue-bg">
+										<i class="et et-search"></i>
+									</span>
+								</div>
+							</div>
+							<div id="searchSuggests" class="table">
+							</div>
+						</div>
+					</div>
+				</li>
+				<li class="page" rel="fav" pghead="Favoriten">
+					Favoriten
+				</li>
+				<li class="page" rel="help" pghead="Hilfe">
+					Hilfe
+				</li>
+				<li class="page" rel="about" pghead="Über AppHOF">
+					Über
+				</li>
+				<li class="page" rel="settings" pghead="Einstellungen">
+					Einstellungen
+				</li>
+				<li id="seller-page" class="page" rel="seller" pghead="Verkäufer">
+					Verkäufer
+				</li>
+				<li id="admin-page" class="page" rel="admin" pghead="Admin">
+					Admin
+				</li>
+			</ul>
+		</div>
+		<!-- pages area end -->
+		
+		<!-- menu area -->
+		<div id="menu">
+			<div class="menu-main white-bg darkgray-bd darkgray">
+				<div class="menu-top blue-bg white">
+					top panel
+				</div>
+				<div class="menu-bottom">
+					<ul class="table menu-block">
+						<li class="tc menu-block-head lightgray align-left">
+							Hauptfunktionen
+						</li>
+						<li class="tg">
+							<div class="tr btn btn-pg menu-item active" rel="start">
+								<span class="menu-item-icon td align-center vertical-middle">
+									<i class="et et-home"></i>
+								</span>
+								<span class="td align-left vertical-middle">
+									<span class="menu-item-head">Startseite</span>
+									<span class="menu-item-text">Tipps & Aktuelle Themen</span>
+								</span>
+							</div>
+							<div class="tr btn btn-pg menu-item" rel="map">
+								<span class="menu-item-icon td align-center vertical-middle">
+									<i class="et et-map"></i>
+								</span>
+								<span class="td align-left vertical-middle">
+									<span class="menu-item-head">Kartenansicht</span>
+									<span class="menu-item-text">Standorte auf der Karte anzeigen</span>
+								</span>
+							</div>
+							<div class="tr btn btn-pg menu-item" rel="search">
+								<span class="menu-item-icon td align-center vertical-middle">
+									<i class="et et-search"></i>
+								</span>
+								<span class="td align-left vertical-middle">
+									<span class="menu-item-head">Suche</span>
+									<span class="menu-item-text">Suche nach Produkten ...</span>
+								</span>
+							</div>
+						</li>
+					</ul>
+					<ul id="menu-seller" class="table menu-block hidden">
+						<li class="tc menu-block-head lightgray align-left">
+							Seller Menü
+						</li>
+						<li class="tg">
+							<div class="tr btn btn-pg menu-item" rel="seller">
+								<span class="menu-item-icon td align-center vertical-middle">
+									<i class="et et-pencil"></i>
+								</span>
+								<span class="td align-left vertical-middle">
+									<span class="menu-item-head">Verkäufer Admin</span>
+									<span class="menu-item-text">Daten und Produkte pflegen ...</span>
+								</span>
+							</div>
+						</li>
+					</ul>
+					<ul id="menu-admin" class="table menu-block hidden">
+						<li class="tc menu-block-head lightgray align-left">
+							Admin Menü
+						</li>
+						<li class="tg">
+							<div class="tr btn btn-pg menu-item" rel="seller">
+								<span class="menu-item-icon td align-center vertical-middle">
+									<i class="et et-tools"></i>
+								</span>
+								<span class="td align-left vertical-middle">
+									<span class="menu-item-head">Administration</span>
+									<span class="menu-item-text">Standorte und Produkte pflegen ...</span>
+								</span>
+							</div>
+						</li>
+					</ul>
+					<ul class="table menu-block">
+						<li class="tc menu-block-head lightgray align-left">
+							Hilfe & Einstellungen
+						</li>
+						<li class="tg">
+							<div class="tr btn btn-pg menu-item" rel="help">
+								<span class="menu-item-icon td align-center vertical-middle">
+									<i class="et et-help"></i>
+								</span>
+								<span class="td align-left vertical-middle">
+									<span class="menu-item-head">So funktioniert&apos;s</span>
+									<span class="menu-item-text">App-Hilfe & Bedienungshinweise</span>
+								</span>
+							</div>
+							<div class="tr btn btn-pg menu-item" rel="about">
+								<span class="menu-item-icon td align-center vertical-middle">
+									<i class="et et-info"></i>
+								</span>
+								<span class="td align-left vertical-middle">
+									<span class="menu-item-head">Über AppHOF</span>
+									<span class="menu-item-text">Info, Copyright & Impressum</span>
+								</span>
+							</div>
+							<div class="tr btn btn-pg menu-item" rel="settings">
+								<span class="menu-item-icon td align-center vertical-middle">
+									<i class="et et-cog"></i>
+								</span>
+								<span class="td align-left vertical-middle">
+									<span class="menu-item-head">Einstellungen</span>
+									<span class="menu-item-text">Persönliche Einstellungen</span>
+								</span>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	<!-- menu area end --> 
+	
+	</div>
+	<!-- main app frame end -->
+	
+	<!-- app scripts -->
+	<script src="phonegap.js"></script>
+	<script src="js/jQuery.js"></script><!-- initial Version v.1.11.1 -->
+	<script src="js/leaflet.js"></script>
+	<script src="js/leaflet.markercluster.js"></script>
+	<script src="js/jquery.touchSwipe.min.js"></script>
+	<script src="app.js"></script>
+	<!-- app scripts -->
+</body>
+</html>
