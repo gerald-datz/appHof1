@@ -60,10 +60,10 @@ var app={
 	user: 'nicht angemeldet',
 	pass: '',
 	auth: '',
-    baseURL: 'http://localhost/dnndev73',
-	serviceURL: 'http://localhost/dnndev73/DesktopModules/inuFair/API/WS/',
-	imageURL: 'http://localhost/dnndev73/bbimagehandler.ashx',
-    imageUserURL: 'http://localhost/dnndev73/profilepic.ashx',
+    baseURL: 'http://fair.in-u.at/',
+	serviceURL: 'http://fair.in-u.at/DesktopModules/inuFair/API/WS/',
+	imageURL: 'http://fair.in-u.at/bbimagehandler.ashx',
+    imageUserURL: 'http://fair.in-u.at/profilepic.ashx',
     isApp: false, //deviceready does not fire on normal browsers - so default is false - check done in deviceready
     /** persistent data objects 
         ------------------------------------ */
@@ -259,11 +259,11 @@ var app={
 		
 		// check if running in browser or on phoneApp
 		if ( helper.isMobileApp() ) {
-			alert("Running on Mobileapp!");
+			//alert("Running on Mobileapp!");
 			app.isApp = true;
 		} else {
 			// maybe this does not ever fire - but keep it for future browsers...
-			alert("Running NOT on PhoneGap!");
+			//alert("Running NOT on PhoneGap!");
 			app.isApp = false;
 		}
 	},
@@ -341,6 +341,9 @@ var app={
 		if ( $("#menu").hasClass("open") ){
 			app.menu.close();
 		}
+		else if ( $("popup").hasclass("open") ){
+			helper.popup.close();
+		}
 		else if ( $(".page.active").attr("rel") == "start" && helper.isMobileApp ){
 			// ask if to exit if app - sure ?
 			//helper.popup.show(title, content, iconname, ok, cancel,callbackOk,callbackCancel){
@@ -352,7 +355,7 @@ var app={
                             function(){												// callback function to bind to the OK button
 								navigator.app.exitApp();
 							},                       
-                            function(){alert('cancel clicked');}                    // callback function to bind to the CANCEL button
+                            function(){alert('cancel clicked');} ,"ok",""                   // callback function to bind to the CANCEL button
 						);
 		}
 		
@@ -617,7 +620,6 @@ var app={
 						
 						app.voting.markup.getSum("votingswrapper",5,data.ID);
 						app.comment.markup.get("commentswrapper",5,data.ID);
-						app.slideUp.open();
 					}
 					else{
 						app.errorLog(err);
@@ -1270,7 +1272,7 @@ var helper = {
         );
     */
 	popup:{
-        show: function(title, content, iconname, ok, cancel,callbackOk,callbackCancel){
+        show: function(title, content, iconname, ok, cancel,callbackOk,callbackCancel,okText,cancelText){
             var theOverlay = $("#popup");
 
             // set title, content and icon
@@ -1294,6 +1296,10 @@ var helper = {
                 var cancelBtn = theOverlay.find(".btn-cancel:first");
                 if (typeof(ok) != "undefined"){ 
                     if(ok == true){
+						okBtn.find(".btn-text").text("speichern");
+						if (typeof(okText) != "undefined"){ 
+							okBtn.find(".btn-text").text(okText);
+						}
                         okBtn.show();
                         if (typeof(callbackOk) != "undefined"){ 
                             okBtn.unbind('click');
@@ -1317,7 +1323,10 @@ var helper = {
                     okBtn.hide();
                 }
                 if (typeof(cancel) != "undefined"){ 
-                    if(cancel == true){		
+                    if(cancel == true){		okBtn.find(".btn-text").text("speichern");
+						if (typeof(okText) != "undefined"){ 
+							cancelBtn.find(".btn-text").text(cancelText);
+						}
                         cancelBtn.show();
                         if (typeof(callbackCancel) != "undefined"){ 
                             cancelBtn.unbind('click');                        
@@ -1369,12 +1378,15 @@ var helper = {
                 leftPos = 10;
             }
             theOverlay.css({'top': topPos + 'px','margin-left': leftPos + 'px','margin-right': leftPos + 'px'});
+			theOverlay.addClass("open");
         },
         hide: function(){	
             var theOverlay = $("#popup");
             $("#mask").fadeOut(500);
 
             theOverlay.hide();	
+			
+			theOverlay.removeClass("open");
         }
     },    
     spinner:{
