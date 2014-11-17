@@ -1373,12 +1373,15 @@ var helper = {
 					$(".popup-buttons span").removeClass("btn-single");
 				}
             }
-            //Set height and width to mask to fill up the whole screen
+			//transition effect    
+            /*$('#mask').fadeIn(500);
+            $('#mask').fadeTo("fast", 0.9);*/
+			$('#mask').addClass("visible");
+            
+			//Set height and width to mask to fill up the whole screen
             $('#mask').css({ 'width': app.status.screenWidth, 'height': app.status.screenHeight + 50 });
 
-            //transition effect    
-            $('#mask').fadeIn(500);
-            $('#mask').fadeTo("fast", 0.8);
+            
             theOverlay.show();
 
             //Get the window height and width
@@ -1397,8 +1400,8 @@ var helper = {
         },
         hide: function(){	
             var theOverlay = $("#popup");
-            $("#mask").fadeOut(500);
-
+            //$("#mask").fadeOut(500);
+			$('#mask').removeClass("visible");
             theOverlay.hide();	
 			
 			theOverlay.removeClass("open");
