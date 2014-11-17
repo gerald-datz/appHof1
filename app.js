@@ -190,12 +190,21 @@ var app={
 			app.menu.toggle();
         });
 		
+		$("#exitBtn").click(function(){
+			app.exit();
+			app.menu.close();
+        });
+		
 		// bind menu items & header Buttons click handler
 		$(".btn-pg").click(function(){
 			app.menu.close();
             app.page.show($(this).attr("rel"));
         });
-        	
+        
+		$("#menuCloseTop").click(function(){
+			app.menu.close();
+        });
+		
 		// bind search input keyup & button
 		$("#searchMain").keyup(function(e) {
 			var code = e.keyCode || e.which;
@@ -261,10 +270,12 @@ var app={
 		if ( helper.isMobileApp() ) {
 			//alert("Running on Mobileapp!");
 			app.isApp = true;
+			$("body").addClass("mobileApp");
 		} else {
 			// maybe this does not ever fire - but keep it for future browsers...
 			//alert("Running NOT on PhoneGap!");
 			app.isApp = false;
+			$("body").removeClass("mobileApp");
 		}
 	},
     //remove mobileinit if only for jQ mobile because jQmobile is not used here #############################################################
@@ -345,20 +356,23 @@ var app={
 			helper.popup.close();
 		}
 		else if ( $(".page.active").attr("rel") == "start" && helper.isMobileApp ){
-			// ask if to exit if app - sure ?
-			//helper.popup.show(title, content, iconname, ok, cancel,callbackOk,callbackCancel){
-			helper.popup.show(  "App beenden" ,                                        // overlay title
-                            "<p>Sind Sie sicher, dass Sie die App beenden möchten ?<p>",     // overlay textarea
-                            '',                                        				// image for title row (auto resized to 20x20 px)
-                            true,                                                  	// show OK button?
-                            false,                                                  // show CANCEL button?
-                            function(){												// callback function to bind to the OK button
-								navigator.app.exitApp();
-							},                       
-                            function(){alert('cancel clicked');} ,"ok",""                   // callback function to bind to the CANCEL button
-						);
+			app.exit();
 		}
 		
+	},
+	exit: function(){
+		// ask if to exit if app - sure ?
+		//helper.popup.show(title, content, iconname, ok, cancel,callbackOk,callbackCancel){
+		helper.popup.show(  "App beenden" ,                                        // overlay title
+						"<p>Sind Sie sicher, dass Sie die App beenden möchten ?<p>",     // overlay textarea
+						'',                                        				// image for title row (auto resized to 20x20 px)
+						true,                                                  	// show OK button?
+						false,                                                  // show CANCEL button?
+						function(){												// callback function to bind to the OK button
+							navigator.app.exitApp();
+						},                       
+						function(){helper.popup.close();} ,"ok","abbrechen"                   // callback function to bind to the CANCEL button
+					);
 	},
     // search functions
 	search:{
@@ -771,7 +785,7 @@ var app={
 									},                       
 									function(){ // callback from CANCEL button
 										// hide the overlay                
-										helper.overlay.hide();
+										helper.popup.hide();
 									}                    
 				);
 				app.tipp.options.bind(tippID);
@@ -803,7 +817,7 @@ var app={
 						var tippShare = $("#tippOptions .tippShare");
 						tippShare.unbind('click');
 						tippShare.click(function(){
-						
+							app.share("TestMessage", "TestSubject" ,"http://in-u.at/Portals/0/inuLogoWEB.png", "http://in-u.at");
 						});						
 					}
 					else{
@@ -986,7 +1000,7 @@ var app={
                                             var result = data;
                                             if (data == "saved"){
                                                 app.comment.markup.get("commentswrapper",objTypeID,objID);
-                                                helper.overlay.hide();
+                                                helper.popup.hide();
                                                 helper.info.add("success","Danke, Kommentar / Voting wurde gespeichert!",true);
 												//update voting sums
 												app.voting.markup.getSum("votingswrapper",objTypeID,objID);
@@ -1000,14 +1014,14 @@ var app={
                                             app.errorLog(err);
                                             helper.info.add("error","Es ist ein Fehler aufgetreten:<hr/><p>" + JSON.stringify(data) + 
                                                             "</p><hr/>Bitte informieren Sie den Administrator",true);
-                                            helper.overlay.hide();
+                                            helper.popup.hide();
                                         }
 
                                     }); 
                                 },                       
                                 function(){ // callback from CANCEL button
                                     // clear and discard - just hide the overlay                
-                                    helper.overlay.hide();
+                                    helper.popup.hide();
                                 }                    
             );
         },
@@ -1173,6 +1187,7 @@ var app={
 		*/
 			// only used if on mobile device, otherwise the link - method via web-browser is used
 			// initially set all parameters to null for not used parts to ensure the proper function of the sharing plugin
+			console.log("sharing pressed");
 			var theMessage = null;
 			var theSubject = null;
 			var theImage = null;
@@ -1250,7 +1265,7 @@ var helper = {
     ------------------------------------ */
     initialize: function(){
         $("#overlayHideBtn").click(function(){
-            helper.overlay.hide();
+            helper.popup.hide();
         });
     },
     isMobileApp: function(){
@@ -1311,7 +1326,7 @@ var helper = {
                             // bind close function
                             okBtn.unbind('click');
                             okBtn.click(function(){
-                                helper.overlay.hide();
+                                helper.popup.hide();
                             });
                         }
                     }
@@ -1338,7 +1353,7 @@ var helper = {
                             // bind close function
                             cancelBtn.unbind('click');                        
                             cancelBtn.click(function(){
-                                helper.overlay.hide();
+                                helper.popup.hide();
                             });
                         }
                     }

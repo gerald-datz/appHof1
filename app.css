@@ -216,6 +216,13 @@ a, a:active, a:link, a:visited {
 		
 	}
 	
+	
+	/* special style for search Icon */
+	.et-search{
+		font-size:120%;
+	}
+	
+	
 /* ###################################################
 					  overlays
    ################################################### */
@@ -237,7 +244,7 @@ a, a:active, a:link, a:visited {
 	padding:0px;
 	margin:0px;	
 
-	z-index:3000;
+	z-index:30;
 }
 
 /* ------------ modal popup ------------- */
@@ -257,8 +264,8 @@ a, a:active, a:link, a:visited {
 	display:block;
 	
 	padding:0px;
-	
-	z-index:3100;
+	opacity:1;
+	z-index:35;
 }
 	.popup-head{
 		position:absolute;
@@ -318,6 +325,18 @@ a, a:active, a:link, a:visited {
 				border:1px solid #000;
 			}
 
+/* ------------ info popup ------------- */
+	#info{
+		position:absolute;
+		top:0px;
+		left:0px;
+		display:block;
+		
+		padding:0px;
+		opacity:1;
+		z-index:40;
+	}
+
 /* ###################################################
 					  main app
    ################################################### */
@@ -361,7 +380,7 @@ a, a:active, a:link, a:visited {
 		
 		border-bottom:1px solid #000;
 		
-		z-index:1000;
+		z-index:20;
 	}
 		#topbar h1, .page-header h1{
 			margin:0;
@@ -547,7 +566,7 @@ a, a:active, a:link, a:visited {
 							margin:0px;
 							padding:5px 20px;
 						}
-							.jumbo span.bottom h1{
+							.jumbo span.bottom h1, .jumbo span.bottom h2, .jumbo span.bottom h3 , .jumbo span.bottom h4, .jumbo span.bottom h5 , .jumbo span.bottom h6{
 								margin:0px;
 							}
 					.page-content{
@@ -932,8 +951,30 @@ img.lazy{
 		
 		transition:left 0.5s ease-in-out 0s;
 		
-		z-index:900;		
+		z-index:10;		
 	}
+	#menuCloseTop{
+		position:absolute;
+		display:table-cell;
+		text-align:center;
+		vertical-align:middle;
+		top:5px;
+		right:5px;
+		z-index:15;
+		width:40px;
+		height:30px;
+		font-size:150%;
+	}
+	
+	/* display exit btn only in mobile App */
+	#exitBtn{
+		display:none;
+	}
+	
+	body.mobileApp #exitBtn{
+		display:table-row;
+	}
+	
 	#menu.open{
 		left: 0px;
 	}
