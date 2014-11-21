@@ -353,7 +353,7 @@ var app={
 			app.menu.close();
 		}
 		else if ( $("popup").hasclass("open") ){
-			helper.popup.close();
+			helper.popup.hide();
 		}
 		else if ( $(".page.active").attr("rel") == "start" && helper.isMobileApp ){
 			app.exit();
@@ -363,7 +363,7 @@ var app={
 	exit: function(){
 		// ask if to exit if app - sure ?
 		//helper.popup.show(title, content, iconname, ok, cancel,callbackOk,callbackCancel){
-		helper.popup.show(  "App beenden" ,                                        // overlay title
+		helper.popup.show(  "AppHOF beenden" ,                                        // overlay title
 						"<p>Sind Sie sicher, dass Sie die App beenden möchten ?<p>",     // overlay textarea
 						'',                                        				// image for title row (auto resized to 20x20 px)
 						true,                                                  	// show OK button?
@@ -371,7 +371,7 @@ var app={
 						function(){												// callback function to bind to the OK button
 							navigator.app.exitApp();
 						},                       
-						function(){helper.popup.close();} ,"ok","abbrechen"                   // callback function to bind to the CANCEL button
+						function(){helper.popup.hide();} ,"AppHOF beenden"                   // callback function to bind to the CANCEL button
 					);
 	},
     // search functions
@@ -516,6 +516,15 @@ var app={
 				app.location.details.show(locID);
 			}
 		},
+		location:{
+			show: function(locID){
+			
+			}
+		},
+		center: function(coordLat, coordLon, zoom){
+			map.setView([coordLat, coordLon], zoom);
+			//map.panTo(new L.LatLng(coordLat, coordLon));
+		}
     },
     // location functions
     location:  {
@@ -558,9 +567,17 @@ var app={
 						}
 						if(data.Web && data.Web != ""){                  
 							markup += "<tr><td>";
-							markup += "<i class='et et-globe'></i></td>"
-							markup += "<td>&nbsp;<a href='http://" + data.Web.replace(/\s+/g, '');
-							markup += "' target='_blank'>" + data.Web ;
+							markup += "<i class='et et-globe'></i></td>";
+							markup += "<td>&nbsp;";
+							/* fix for InAppBrowser Issue on PG Build */
+							if (helper.isMobileApp){
+								markup += "<a href='#' onclick='event.preventDefault();openDeviceBrowser(" + '"' + data.Web.replace(/\s+/g, '') + '"' + ");'>";
+							}
+							else{
+								markup += "<a href='http://" + data.Web.replace(/\s+/g, '') + "' target='_blank'>"
+							}							
+							
+							markup += data.Web ;
 							var webshort = data.Web.replace(/\s+/g, '');
 							if (  helper.left(webshort,4).toLowerCase() == "http"  ){
 								// nothing to change
@@ -658,7 +675,7 @@ var app={
 						$.each(dataset,function(){
 							var data = this;                  
 							markup += "<li id='tippElem" + data.ID + "' class='tipps'>"; 
-							markup += "	  <div class='tippsImage lazy' rel='" + data.ImageID + "'>";
+							markup += "	  <div class='tippsImage lazy height100' rel='" + data.ImageID + "'>";
 							markup += "	  </div>";
 							markup += "   <div class='tippsInner table'>";
 							markup += "     <span class='tipps row1 tr'>";      
@@ -779,19 +796,19 @@ var app={
 									markup,     
 									'et et-docs',
 									false,
-									true,
+									false,
 									function(){ 
 										// callback from OK button (hidden)									
 									},                       
 									function(){ // callback from CANCEL button
 										// hide the overlay                
-										helper.popup.hide();
+										//helper.popup.hide();
 									}                    
 				);
 				app.tipp.options.bind(tippID);
 			},
 			bind:function(tippID){
-				// bind functions to the options
+				// bind functions to the options-buttons
 				if( $("#tippOptions").length > 0 ){
 					// its already there - get data for the tipp
 					
@@ -804,9 +821,7 @@ var app={
 					var tippMap = $("#tippOptions .tippMap");
 					tippMap.unbind('click');
 					tippMap.click(function(){
-					
-						app.map.location.show(locationID);
-						
+						app.tipp.map(tippID);
 					});
 					var tippFavourite = $("#tippOptions .tippFavourite");
 					tippFavourite.unbind('click');
@@ -817,7 +832,7 @@ var app={
 						var tippShare = $("#tippOptions .tippShare");
 						tippShare.unbind('click');
 						tippShare.click(function(){
-							app.share("TestMessage", "TestSubject" ,"http://in-u.at/Portals/0/inuLogoWEB.png", "http://in-u.at");
+							helper.share("TestMessage", "TestSubject" ,"http://in-u.at/Portals/0/inuLogoWEB.png", "http://in-u.at");
 						});						
 					}
 					else{
@@ -859,7 +874,51 @@ var app={
 			}
 		},
 		details:function(tippID){
-			app.location.details.slideUp(locID);
+			// check what kind of tipp this is and what to show as details
+			app.dataAPI("getData","tipps", {'i': tippID, 'o': 0},function(err,dataset){ 
+				if(!err){
+					var data = dataset[0];					
+					switch(data.ObjectTypeID){
+						case 1: 
+							app.seller.show(data.ObjectID);
+							break;        
+						case 2: 
+							app.product.show(data.ObjectID);
+							break;        
+						case 3: 
+							app.seller.product.show(data.ObjectID);
+							break;        
+						case 4: 
+							app.category.show(data.ObjectID);
+							break;        
+						case 5: 
+							app.location.details.show(data.ObjectID);
+							break;        
+						case 6: 
+							app.tipp.show(data.ObjectID);
+							break;        
+						default:
+							alert("undefined objectTypeID");
+							break;
+					}
+				}
+				else{
+					app.errorLog(err);
+				}
+				
+			}); 
+		},
+		map:function(tippID){
+			app.dataAPI("getData","tipps", {'i': tippID, 'o': 0},function(err,dataset){ 
+				if(!err){
+					var data = dataset[0];					
+					
+				}
+				else{
+					app.errorLog(err);
+				}
+				
+			});
 		},
 		trash: function(tippID, jqElemToHide){
 			// fade out li and hide after the CSS3 transition has finished --- only >= ie10  
@@ -973,12 +1032,12 @@ var app={
                     }
                 }
             };
-            var markup = helper.form(theFields);
+            var markup = helper.form.show(theFields);
             helper.popup.show('Kommentar',                                      
                                 markup,     
                                 'no_avatar.gif',
                                 true,
-                                true,
+                                false,
                                 function(){ // callback from OK button
                                     // save                                     
                                     var theParameters = {};
@@ -1021,7 +1080,7 @@ var app={
                                 },                       
                                 function(){ // callback from CANCEL button
                                     // clear and discard - just hide the overlay                
-                                    helper.popup.hide();
+                                    // helper.popup.hide();
                                 }                    
             );
         },
@@ -1143,7 +1202,14 @@ var app={
 						}
 						else{
 							// change background of element
-							imageToChange.css({'background': 'url(' + theURL + ') no-repeat','background-size': '100% auto', 'background-position':'center center'});
+							if( theImage.hasClass("height100") ){
+								// 100% height
+								imageToChange.css({'background': 'url(' + theURL + ') no-repeat','background-size': 'auto 100%', 'background-position':'center center'});
+							}
+							else{
+								// 100% width
+								imageToChange.css({'background': 'url(' + theURL + ') no-repeat','background-size': '100% auto', 'background-position':'center center'});
+							}
 						}
                     }
                     else{
@@ -1153,59 +1219,6 @@ var app={
             });        
         }
     },
-    share: function(message, subject, image, link){
-		/**	Sharing 
-		Use Phones Share dialogue if accessible
-		---------------------------------------
-		<button onclick="window.plugins.socialsharing.share('Message only')">message only</button>
-		<button onclick="window.plugins.socialsharing.share('Message and subject', 'The subject')">
-			message and subject
-		</button>
-		<button onclick="window.plugins.socialsharing.share(null, null, null, 'http://www.in-u.at')">
-			link only
-		</button>
-		<button onclick="window.plugins.socialsharing.share('Message and link', null, null, 'http://www.in-u.at')">
-			message and link
-		</button>
-		<button onclick="window.plugins.socialsharing.share(null, null, 'http://www.in-u.at', null)">
-			image only
-		</button>
-		// Hint: you can share multiple files by using an array as thirds param: ['file 1','file 2', ..]
-		<button onclick="window.plugins.socialsharing.share('Message and image', null, 'http://www.in-u.at/images/srpr/logo4w.png', null)">
-			message and image
-		</button>
-		<button onclick="window.plugins.socialsharing.share('Message, image and link', null, 'http://www.in-u.at/images/srpr/logo4w.png', 'http://www.in-u.at/')">
-			message, image and link
-		</button>
-		<button onclick="window.plugins.socialsharing.share('Message, subject, image and link', 'The subject', 'http://www.in-u.at/images/srpr/logo4w.png', 'http://www.x-services.nl')">
-			message, subject, image and link
-		</button>
-
-		Sharing on Webbrowser
-		---------------------
-		
-		*/
-			// only used if on mobile device, otherwise the link - method via web-browser is used
-			// initially set all parameters to null for not used parts to ensure the proper function of the sharing plugin
-			console.log("sharing pressed");
-			var theMessage = null;
-			var theSubject = null;
-			var theImage = null;
-			var theLink = null;
-			if (typeof(message) != "undefined"){ 
-                theMessage = message;
-            }
-			if (typeof(subject) != "undefined"){ 
-                theSubject = subject;
-            }
-			if (typeof(image) != "undefined"){ 
-                theImage = image;
-            }
-			if (typeof(link) != "undefined"){ 
-                theLink = link;
-            }
-			window.plugins.socialsharing.share(theMessage, theSubject, theImage, theLink);
-	},
 	/** data api (ajaxPOST)
     ------------------------------------------- */
     dataAPI: function(RESTname,dataname,parameters,callback){
@@ -1218,6 +1231,7 @@ var app={
         jQuery.extend(ajaxparams, dataparam, baseparams, parameters);
         $.ajax({
             url: ajaxURL,
+			cache: false,
             dataType: "json",
             type: "POST",
             data: JSON.stringify(ajaxparams),
@@ -1338,8 +1352,9 @@ var helper = {
                     okBtn.hide();
                 }
                 if (typeof(cancel) != "undefined"){ 
-                    if(cancel == true){		okBtn.find(".btn-text").text("speichern");
-						if (typeof(okText) != "undefined"){ 
+                    if(cancel == true){	
+						cancelBtn.find(".btn-text").text("abbrechen");
+						if (typeof(cancelText) != "undefined"){ 
 							cancelBtn.find(".btn-text").text(cancelText);
 						}
                         cancelBtn.show();
@@ -1443,7 +1458,7 @@ var helper = {
     },
     info:{
         lastID:0,
-        timeout: 3000,
+        timeout: 5000,
         add: function(infotype, infotext, autohide){
             helper.info.lastID = helper.info.lastID + 1;
             var markup = "<span rel='" + helper.info.lastID + "' class='infoelement ";
@@ -1472,7 +1487,7 @@ var helper = {
                     break;
             }
             markup += classTmp + "'>";
-            markup += "<span class='popup-close' onclick='$(this).parent().remove();'>x</span>";
+            markup += "<span class='infoclose' onclick='$(this).parent().remove();'><i class='et et-cross'></i></span>";
             markup += iconTmp + infotext + "</span>";
             
             if( typeof(autohide) != "undefined" && autohide == true){                
@@ -1481,47 +1496,194 @@ var helper = {
                     helper.info.hide(theID);
                 },helper.info.timeout);
             }
-            $("#info").append(markup);            
+            $("#info").prepend(markup);            
         },
         hide: function(id){
             $("span.infoelement[rel=" + id + "]").remove();
         }
     },
-    form: function(fields){
-        var markup = "<div id='inputmask' class='inputform'>"; // start form table
-        $.each(fields, function(){
-            var theField = this;
-            markup += "<div class='inputrow'>";  // row start          
-            markup += "<div class='inputlabel'>" + theField.Label + "</div>";
-            switch(theField.Control){
-                case 'text':
-                    markup += "<div class='inputcontrol'><input type='text' rel='" + theField.Name + "' /></div>";
-                    break;
-                case 'textarea':
-                    markup += "<div class='inputcontrol'><textarea cols='40' rows='4' rel='" + theField.Name + "'></textarea></div>";
-                    break;
-                case 'select':
-                    markup += "<div class='inputcontrol select'><select rel='" + theField.Name + "'>";
-                    $.each(theField.Options, function(){
-                        var theOption = this;
-                        markup += "<option value='" + theOption.Value + "'>" + theOption.Text + "</option>";
-                    });
-                    markup += "</select></div>";
-                    break;
-                case 'check':
-                    markup += "<div class='inputcontrol'><input type='checkbox' rel='" + theField.Name + "' /></div>";
-                    break;
-                case "label": 
-                default: 
-                    // label - only has a  text - no control
-                    break;
+    form: {
+		show: function(fields){
+			var markup = "<div id='inputmask' class='inputform'>"; // start form table
+			$.each(fields, function(){
+				var theField = this;
+				markup += "<div class='inputrow'>";  // row start          
+				markup += "<div class='inputlabel'>" + theField.Label + "</div>";
+				switch(theField.Control){
+					case 'text':
+						markup += "<div class='inputcontrol'><input type='text' rel='" + theField.Name + "' /></div>";
+						break;
+					case 'textarea':
+						markup += "<div class='inputcontrol'><textarea cols='40' rows='4' rel='" + theField.Name + "'></textarea></div>";
+						break;
+					case 'select':
+						markup += "<div class='inputcontrol select'><select rel='" + theField.Name + "'>";
+						$.each(theField.Options, function(){
+							var theOption = this;
+							markup += "<option value='" + theOption.Value + "'>" + theOption.Text + "</option>";
+						});
+						markup += "</select></div>";
+						break;
+					case 'check':
+						markup += "<div class='inputcontrol'><input type='checkbox' rel='" + theField.Name + "' /></div>";
+						break;
+					case "label": 
+					default: 
+						// label - only has a  text - no control
+						break;
+				}
+				markup += "</div>"; // row end
+			});
+			markup += "</div>"; // form table end
+			return markup;
+		},
+		fill:function(data,theFields){
+			$.each(theFields, function () {
+				var actfield = this;
+				var actControl = $("#inputmask [rel='" + actfield.Name + "']");
+				if (actfield.Control != "label" && actfield.Control != "") {
+					// workaround for values not existing in the select-options-list:
+					if (actfield.Control == "select" && !actControl.find("option[value='" + data[actfield.Name] + "']").length) {
+						// option does not exist, select first entry of the list
+						actControl.val(actControl.find("option:first").val());
+					}
+					else{
+						actControl.val(data[actfield.Name]);
+					}
+				}
+			});
+		},
+		save: function(theFields, objectTypeID, objectID, objectNameText, actionText){
+			/* 	theFields:		Array of fields
+				objectTypeID:	Type of object to save
+				objectID:		The ID of the object (0=new)
+				objectNameText:	for success and error messages eg. "Category" 
+				actionText: 	performed action eg. "saved" or "updated" ... 
+			*/
+			var theParameters = {};
+			if ( typeof(objectTypeID) == "undefined" ){
+				objectTypeID = 0;
+			}
+			theParameters.ObjectTypeID = objectTypeID.toString();
+			if ( typeof(objectID) == "undefined" ){
+				objectID = 0;
+			}
+			theParameters.ObjectID = objectID.toString();
+			if ( typeof(objectNameText) == "undefined" ){
+				objectNameText = "";
+			}
+			if ( typeof(actionText) == "undefined" ){
+				actionText = "done";
+			}
+			//theParameters.ParentID = 0;
+			theParameters.DateCreated = helper.datetimeDB();
+			$.each(theFields, function () {
+				var actfield = this;
+				if (actfield.Control != "label" && actfield.Control != "") {
+					theParameters[actfield.Name] = $("#inputmask [rel='" + actfield.Name + "']").val();
+				}
+			});
+			var params = {i: objectID, v: theParameters };
+			var dataname = "";
+			switch(objectTypeID){
+				case 1: 
+					dataname = "seller";
+					break;        
+				case 2: 
+					dataname = "product";
+					break;        
+				case 3: 
+					dataname = "sellerproduct";
+					break;        
+				case 4: 
+					dataname = "category";
+					break;        
+				case 5: 
+					dataname = "location";
+					break;        
+				case 6: 
+					dataname = "tipp";
+					break;        
+				default:
+					alert("undefined objectTypeID");
+					break;
+			}
+			app.dataAPI("setData",dataname, params, function (err, data) {
+				if (!err) {
+					var result = data;
+					if (data == "saved" || data== "updated") {
+						helper.popup.hide();
+						helper.info.add("success", objectNameText + " " + actionText + "!", true);
+					}
+					else {
+						helper.info.add("warning", objectNameText + " nicht " + actionText + ".<hr/><p>" + JSON.stringify(data) +
+										"</p><hr/>Bitte kontrollieren Sie die Eingaben und versuchen Sie es erneut.", true);
+					}
+				}
+				else {
+					app.errorLog(err);
+					helper.info.add("error", "Es ist ein Fehler aufgetreten:<hr/><p>" + JSON.stringify(data) +
+									"</p><hr/>Bitte informieren Sie den Administrator", false);
+					helper.popup.hide();
+				}
+
+			});
+		}
+	},
+    share: function(message, subject, image, link){
+		/**	Sharing 
+		Use Phones Share dialogue if accessible
+		---------------------------------------
+		<button onclick="window.plugins.socialsharing.share('Message only')">message only</button>
+		<button onclick="window.plugins.socialsharing.share('Message and subject', 'The subject')">
+			message and subject
+		</button>
+		<button onclick="window.plugins.socialsharing.share(null, null, null, 'http://www.in-u.at')">
+			link only
+		</button>
+		<button onclick="window.plugins.socialsharing.share('Message and link', null, null, 'http://www.in-u.at')">
+			message and link
+		</button>
+		<button onclick="window.plugins.socialsharing.share(null, null, 'http://www.in-u.at', null)">
+			image only
+		</button>
+		// Hint: you can share multiple files by using an array as thirds param: ['file 1','file 2', ..]
+		<button onclick="window.plugins.socialsharing.share('Message and image', null, 'http://www.in-u.at/images/srpr/logo4w.png', null)">
+			message and image
+		</button>
+		<button onclick="window.plugins.socialsharing.share('Message, image and link', null, 'http://www.in-u.at/images/srpr/logo4w.png', 'http://www.in-u.at/')">
+			message, image and link
+		</button>
+		<button onclick="window.plugins.socialsharing.share('Message, subject, image and link', 'The subject', 'http://www.in-u.at/images/srpr/logo4w.png', 'http://www.x-services.nl')">
+			message, subject, image and link
+		</button>
+
+		Sharing on Webbrowser
+		---------------------
+			
+		*/
+			// only used if on mobile device, otherwise the link - method via web-browser is used
+			// initially set all parameters to null for not used parts to ensure the proper function of the sharing plugin
+			console.log("sharing pressed");
+			var theMessage = null;
+			var theSubject = null;
+			var theImage = null;
+			var theLink = null;
+			if (typeof(message) != "undefined"){ 
+                theMessage = message;
             }
-            markup += "</div>"; // row end
-        });
-        markup += "</div>"; // form table end
-        return markup;
-    },
-    /** GUI & Controls 
+			if (typeof(subject) != "undefined"){ 
+                theSubject = subject;
+            }
+			if (typeof(image) != "undefined"){ 
+                theImage = image;
+            }
+			if (typeof(link) != "undefined"){ 
+                theLink = link;
+            }
+			window.plugins.socialsharing.share(theMessage, theSubject, theImage, theLink);
+	},
+	/** GUI & Controls 
     ------------------------------------ */    
     //* select an option by Text or Value 
     selectByText: function(elementID, text) {

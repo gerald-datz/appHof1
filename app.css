@@ -179,12 +179,16 @@ a, a:active, a:link, a:visited {
 .btn{
 	cursor:pointer;
 	cursor:hand;
+	text-transform:uppercase;
 }
 
 .btn-icon{
 	display:inline-block;
 	width:50px;
 	height:40px;
+}
+.btn-icon.btn-multi{
+	width:auto;
 }
 .btn-icon i {
     display: inline-block;
@@ -193,14 +197,17 @@ a, a:active, a:link, a:visited {
 	width:40px;
     padding-top: 10px;
 }
-	input, textarea {
+	input, textarea, select {
 		font-size:100%;
 		padding:8px;
 		margin:3px;
-		border-radius:5px;
+		border-radius:3px;
 		-moz-border-radius:5px;
 		-webkit-border-radius:5px;
-		border: 1px solid;
+		border: 1px solid #ccc;
+		max-width:100%;
+		color:#5B5B5B;
+		font-family:SourceSansPro-Light, sans-serif;
 	}
 
 	
@@ -324,23 +331,51 @@ a, a:active, a:link, a:visited {
 				min-height:40px;
 				
 				margin:5px;
-				padding:5px;
+				padding:10px 5px 5px 5px;
 				
-				border:1px solid #000;
+				border:0px solid #000;
 			}
 
 /* ------------ info popup ------------- */
 	#info{
 		position:absolute;
-		top:0px;
+		bottom:5px;
 		left:0px;
 		display:block;
 		
 		padding:0px;
 		opacity:1;
 		z-index:40;
+		
+		width:100%;
+        max-width:100%;
+		height:auto;
+        text-align: center;
 	}
 
+        .infoelement{
+            position:relative;
+            border:2px solid #4f4f4f;
+            border-radius:5px;
+            padding:5px 30px 5px 10px;
+            display:block;
+            margin:1px auto;
+            width:90%;            
+        }
+            .infoclose{
+                position:absolute;
+                right:5px;
+                top:5px;
+                width:40px;
+                height:40px;
+                display:block;
+                font-size:150%;
+                font-weight:bold;
+                color:#fff;
+                cursor:pointer;
+                cursor:hand;
+            }
+			
 /* ###################################################
 					  main app
    ################################################### */
@@ -669,28 +704,28 @@ a, a:active, a:link, a:visited {
 	}
 	
 /* x-large devices 4-elements*/
-@media screen and (min-width:1020px){
+@media screen and (min-width:1400px){
 	ul.tippsList{margin-left:0.5%;}
 	li.tipps{
 		width:24.5%;
 	}
 }
 /* large devices 3-elements*/
-@media screen and (max-width:1019px){
+@media screen and (max-width:1399px){
 	ul.tippsList{margin-left:0.5%;}
 	li.tipps{
 		width:33%;
 	}
 }
 /* medium devices 2-elements*/
-@media screen and (max-width:767px){
+@media screen and (max-width:1024px){
 	ul.tippsList{margin-left:0.5%;}
 	li.tipps{
 		width:49.5%;
 	}
 }
 /* small devices &  x-small devices */
-@media screen and (max-width:479px){
+@media screen and (max-width:679px){
 	ul.tippsList{margin-left:0.5%;}
 	li.tipps{
 		width:99%;
@@ -717,6 +752,7 @@ a, a:active, a:link, a:visited {
 			background-size:auto;
 			background-position:50% 50%;
 		}
+	
 		img.tippsImage{
 			position:relative;
 			display:block;
@@ -1211,8 +1247,21 @@ img.lazy{
 }
 
 
-/* marker-cluster color overrides */
+/* Responsive Tabs for admin overrides */
+.resp-tab-active {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #18A1A8 #c1c1c1 -moz-use-text-color;
+    border-image: none;
+    border-style: solid solid none;
+    border-width: 3px 1px medium;
+    margin-bottom: -1px !important;
+    padding: 12px 14px 14px !important;
+}
 
+/* marker-cluster color overrides */
 .marker-cluster-small {
 	background-color: rgba(51,173,106, 0.6);
 	}

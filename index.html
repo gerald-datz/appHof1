@@ -13,14 +13,16 @@
 	<link rel="stylesheet" href="css/MarkerCluster.css" />
 	<link rel="stylesheet" href="css/MarkerCluster.Default.css" />
 	
+	<link rel="stylesheet" href="css/easy-responsive-tabs.css" />	
+	
 	<link rel="stylesheet" href="app.css" />
 	<title>AppHOF</title>
 </head>
 
 <body>
 	<!-- mask and overlays -->
+	<div id="info"></div>
 	<div id="mask">
-		<div id="info"></div>
 		<div id="popup" class="popup-modal darkgray">
 			<div class="popup-head table white">
 				<span class="tr">
@@ -36,12 +38,12 @@
 				
 				</div>
 				<div class="popup-buttons">
-					<span class="btn btn-ok white green-bd green-bg" >
-						<i class="et et-check"></i>
+					<span class="btn btn-ok blue" >
+						<!--<i class="et et-check"></i>-->
 						<span class="btn-text">Speichern</span>
 					</span>
-					<span class="btn btn-cancel lightgray lightgray-bd white-bg" >
-						<i class="et et-cross"></i>
+					<span class="btn btn-cancel red" >
+						<!--<i class="et et-cross"></i>-->
 						<span class="btn-text">Abbrechen</span>
 					</span>
 				</div>
@@ -220,7 +222,7 @@
 							Admin Menü
 						</li>
 						<li class="tg">
-							<div class="tr btn btn-pg menu-item" rel="seller">
+							<div class="tr btn btn-pg menu-item" rel="admin">
 								<span class="menu-item-icon td align-center vertical-middle">
 									<i class="et et-tools"></i>
 								</span>
@@ -279,6 +281,9 @@
 	<script src="js/leaflet.js"></script>
 	<script src="js/leaflet.markercluster.js"></script>
 	<script src="js/jquery.touchSwipe.min.js"></script>
+	<script src="js/easyResponsiveTabs.js"></script>
+	<script src="js/jquery.fastLiveFilter.js"></script>
+	
 	<script src="app.js"></script>
 	<!-- app scripts -->
 </body>
