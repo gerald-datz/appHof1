@@ -39,174 +39,164 @@ var testuserid = 2;
 // initialize map and set user position marker and define click function
 var map;
 var tiles;
+// updateable user-Marker on Map
+var meMarkerIcon;
+var mePosMarker;
 
 window.onresize = function(event) {
 	//resizeDivs("automatic");
     app.screenChange();
 }
+
 // intialize helper and app
 $(document).ready(function() {
-    helper.initialize();
-    app.initialize();
+	console.log("document ready ...");
+	// add deviceready event to bind the hardwarekeys (back, menu) to the proper functions and use phone functions safely now
+	document.addEventListener('deviceready', function(){		
+		console.log("device ready ...");
+		helper.deviceready();
+	}, false);
+	helper.initialize();
 });
 
 /**###################################################
 			main app properties & methods
    ################################################### */
 var app={
-    /** general app parameters
-        ------------------------------------ */
+    /** general app parameters ------------------------------------ */
 	name: 'AppHof',
-	user: 'nicht angemeldet',
-	pass: '',
-	auth: '',
+	user: '',
+	auth: 'anonymous',
     baseURL: 'http://fair.in-u.at/',
 	serviceURL: 'http://fair.in-u.at/DesktopModules/inuFair/API/WS/',
 	imageURL: 'http://fair.in-u.at/bbimagehandler.ashx',
     imageUserURL: 'http://fair.in-u.at/profilepic.ashx',
-    isApp: false, //deviceready does not fire on normal browsers - so default is false - check done in deviceready
-    /** persistent data objects 
-        ------------------------------------ */
+	/** persistent data objects ----------------------------------------------- */
     obj: {
-        user:{
-			Name:"nicht angemeldet", 
-			ID:0
-		},
+        user:{},
         categorys:{},
-        locations:{},
-        getObjItem: function(obj, key, value) {
-            for (var i = 0; i < obj.length; i++) {
-                if (obj[i][key] == value) {
-                    return obj[i];
-                }
-            }
-            return null;
-        }
-    },    
-    
-    /** app options, status, eventbinding
-        & fetching of persistent data objects
-        ------------------------------------ */
-	options:{
-        retryTimeOut:   500,
-		language: 		'de',
-        gpsTimeout:     5000 // timeout for trying to get GPS coordinates on gps check
-	},
-    status: {
-        screenHeight: 100,
-        screenWidth: 100,
-        online: false,
-        geoinfo: false,
-        lat: "48.20857355", // latitude Stephansdom
-        lon: "16.37254714" // longitude Stephansdom
+        locations:{}
     },
-	initialize: function () {
+    initialize: function () {
         $("#pageTitle").text($(".page.active").attr("pghead"));
-		console.log("initialized...");
-		// USER / PASS INCORRECT 
-        /*if (app.data.get("appHof_U") != "err"){
-			var un =app.data.get("appHof_U");
-            app.user = un;
-			$("#loginUser").val(un);
-            app.obj.user.Name= un;
-            var pw = app.data.get("appHof_P");
-			app.pass = pw;
-			$("#loginPass").val(pw);
-            app.obj.user.ID=app.data.get("appHof_UI");			
-        }
-		else*/ if (testuser != ""){
-            app.user=testuser;
-            app.pass=testpass;
-            app.obj.user.Name=testuser;
-            app.obj.user.ID=testuserid;
-        }
-        
-        // init screen diminsions for overlays
-        app.status.screenHeight=$(window).height() - 50;
-        app.status.screenWidth=$(window).width();
-        app.auth = Base64.encode(app.user + ":" + app.pass);
-        
-        // init helper functions
-        //helper.initialize();
-        
+		console.log("app initialize...");
+		// initially do not show password cleartext in settings
+		$("#settingsUserShowPass").prop("checked",false);
+		
 		//bind handler for menu items click functions
-        this.bind();
-        
-        // Allow Cross domain requests per ajax!
-		$.support.cors = true;
-                
-        // get persistent data objects for later use
-        app.dataAPI("getData","categorys",{},function(err,data){
-            if(!err){
-                app.obj.categorys = data;
-            }
-            else{
-                app.errorLog(err);
-            }
-        });                
-        app.dataAPI("getData","locations", {},function(err,data){
-            if(!err){
-                app.obj.locations = data;
-            }
-            else{
-                app.errorLog(err);
-            }
-        });     
-        
-        //get the data for admin functions if applicable
-        app.dataAPI("getData","adminpage", {},function(err,data){ 
-            if(!err){
-				$("#admin-page").empty();
-                $("#admin-page").append(data);
-				$("#menu-admin").removeClass("hidden");
-            }
-        });
+        app.bind();
 		
-		//get the data for seller functions if applicable
-		app.dataAPI("getData","sellerpage", {},function(err,data){ 
-            if(!err){
-                $("#seller-page").empty();
-                $("#seller-page").append(data);
-				$("#menu-seller").removeClass("hidden");
-            }
-        });
-		
-		// load actual tipps
-		app.tipp.list("tippsList","box");
-		
-		// init the map screen
-        app.map.init();
-        
-        $("#userImage").attr("src", app.imageUserURL + "?userId=" + app.obj.user.ID + "&h=64&w=64");
+		// app start procedure
+		if (helper.online.state){
+			// autologin ?
+			if(helper.settings.get("AutoLogin") == true){
+				// get logindata
+				var us = helper.settings.get("UserName");
+				var pw = helper.settings.get("UserPass");
+				if	(us != "" && us != false && pw != "" && pw != false){
+					// got login from local store - try to login
+					app.auth = Base64.encode(us + ":" + pw);
+					app.user = us;
+					app.login(
+						function(result){
+							// callback from login function
+							if (result != "failed"){
+								//nothing to do ... everyting ok
+							}
+							else{
+								//login failed - show message - show loginForm?
+								app.loginerror();			
+							}
+						}					
+					);								
+				}
+				else{
+					// no login in local store
+					app.loginerror();
+				}
+			}
+			else{
+				// do not autologin - use anonymous
+				app.logout();			
+			}
+			app.appdata.online();
+			
+			// init the map screen and set markers if not present
+			if(typeof(map) == "undefined"){
+				app.map.init();
+			}
+		}
+		else{
+			// not online - use offline - do not try to load online data
+			// is this the first start of the app? - if so - show message - first start needs mobile to load minimum offline data
+			
+			// else - use offline data in localstore
+			app.appdata.offline();
+			
+			// init the map screen and set markers if not present
+			if(typeof(map) == "undefined"){
+				app.map.init();
+			}
+		}		
+		// ############################ END OF APP.INITIALIZE !!! #############################		
 	},
     // MENU clicks and header button clicks binding
 	bind: function () {
-		console.log("bind...");
-        // add deviceready event to bind the hardwarekeys (back, menu) to the proper functions
-		document.addEventListener('deviceready', this.deviceready, false);
-        
+		console.log("app bind...");
+                
         // bind menu buttons click handler
-        $("#btn-menu").click(function(){ 
+        $("#btn-menu").unbind('click').click(function(){ 
 			app.menu.toggle();
         });
 		
-		$("#exitBtn").click(function(){
+		$("#exitBtn").unbind('click').click(function(){
 			app.exit();
 			app.menu.close();
         });
 		
 		// bind menu items & header Buttons click handler
-		$(".btn-pg").click(function(){
+		$(".btn-pg").unbind('click').click(function(){
 			app.menu.close();
             app.page.show($(this).attr("rel"));
         });
         
-		$("#menuCloseTop").click(function(){
+		$("#menuCloseTop").unbind('click').click(function(){
 			app.menu.close();
         });
 		
+		// login and logout buttons
+		$("#menu-login").unbind('click').click(function(){
+			// get logindata
+			var us = helper.settings.get("UserName");
+			var pw = helper.settings.get("UserPass");
+			if	(us != "" && us != false && pw != "" && pw != false){
+				// got login from local store - try to login
+				app.auth = Base64.encode(us + ":" + pw);
+				app.user = us;
+				app.login(
+					function(result){
+						// callback from login function
+						if (result != "failed"){
+							//nothing to do ... everyting ok
+						}
+						else{
+							//login failed - show message - show loginForm?
+							app.loginerror();			
+						}
+					}					
+				);								
+			}
+			else{
+				// no login in local store
+				app.loginerror();
+			}
+        });
+		$("#menu-logout").unbind('click').click(function(){
+			app.logout();
+        });
+		
 		// bind search input keyup & button
-		$("#searchMain").keyup(function(e) {
+		$("#searchMain").unbind('keyup').keyup(function(e) {
 			var code = e.keyCode || e.which;
 			if(code == 13) { //Enter pressed - search now
 			   app.search.result($("#searchMain").val());
@@ -215,90 +205,164 @@ var app={
 				app.search.suggest($("#searchMain").val());
 			}
 		});
-		$("#searchNow").click(function() {
+		$("#searchNow").unbind('click').click(function() {
 			app.search.result($("#searchMain").val());
-		});
-	},
-	deviceready: function () {
-		// note that this is an event handler so the scope is that of the event ( which happens outside of "app" in "window" )
-		// so we need to call e.g. app.menuKeyDown(), and not this.menuKeyDown()
-		console.log('device ready...');
-		// bind menu and back buttons ... (in the App)
-		document.addEventListener("menubutton", app.menuKeyDown, true);
-		document.addEventListener("backbutton", app.backKeyDown, false);
-        
-        //check internet connection
-        if (navigator.online) {
-            // check if server is reachable
-            app.status.online=true;            
-        }
-        else{
-            // ???
-            app.status.online=false;
-        }
-        
-        // check if geolocation is available
-        if (navigator.geolocation) {
-            var timeoutVal = app.options.gpsTimeout;
-            navigator.geolocation.getCurrentPosition(
-                function(position){
-                    // success
-                    app.status.lat = position.coords.latitude;
-                    app.status.lon = position.coords.longitude;
-                    //window.gpsAcc = position.coords.accuracy;
-                    app.status.geoinfo = true;
-                },
-                function(){
-                    // error
-                    app.status.geoinfo = false;                    
-                },
-                {
-                    // gegolocation parameters
-                    enableHighAccuracy: true,
-                    timeout: timeoutVal,
-                    maximumAge: 0
-                }
-            );           
-        } 
-        else {
-           // ???
-            alert("GPS not enabled or allowed");
-            app.status.geoinfo = false;
-        }
+		});	
 		
-		// check if running in browser or on phoneApp
-		if ( helper.isMobileApp() ) {
-			//alert("Running on Mobileapp!");
-			app.isApp = true;
-			$("body").addClass("mobileApp");
-		} else {
-			// maybe this does not ever fire - but keep it for future browsers...
-			//alert("Running NOT on PhoneGap!");
-			app.isApp = false;
-			$("body").removeClass("mobileApp");
+	},    
+	appdata:{
+		vis: 0,
+		vistarget: 3,
+		bg: 0,
+		maxtrials: 10,  // 10 times maximum retrytimeouts
+		tried: 0,
+		checkvis: function(){
+			if (app.appdata.vis >= app.appdata.vistarget){
+				helper.splash.hide();
+				helper.spinner.hide();
+			}
+			else{	
+				app.appdata.tried++;
+				// ensure the splash disappears after at least 10 seconds
+				if (app.appdata.tried >= app.appdata.maxtrials){
+					helper.splash.hide();
+					helper.spinner.hide();
+					// end interval
+				}
+				else{					
+					setTimeout(function () {
+						// hide the splash screen after all visible data is loaded or failed?
+						app.appdata.checkvis();
+					}, helper.retryTimeOut);
+				}
+			}
+		},
+		online:function(initial){			
+			// load online data	-----------------------------------  TODO ###############################################################
+			// load visible data and hide splash afterwards
+			app.appdata.vis=0;
+			app.appdata.checkvis();
+			/** ------------------------------------------------------------------
+					load visible and necessary items for the app		
+			---------------------------------------------------------------------- */
+			// get persistent data objects for later use
+			helper.dataAPI("getData","categorys",{},function(err,data){
+				if(!err){
+					app.obj.categorys = data;
+					app.appdata.vis++;
+				}
+				else{
+					helper.errorLog(err);
+				}
+			});                
+			helper.dataAPI("getData","locations", {},function(err,data){
+				if(!err){
+					app.obj.locations = data;
+					app.appdata.vis++;
+				}
+				else{
+					helper.errorLog(err);
+				}
+			});     
+			
+			// load actual tipps
+			app.tipp.list("tippsList","box");
+			
+			
+			/** ------------------------------------------------------------------
+				load all other background items - app is now ready to be used		
+			---------------------------------------------------------------------- */
+			app.appdata.bg = 0;
+			//get the data for admin functions if applicable
+			helper.dataAPI("getData","adminpage", {},function(err,data){ 
+				if(!err){
+					$("#admin-page").empty();
+					$("#admin-page").append(data);
+					$("#menu-admin").removeClass("hidden");
+					app.appdata.bg++;
+				}
+			});
+			//get the data for seller functions if applicable
+			helper.dataAPI("getData","sellerpage", {},function(err,data){ 
+				if(!err){
+					$("#seller-page").empty();
+					$("#seller-page").append(data);
+					$("#menu-seller").removeClass("hidden");
+					app.appdata.bg++;
+				}
+			});
+			
+			// aktualisiere offlinedata für nächste offline verwendung
+			
+		},
+		offline:function(){
+			// check if neccessary offline data is present...
+			// load offline data	-----------------------------------  TODO ###############################################################
 		}
 	},
-    //remove mobileinit if only for jQ mobile because jQmobile is not used here #############################################################
-    mobileinit: function () {
-        
-        // only for jQuery mobile ???
-		console.log("mobile init ...");
-		// Allow Cross domain requests per ajax also for the mobile device!
-		$.mobile.allowCrossDomainPages = true;		
+	/** login functions */
+	login: function(callback){
+		// try to login
+		// get the user info data
+		helper.dataAPI("getData","userdata",{},function(err,data){
+            if(!err){
+                app.obj.user.UserID = data.UserID;
+                app.obj.user.UserName = data.UserName;
+                app.obj.user.DisplayName = data.DisplayName;
+                app.obj.user.Email = data.Email;
+                app.obj.user.Approved = data.Approved;
+				loginfail = 0;
+				app.menu.userinfo();
+				// update user image and name in menu				
+				callback('ok');
+            }
+            else{
+				app.logout();
+				app.loginfail++;
+                helper.errorLog(err);
+				callback('failed');
+            }
+        });   
 	},
-    /** page and menu functions
-        ------------------------------------ */
-    // common page and menu functions
-	screenChange:function(){        
-        app.status.screenHeight=$(window).height() - 50;
-        app.status.screenWidth=$(window).width();
+	loginfail: 0,
+	loginerror: function(){
+		var markup = "<p class='red'>Sie haben noch keine Zugangsdaten? Registrieren Sie sich kostenlos und profitieren Sie von vielen nützlichen Funktionen der App.</p><p class='blue'>Wenn Sie bereits Zugangsdaten haben kontrollieren Sie bitte die Einstellungen und versuchen Sie erneut sich anzumelden.</p>";
+		helper.popup.show('Ungültige Anmeldedaten',
+				markup,
+				'et et-user',
+				true,
+				true,
+				function () { // callback from SETTINGS button
+					app.logout();	
+					app.page.show("settings");
+					helper.popup.hide();
+				},
+				function () { // callback REGISTER button
+					app.logout();	
+					app.page.show("signup");
+					helper.popup.hide();
+				},
+				"EINSTELLUNGEN",
+				"REGISTRIEREN"
+		);		
+	},
+	logout:function(){
+		// clear userinfo
+		app.obj.user = {};
+		app.user = '';
+		app.auth = 'anonymous'
+		app.menu.userinfo();
+	},
+	/** page and menu functions ------------------------------------ */
+    screenChange:function(){         
+        helper.screen.height = helper.check.screen.height();
+        helper.screen.width = helper.check.screen.width();
         	
         if (map){
            app.map.refresh();
-        }
-        
+        }        
     },
-    page: {
+	page: {
         show: function(pageName){
             var pageTitle = $(".page[rel=" + pageName + "]").attr("pghead");
             // set all pages to inactive
@@ -327,6 +391,31 @@ var app={
 		app.menu.toggle();
 	},
 	menu: {
+		userinfo: function(){
+			if (typeof(app.auth) == "undefined" || app.auth == '' || app.auth == 'anonymous'){
+				$("#menu-user-image").attr("src", "img/no_avatar.gif");
+				$("#menu-user-name").text("nicht angemeldet");
+				// hide logout, show login
+				$("#menu-login").removeClass("hidden");
+				$("#menu-logout").addClass("hidden");
+			}
+			else{
+				if (app.obj.user.UserID != 'undefined' && app.obj.user.UserID != undefined){
+					$("#menu-user-image").attr("src", app.imageUserURL + "?userId=" + app.obj.user.UserID + "&h=100");
+					$("#menu-user-name").text(app.obj.user.UserName);
+					// hide login, show logout
+					$("#menu-login").addClass("hidden");
+					$("#menu-logout").removeClass("hidden");
+				}
+				else{
+					$("#menu-user-image").attr("src", "img/no_avatar.gif");
+					$("#menu-user-name").text("nicht angemeldet");
+					// hide logout, show login
+					$("#menu-login").removeClass("hidden");
+					$("#menu-logout").addClass("hidden");
+				}				
+			}
+		},
 		open: function(){
 			// scroll to top of menu on open
 			$("#menu .menu-main").scrollTop(0);
@@ -355,7 +444,7 @@ var app={
 		else if ( $("popup").hasclass("open") ){
 			helper.popup.hide();
 		}
-		else if ( $(".page.active").attr("rel") == "start" && helper.isMobileApp ){
+		else if ( $(".page.active").attr("rel") == "start" && helper.app ){
 			app.exit();
 		}
 		
@@ -378,7 +467,7 @@ var app={
 	search:{
 		suggest: function(searchstring){
 			//get the data and handle callback
-                app.dataAPI("getSuggest","no", {'n': 10, 's': searchstring},function(err,data){ 
+                helper.dataAPI("getSuggest","no", {'n': 10, 's': searchstring},function(err,data){ 
                     if(!err){
 						$("#searchSuggests").empty();
 						var suggestions = "";		
@@ -440,7 +529,7 @@ var app={
 						$(".ellipsis").ellipsis();
 					}
                     else{
-                        app.errorLog(err);
+                        helper.errorLog(err);
                     }
                 });
 		},
@@ -453,6 +542,7 @@ var app={
 	},
     // map page functions
     map: {
+		zoom: 9,
         init: function(){
             // init Map - workaround for map size bug
             $('#map').height($(document).height());
@@ -461,11 +551,26 @@ var app={
             //initialize the map page
             tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            }), latlng = new L.LatLng(parseFloat(app.status.lat), parseFloat(app.status.lon));
+            }), latlng = new L.LatLng(parseFloat(helper.gps.lat), parseFloat(helper.gps.lon));
 
-            map = L.map('map', {center: latlng, zoom: 9, layers: [tiles]});
+            map = L.map('map', {center: latlng, zoom: app.map.zoom, layers: [tiles]});
             app.map.markersSet();
 
+			// define meMarker - this is a special "updateable" marker for the users positon hat will be updated by a interval and not set over and over again 
+			var meIcon = L.Icon.extend(
+			{
+				options: {
+					iconUrl: 	'img/userpos32.png',
+					iconSize: 	new L.Point(32, 32),
+					iconAnchor: new L.Point(14, 14),
+					shadowUrl: 	'img/blank16.png',
+					shadowSize: new L.Point(28, 28),
+					popupAnchor:new L.Point(0, -12)
+				}
+			});
+			meMarkerIcon = new meIcon(); 
+			mePosMarker = new  L.LatLng(parseFloat(helper.gps.lat), parseFloat(helper.gps.lon)), mePosMarker = new L.Marker(mePosMarker,{icon: meMarkerIcon});
+			map.addLayer(mePosMarker);  
         },
         refresh: function(){
             console.log("Refreshing Map");
@@ -507,23 +612,25 @@ var app={
             else {
                  setTimeout(function () {
                     app.map.markersSet();
-                 }, app.options.retryTimeOut);
+                 }, helper.retryTimeOut);
             }
         },
+		mypos: function(){
+			mePosMarker.setLatLng([parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)]).update();
+			map.setView(new L.LatLng(parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)), app.map.zoom);
+		},
+		findpos: function(coordLat, coordLon, zoom){
+			if(typeof(zoom) == "undefined"){
+				zoom = app.map.zoom;
+			}
+			map.setView([coordLat, coordLon], zoom);
+			//map.panTo(new L.LatLng(coordLat, coordLon));
+		},
 		marker:{
 			// click on marker - show the details
 			click: function(locID){
 				app.location.details.show(locID);
 			}
-		},
-		location:{
-			show: function(locID){
-			
-			}
-		},
-		center: function(coordLat, coordLon, zoom){
-			map.setView([coordLat, coordLon], zoom);
-			//map.panTo(new L.LatLng(coordLat, coordLon));
 		}
     },
     // location functions
@@ -531,7 +638,7 @@ var app={
         details:{
             // slideUp Location Details for a specified locationID
 			show:function(locID){
-				app.dataAPI("getData","locationdetails", {'i': locID},function(err,dataObj){
+				helper.dataAPI("getData","locationdetails", {'i': locID},function(err,dataObj){
 					if(!err){
 						var data = dataObj[0];
 						var markup = "";
@@ -592,7 +699,10 @@ var app={
 							// change slashes to backslashes in url for bbimghandler
 							webshort = webshort.replace(/\//g, "\\");   
 
-							markup += "<div><img style='border: 1px solid #eee;' src='" + app.imageURL + "?Url=" + webshort + "&width=200&ratio=screen' />" + "</a>"; 
+							markup += "<div>";
+							markup += "<img style='border: 1px solid #eee;' src='" + app.imageURL + "?Url=" + webshort + "&height=100&ratio=screen' />";
+							markup += "<img class='hide-xs hide-sm' style='margin-left:10px;' src='" + app.imageURL + "?barcode=1&width=100&height=100&type=qrcode&content=" + encodeURIComponent(webshort) + "' />"; 
+							markup += "</a>"; 
 							markup += "</td></tr>";
 						}
 
@@ -605,7 +715,7 @@ var app={
 							$.each(Cats, function(){
 								var catID=this;
 								if (catID > 0 && catID < 9999){						
-								var catInfo = app.obj.getObjItem(app.obj.categorys,"ID",catID);
+								var catInfo = helper.getObjItem(app.obj.categorys,"ID",catID);
 									if (catInfo){
 										markup += "<span class='catIcon' style='color:" + catInfo.Color + ";background:" + catInfo.Background;
 										markup += ";' title='" + catInfo.Name + "'>";
@@ -624,7 +734,7 @@ var app={
 							markup += "<h4>Beschreibung</h4>";
 							markup += data.DescLong;
 						}
-						if (app.obj.user.ID == 0){
+						if (app.obj.user.UserID == 0){
 							// dont allow comments
 							markup += "<h2>Kommentare</h2>";
 						}
@@ -653,7 +763,7 @@ var app={
 						app.comment.markup.get("commentswrapper",5,data.ID);
 					}
 					else{
-						app.errorLog(err);
+						helper.errorLog(err);
 					}
 				});
 			}
@@ -668,7 +778,7 @@ var app={
 			//get the data and handle callback
 				var itemID = 0;
 				var objecttypeID = 0;
-                app.dataAPI("getData","tipps", {'i': itemID, 'o':objecttypeID},function(err,dataset){
+                helper.dataAPI("getData","tipps", {'i': itemID, 'o':objecttypeID},function(err,dataset){
                    if(!err){
                         var markup = "";
 						
@@ -681,8 +791,8 @@ var app={
 							markup += "     <span class='tipps row1 tr'>";      
 							markup += "       <span class='tipps td vertical-middle align-left'>";   
 							markup += "         <span class='createdDate tippsTop'>" + data.DateCreated + "</span>&nbsp;";        
-							markup += "         <span class='trashBtn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-trash'></i></span>"; 
-							markup += "         <span class='optionsBtn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-three-dots'></i></span>";
+							markup += "         <span class='trashBtn btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-trash'></i></span>"; 
+							markup += "         <span class='optionsBtn btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-three-dots'></i></span>";
 							markup += "       </span>";                                   
 							markup += "     </span>";       
 							markup += "     <span class='tipps row2 tr'>";      
@@ -711,7 +821,7 @@ var app={
 						setTimeout(function(){
 							// update default-images with the correct ones
 							var theWrapperID = wrapperID;
-							app.image.update(theWrapperID);
+							helper.image.update(theWrapperID);
 							// update optionbuttons click handler
 							var selector = $("#" + wrapperID + " span.optionsBtn");
 							$.each(selector, function(){
@@ -732,10 +842,11 @@ var app={
 								});
 							});
 						},500);
-						
+						// note down that the data was loaded (for appstart)
+						app.appdata.vis++;
                     }
                     else{
-                        app.errorLog(err);
+                        helper.errorLog(err);
                     }
                 });
         },
@@ -768,7 +879,7 @@ var app={
 				markup += "    </span>";
 				markup += "  </div>";
 				markup += "  <div class='tr'>";
-				if (app.isApp){
+				if (helper.app){
 					markup += "    <span class='td tippShare vertical-middle'>";
 					markup += "      Diesen Tipp teilen";
 					markup += "    </span>";
@@ -869,13 +980,13 @@ var app={
 					// delay this function
 					setTimeout(function(){
 						app.tipp.options.bind(theTippID);
-					},app.options.retryTimeOut);
+					},helper.retryTimeOut);
 				}
 			}
 		},
 		details:function(tippID){
 			// check what kind of tipp this is and what to show as details
-			app.dataAPI("getData","tipps", {'i': tippID, 'o': 0},function(err,dataset){ 
+			helper.dataAPI("getData","tipps", {'i': tippID, 'o': 0},function(err,dataset){ 
 				if(!err){
 					var data = dataset[0];					
 					switch(data.ObjectTypeID){
@@ -903,19 +1014,19 @@ var app={
 					}
 				}
 				else{
-					app.errorLog(err);
+					helper.errorLog(err);
 				}
 				
 			}); 
 		},
 		map:function(tippID){
-			app.dataAPI("getData","tipps", {'i': tippID, 'o': 0},function(err,dataset){ 
+			helper.dataAPI("getData","tipps", {'i': tippID, 'o': 0},function(err,dataset){ 
 				if(!err){
 					var data = dataset[0];					
 					
 				}
 				else{
-					app.errorLog(err);
+					helper.errorLog(err);
 				}
 				
 			});
@@ -954,7 +1065,7 @@ var app={
         markup:{
             getSum:function(wrapperID, objecttypeID, itemID){
                 //get the data and handle callback
-                app.dataAPI("getData","uservotings-c", {'i': itemID, 'o':objecttypeID},function(err,dataset){ 
+                helper.dataAPI("getData","uservotings-c", {'i': itemID, 'o':objecttypeID},function(err,dataset){ 
                     if(!err){
                         var markup = "<span class='votingsum'>";
                         var data = dataset[0];
@@ -985,7 +1096,7 @@ var app={
                         $("#" + wrapperID ).html(markup);
                     }
                     else{
-                        app.errorLog(err);
+                        helper.errorLog(err);
                     }
                 });
             }
@@ -1041,8 +1152,8 @@ var app={
                                 function(){ // callback from OK button
                                     // save                                     
                                     var theParameters = {};
-                                    theParameters.UserID = app.obj.user.ID;
-                                    theParameters.StatusID = 0;
+                                    theParameters.UserID = app.obj.user.UserID;
+                                    theParameters.D = 0;
                                     theParameters.ObjectTypeID =objTypeID;
                                     theParameters.ObjectID = objID;
                                     theParameters.ParentID = 0;                
@@ -1054,7 +1165,7 @@ var app={
                                         }
                                     });
                                     var params = {v:theParameters};
-                                    app.dataAPI("setData","comment", params ,function(err,data){ 
+                                    helper.dataAPI("setData","comment", params ,function(err,data){ 
                                         if(!err){                                            
                                             var result = data;
                                             if (data == "saved"){
@@ -1070,7 +1181,7 @@ var app={
                                             }
                                         }
                                         else{
-                                            app.errorLog(err);
+                                            helper.errorLog(err);
                                             helper.info.add("error","Es ist ein Fehler aufgetreten:<hr/><p>" + JSON.stringify(data) + 
                                                             "</p><hr/>Bitte informieren Sie den Administrator",true);
                                             helper.popup.hide();
@@ -1087,7 +1198,7 @@ var app={
         markup:{
             get: function(wrapperID, objecttypeID, itemID){
                 //get the data and handle callback
-                app.dataAPI("getData","usercomments", {'i': itemID, 'o':objecttypeID},function(err,dataset){
+                helper.dataAPI("getData","usercomments", {'i': itemID, 'o':objecttypeID},function(err,dataset){
                    if(!err){
                         var markup = "<div class='comments'><ul class='comments'>";
                         $.each(dataset,function(){
@@ -1123,7 +1234,7 @@ var app={
                             markup += "<li class='comments'>";      
                             markup += "     <span class='comments col1'>";   
                             markup += "         <span class='createdDate'>" + data.DateCreated + "</span><br/>";                                
-                            markup += "         <img class='profileSmall' src='" + app.imageUserURL + "?userId=" + data.UserID + "&h=64&w=64'/><br/>";    
+                            markup += "         <img class='profileSmall' src='" + app.imageUserURL + "?userId=" + data.UserID +  "&h=64&w=64'/><br/>";    
                             markup += "         <span class='profileName'>" + data.DisplayName + "</span>";                 
                             markup += "     </span>";       
                             markup += "     <span class='comments col2'>";                 
@@ -1140,14 +1251,14 @@ var app={
                         helper.reverseLi($("#" + wrapperID + " ul:first"));
                     }
                     else{
-                        app.errorLog(err);
+                        helper.errorLog(err);
                     }
                 });
             },
             getSum: function(wrapperID, objecttypeID, itemID){
                 //get the data and handle callback
                 var markup = "";
-                app.dataAPI("getData","usercomments-c", {'i': itemID, 'o':objecttypeID},function(err,dataset){ 
+                helper.dataAPI("getData","usercomments-c", {'i': itemID, 'o':objecttypeID},function(err,dataset){ 
                     if(!err){
                         var data = dataset[0];
                         markup = "<span class='commentcount'>";
@@ -1162,22 +1273,385 @@ var app={
                         return markup;
                     }
                     else{
-                        app.errorLog(err);
+                        helper.errorLog(err);
                     }
                         $("#" + wrapperID ).html(markup);
                 });        
             }
         }
+	}
+};
+
+/**###################################################
+				Common Helper Functions
+			should be called after deviceready
+###################################################### */
+var helper = {
+	/** various status infos ------------------------------------ */
+	app: false, //deviceready does not fire on normal browsers - so default is false - check done in deviceready
+	online:{
+		state: false,
+		type: ""
 	},
+	screen:{
+		width:100,
+		height:100
+	},
+	gps:{
+		on: false,
+		success: false,	// indicates if last gpsRequest was successful
+		failed: 0,		// counts failed number of gps requests
+		timeout: 5000, 	// timeout for trying to get GPS coordinates on gps check	
+		lat: "48.20857355", // latitude Stephansdom
+		lon: "16.37254714", // longitude Stephansdom
+	},
+	locale:{
+		de: {
+			shortname: 'DE-DE',
+			currencycode: 'EUR',
+			currencysign: '€',
+			decimal:	',',
+			thousands:	'.'
+		},
+		us: {
+			shortname: 'EN-US',
+			currencycode: 'USD',
+			currencysign: '$',
+			decimal:	'.',
+			thousands:	','
+		}
+	},
+	retryTimeOut: 500, // timeout for retrying to fetch remote data
+    /** initialization and event binding ------------------------------------ */
+    initialize: function(){
+		// this is called on documentready:
+		console.log("helper initialize ...");
+		// document ready does not mean the device is ready and you can use phonegap functions
+		
+		// Allow Cross domain requests per ajax!
+		$.support.cors = true;
+		
+		// check if app or not
+		if (helper.check.mobileapp == true){
+			// this code runs in mobile app
+			helper.app = true;
+			console.log("executed as mobile app ...");
+		}
+		else{
+			// this code runs in browser
+			helper.app = false;
+			console.log("executed as browser app ...");
+		}		
+		// check browser/app independent status infos
+		helper.online.state = helper.check.online();
+		helper.online.type = helper.check.network();
+		
+		helper.screen.width = helper.check.screen.width();
+		helper.screen.height = helper.check.screen.height();
+		
+		if (helper.settings.get("GPS") == true){
+			helper.check.gps();
+		}
+		// load settings
+		helper.settings.load();
+		
+		/** bind buttons of common elements */
+		// overlay - close
+        $("#overlayHideBtn").click(function(){
+            helper.popup.hide();
+        });
+		
+		// settings page
+		$("#settingsUserShowPass").click(function() {
+			if ($("#settingsUserShowPass").prop('checked')){
+				$("#settingsUserPass").attr("type","text");
+			}
+			else{
+				$("#settingsUserPass").attr("type","password");
+			}
+		});
+		$("#settingsSave").click(function() {
+			helper.settings.save($("#settingsWrap"));
+			app.page.show("start");
+		});
+		
+		// now initialize the app and start over
+		app.initialize();
+    },
+	deviceready: function(){
+		// this only fires in the app and so is only intended for device specific functions
+		// note that this is an event handler so the scope is that of the event ( which happens outside of "app" in "window" )
+		// so we need to call e.g. app.menuKeyDown(), and not this.menuKeyDown()
+		console.log('device ready...');
+		
+		// add a class for app-optimization (showing exit menu function ...
+		$("body").addClass("mobileApp");
+		
+		// bind device hardwarebuttons to app-functions
+		// bind menu and back button
+		document.addEventListener("menubutton", app.menuKeyDown, true);
+		document.addEventListener("backbutton", app.backKeyDown, false);		
+	},
+	check:{
+		// check if this is the mobile app (true) or webapp (false)
+		mobileapp: function(){
+			return (window.cordova || window.PhoneGap || window.phonegap)
+			&& /^file:\/{3}[^\/]/i.test(window.location.href)
+			&& /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);
+		},
+		online: function(testurl){
+			if (typeof(testurl) == "undefined" ||  testurl == ""){			
+				testurl = "http://in-u.at/keepalive.aspx";
+			}
+			// IE vs. standard XHR creation
+			var x = new ( window.ActiveXObject || XMLHttpRequest )( "Microsoft.XMLHTTP" ),s;
+			x.open(
+				// requesting the headers is faster, and just enough
+				"HEAD",
+				// append a random string to the current hostname,
+				// to make sure we're not hitting the cache
+				testurl + "/?rand=" + Math.random(),
+				// make a synchronous request
+				false
+			);
+			try {
+				x.send();
+				s = x.status;
+				// Make sure the server is reachable
+				return ( s >= 200 && s < 300 || s === 304 );
+				// catch network & other problems
+			} 
+			catch (e) {
+				return false;
+			} 
+		},	
+		screen: {
+			// init screen diminsions for overlays
+			height: function(){
+				return $(window).height() - 50;
+			},
+			width: function(){
+				return $(window).width();
+			}			
+		},
+		// network connection state - available after DEVICEREADY
+		network: function(raw){
+			if (navigator.connection) {
+				if (typeof(raw) != "undefined" &&  raw == true){			
+					return navigator.connection.type;
+				}
+				else{
+					var networkstate = navigator.connection.type;
+					var states = new Array();    
+					states[Connection.UNKNOWN]  = 'Unknown connection';
+					states[Connection.ETHERNET] = 'Ethernet connection';
+					states[Connection.WIFI]     = 'WiFi connection';
+					states[Connection.CELL_2G]  = 'Cell 2G connection';
+					states[Connection.CELL_3G]  = 'Cell 3G connection';
+					states[Connection.CELL_4G]  = 'Cell 4G connection';
+					states[Connection.CELL]     = 'Cell generic connection';
+					states[Connection.NONE]     = 'No network connection';				
+					return states[networkstate];
+				}
+			}
+			else{
+				if (typeof(raw) != "undefined" &&  raw == true){	
+					return "";
+				}
+				else{
+					return 'Unknown connection';
+				}
+			}
+		},
+		gps:function(){
+			 // check if geolocation is available
+			if (navigator.geolocation) {
+				var timeoutVal = helper.gpsTimeout;
+				navigator.geolocation.getCurrentPosition(
+					function(position){
+						// success
+						helper.gpsLat = position.coords.latitude;
+						helper.gpsLon = position.coords.longitude;
+						//window.gpsAcc = position.coords.accuracy;
+						helper.gps.success = true;
+						helper.gps.failed = 0;
+						console.log("gps positioned ...");
+						//update user pos in map
+						app.map.mypos();
+					},
+					function(){
+						// error
+						helper.gps.success = false;
+						helper.gps.failed++; 
+						console.log("gps failed " + helper.gps.failed + " times ...");                
+					},
+					{
+						// gegolocation parameters
+						enableHighAccuracy: true,
+						timeout: timeoutVal,
+						maximumAge: 0
+					}
+				);           
+			} 
+			else {
+			   // ???
+				alert("GPS not enabled or allowed");
+				helper.gpsSuccess = false;
+				helper.gpsFailed = helper.gpsFailed + 1;
+			}
+		}
+	},	
+	settings:{ // initially the main settings wrapper element has id "#settingsWrap"
+		load: function(wrapperElem){
+			if( typeof(wrapperElem) == "undefined" ){
+				wrapperElem = $("#settingsWrap");
+			}
+			$.each(wrapperElem.find(".setting"),function(){
+				var settingElem = $(this);
+				var settingName = app.name + settingElem.attr("rel");
+				var settingValue = helper.data.get(settingName);
+				var settingControl = settingElem.get(0).tagName;
+				
+				if (settingValue != null && settingValue != "err" && settingValue != "" && settingValue != "undefined"){
+					if (settingControl == "INPUT"){
+						var settingType = settingElem.attr("type");
+						switch(settingType){
+							case 'text':
+							case 'password':
+								settingElem.val(settingValue);
+								break;
+							case 'checkbox':
+								settingElem.prop("checked",settingValue);
+								break;
+							default: 
+								// label - only has a  text - no control
+								break;								
+						}
+					}
+					else if (settingControl == "SELECT"){
+						settingElem.val(settingValue);
+					}
+					else if (settingControl == "TEXTAREA"){
+						settingElem.text(settingValue);
+					}
+				}
+				else{
+					settingElem.val("");
+				}
+			});
+			console.log("settings loaded");
+		},
+		save: function(wrapperElem){
+			if( typeof(wrapperElem) == "undefined" ){
+				wrapperElem = $("#settingsWrap");
+			}
+			$.each(wrapperElem.find(".setting"),function(){
+				var settingElem = $(this);
+				var settingName = app.name + settingElem.attr("rel");
+				var settingValue;
+				var settingControl = settingElem.get(0).tagName;
+								
+				if (settingControl == "INPUT"){
+					var settingType = settingElem.attr("type");
+					switch(settingType){
+						case 'text':
+						case 'password':
+							settingValue = settingElem.val();
+							break;
+						case 'checkbox':
+							settingValue = settingElem.prop("checked");
+							break;
+						default: 
+							// label - only has a  text - no control
+							break;								
+					}
+				}
+				else if (settingControl == "SELECT"){
+					settingValue = settingElem.val();
+				}
+				else if (settingControl == "TEXTAREA"){
+					settingValue = settingElem.text();
+				}
+				helper.data.set(settingName,settingValue);
+			});
+			console.log("settings saved");
+			helper.initialize();
+		},
+		get: function(setting){
+			var settingName = app.name + setting;
+			var setVal = helper.data.get(settingName);
+			if(setVal == "true"){
+				setVal = true;
+			}
+			if(setVal == "false"){
+				setVal = false;
+			}
+			return setVal;
+		},
+		set: function(setting,settingValue){
+			var settingName = app.name + setting;
+			helper.data.set(settingName,settingValue);
+		}
+	},
+	/** objectslist - get object´s value by key ------------------------------------------- */
+	getObjItem: function(obj, key, value) {
+		for (var i = 0; i < obj.length; i++) {
+			if (obj[i][key] == value) {
+				return obj[i];
+			}
+		}
+		return null;
+	},
+	/** data - local data ------------------------------------------- */
+	data:{
+		get: function(key){
+			if(typeof(Storage) !== "undefined") {
+				return localStorage.getItem(key);				
+			} else {
+				// Sorry! No Web Storage support..
+				return "err";
+			}
+		},
+		set: function(key,val){
+			if(typeof(Storage) !== "undefined") {
+				localStorage.setItem(key, val);
+				return "ok";
+			} else {
+				// Sorry! No Web Storage support..
+				return "err";
+			}		
+		}
+	},	
+	/** dataAPI (ajaxPOST) - remote data ------------------------------------------- */
+    dataAPI: function(RESTname,dataname,parameters,callback){
+        var ajaxURL = app.serviceURL + RESTname;
+        var baseparams = {
+                a: app.auth
+            };
+        var ajaxparams ={};
+        var dataparam ={d: dataname};
+        jQuery.extend(ajaxparams, dataparam, baseparams, parameters);
+        $.ajax({
+            url: ajaxURL,
+			cache: false,
+            dataType: "json",
+            type: "POST",
+            data: JSON.stringify(ajaxparams),
+            success: function (data) {
+                callback(null,data);
+            },
+            error:function(data){
+                callback(data);
+            }
+        });
+    },
     // image lazy update
     image:{
-        //  update all images or backgrounds with the class "lazy" within a wrapper  ############################################################ NEW - SERVERSIDE TODO
-        /** ---------------------------------------------------------------------
+        /**  update all images or backgrounds with the class "lazy" within a wrapper
             first generate markup 
                 <div id="wrapperID"><img class='lazy' rel='1' src='' width='150'/>...</div>
             rel should hold the image-id from the db 
-            after inserting the generated markup in the DOM call: 
-                                                                app.imageupdate("wrapperID");
+            after inserting the generated markup in the DOM call: helper.imageupdate("wrapperID");
         */
         update: function(wrapperID){
             // iterate over the images in the wrapper
@@ -1186,7 +1660,7 @@ var app={
                 var theImage = $(this);
                 var imageID = theImage.attr("rel");
                 // get imagedetails and build handlerURL and relevant tags
-                app.dataAPI("getData","images", {'i': imageID},function(err,imgObjs){
+                helper.dataAPI("getData","images", {'i': imageID},function(err,imgObjs){
                     var imageToChange = theImage;   
                     if(!err){
 						var imgObj = imgObjs[0];
@@ -1213,80 +1687,12 @@ var app={
 						}
                     }
                     else{
-                        app.errorLog(err);
+                        helper.errorLog(err);
                     }
                 });
             });        
         }
     },
-	/** data api (ajaxPOST)
-    ------------------------------------------- */
-    dataAPI: function(RESTname,dataname,parameters,callback){
-        var ajaxURL = app.serviceURL + RESTname;
-        var baseparams = {
-                a: app.auth
-            };
-        var ajaxparams ={};
-        var dataparam ={d: dataname};
-        jQuery.extend(ajaxparams, dataparam, baseparams, parameters);
-        $.ajax({
-            url: ajaxURL,
-			cache: false,
-            dataType: "json",
-            type: "POST",
-            data: JSON.stringify(ajaxparams),
-            success: function (data) {
-                callback(null,data);
-            },
-            error:function(data){
-                callback(data);
-            }
-        });
-    },
-    data:{
-		get: function(key){
-			if(typeof(Storage) !== "undefined") {
-				return localStorage.getItem(key);				
-			} else {
-				// Sorry! No Web Storage support..
-				return "err";
-			}
-		},
-		set: function(key,val){
-			if(typeof(Storage) !== "undefined") {
-				localStorage.setItem(key, val);
-				return "ok";
-			} else {
-				// Sorry! No Web Storage support..
-				return "err";
-			}		
-		}
-	},
-    /** error handling & logging
-        ------------------------------------ */
-    errorLog: function(err){        
-        console.log(JSON.stringify(err));   
-        //alert(JSON.stringify(err));
-    }
-};
-
-
-/**###################################################
-				Helper Functions
-###################################################### */
-var helper = {
-    /** initialization and event binding
-    ------------------------------------ */
-    initialize: function(){
-        $("#overlayHideBtn").click(function(){
-            helper.popup.hide();
-        });
-    },
-    isMobileApp: function(){
-		return (window.cordova || window.PhoneGap || window.phonegap)
-		&& /^file:\/{3}[^\/]/i.test(window.location.href)
-		&& /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);
-	},
 	/** overlays, spinners and messageboxes 
     ------------------------------------ */
     //  USAGE example:                                                              // Description of parameters
@@ -1300,6 +1706,14 @@ var helper = {
                             function(){alert('cancel clicked');}                    // callback function to bind to the CANCEL button
         );
     */
+	splash:{
+		show:function(){
+			$("#splash").addClass("active");
+		},
+		hide:function(){
+			$("#splash").removeClass("active");
+		}
+	},
 	popup:{
         show: function(title, content, iconname, ok, cancel,callbackOk,callbackCancel,okText,cancelText){
             var theOverlay = $("#popup");
@@ -1394,7 +1808,7 @@ var helper = {
 			$('#mask').addClass("visible");
             
 			//Set height and width to mask to fill up the whole screen
-            $('#mask').css({ 'width': app.status.screenWidth, 'height': app.status.screenHeight + 50 });
+            $('#mask').css({ 'width': app.screenWidth, 'height': app.screenHeight + 50 });
 
             
             theOverlay.show();
@@ -1402,11 +1816,11 @@ var helper = {
             //Get the window height and width
             var winH = theOverlay.outerHeight();
             var winW = theOverlay.outerWidth();
-            var topPos = (app.status.screenHeight - winH) / 2;
+            var topPos = (app.screenHeight - winH) / 2;
             if (topPos < 10) {
                 topPos = 10;
             }
-            var leftPos = (app.status.screenWidth - winW) / 2;
+            var leftPos = (app.screenWidth - winW) / 2;
             if (leftPos < 10) {
                 leftPos = 10;
             }
@@ -1427,15 +1841,6 @@ var helper = {
         timeout: 5000,
         show: function(showModal,autohide){
             helper.spinner.queue = helper.spinner.queue + 1;
-            var topPos = (app.status.screenHeight - 140) / 2;
-            if (topPos < 10) {
-                topPos = 10;
-            }
-            var leftPos = (app.status.screenWidth - 220) / 2;
-            if (leftPos < 10) {
-                leftPos = 10;
-            }
-            $("#spinner").css({'top': topPos + 'px','margin-left': leftPos + 'px','margin-right': leftPos + 'px'});
             if( typeof(showModal) != "undefined" && showModal == true){                
                 $("#spinnermask").show();
                 $("#spinner").show();
@@ -1683,9 +2088,9 @@ var helper = {
             }
 			window.plugins.socialsharing.share(theMessage, theSubject, theImage, theLink);
 	},
-	/** GUI & Controls 
-    ------------------------------------ */    
-    //* select an option by Text or Value 
+	/** GUI & Controls ------------------------------------ */    
+    /** select an option by Text or Value 
+	 ------------------------------------ */
     selectByText: function(elementID, text) {
             $("#" + elementID + " option[text='" + text + "']").prop('selected', 'selected');
         },
@@ -1786,7 +2191,13 @@ var helper = {
                         helper.pad(second, 2);
         return timeString;
     },
-     /** PAD -> add leading zeros to numbers
+    /** error handling & logging
+        ------------------------------------ */
+    errorLog: function(err){        
+        console.log(JSON.stringify(err));   
+        //alert(JSON.stringify(err));
+    },
+	/** PAD -> add leading zeros to numbers
     ------------------------------------ */
     pad: function(number, size) {
         var s = number + "";
@@ -1794,14 +2205,10 @@ var helper = {
         return s;
     }
 }
-/**###################################################
-						base64 encode
-###################################################### */
+/** base64 encode */
 var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f<e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n>>2;o=(n&3)<<4|r>>4;u=(r&15)<<2|i>>6;a=i&63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9\+\/\=]/g,"");while(f<e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s<<2|o>>4;r=(o&15)<<4|u>>2;i=(u&3)<<6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/\r\n/g,"\n");var t="";for(var n=0;n<e.length;n++){var r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r)}else if(r>127&&r<2048){t+=String.fromCharCode(r>>6|192);t+=String.fromCharCode(r&63|128)}else{t+=String.fromCharCode(r>>12|224);t+=String.fromCharCode(r>>6&63|128);t+=String.fromCharCode(r&63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n<e.length){r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r);n++}else if(r>191&&r<224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&31)<<6|c2&63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&15)<<12|(c2&63)<<6|c3&63);n+=3}}return t}}
 
-/**###################################################
-            jQuery plugins and extensions
-###################################################### */
+/** jQuery plugins and extensions */
 /** browser-independent ellipsis ... 
     ------------------------------------ */
 // Usage Example: 

@@ -20,6 +20,8 @@
 </head>
 
 <body>
+	<div id="splash" class="active">
+	</div>
 	<!-- mask and overlays -->
 	<div id="info"></div>
 	<div id="mask">
@@ -51,6 +53,15 @@
 		</div>
 	</div>
 	
+    <div id="spinnermask">
+	</div>
+
+	    <div id="spinner" class="overlay spinner white-bg-t7 white-bd darkgray">
+			<img src="img/spinner.gif"/>
+			<br/><br/>
+			... lade ...
+		</div>
+	
 	<!-- main app frame -->
 	<div id="app">
 		<!-- modal pages 
@@ -67,10 +78,10 @@
 					<li class="td title vertical-middle align-center ">
 						<h1 id ="top-title" class="darkgray">Start</h1>
 					</li>
-					<li class="td btn btn-pg vertical-middle align-center hide-xs hide-sm" rel="start">
+					<li class="td btn btn-pg vertical-middle align-center hide-xs" rel="start">
 						<i class="et et-home"></i>
 					</li>
-					<li class="td btn btn-pg vertical-middle align-center hide-xs hide-sm" rel="map">
+					<li class="td btn btn-pg vertical-middle align-center hide-xs" rel="map">
 						<i class="et et-map"></i>
 					</li>
 					<li class="td btn btn-pg vertical-middle align-center" rel="search">
@@ -130,8 +141,34 @@
 				<li class="page" rel="about" pghead="Über AppHOF">
 					Über
 				</li>
-				<li class="page" rel="settings" pghead="Einstellungen">
-					Einstellungen
+				<li class="page" rel="settings" pghead="Einstellungen">	
+					<div class="page-inner">
+						<div class="page-content" id="settingsWrap">
+							<h2>Benutzername und Kennwort</h2>
+							<input type="text" class="setting" rel="UserName"/><br>
+							<input type="password" class="setting" rel="UserPass" id="settingsUserPass"/><br>
+							<input type="checkbox" id="settingsUserShowPass"/>&nbsp;Passwort anzeigen?
+							<hr>
+							<h2>Persönliche Einstellungen</h2>
+							<input type="text" class="setting" rel="TippsCount" />
+							<hr>
+							<input type="checkbox" class="setting" rel="GPS" /> GPS-Position erlauben
+							<hr>
+							<input type="checkbox" class="setting" rel="AutoLogin" /> Automatisch anmelden
+							<hr>
+							<span id="settingsSave" class="btn btn-text blue">Speichern</span>							
+						</div>
+					</div>
+				</li>
+				<li class="page" rel="signup" pghead="Registrieren">
+					<div class="page-inner">
+						<div class="page-content" id="settingsWrap">
+							<h2>Registrierung</h2>
+							BlaBla
+							<hr>
+							<span id="registerNow" class="btn btn-text blue">Registrieren</span>							
+						</div>
+					</div>
 				</li>
 				<li id="seller-page" class="page" rel="seller" pghead="Verkäufer">
 					Verkäufer
@@ -143,18 +180,32 @@
 		</div>
 		<!-- pages area end -->
 		
-		<!-- menu area -->
+		<!-- menu area --> 
 		<div id="menu">
 			<div class="menu-main white-bg darkgray-bd darkgray">
 				<span id="menuCloseTop" class="btn white menuCloseTop">
 					<i class="et et-chevron-left"></i>
 				</span>
 				<div class="menu-top jumbo blue-bg white">
-					<span class="top white align-center">
-						<p class="white"><br><br>... Nachhaltigkeit darf kein Luxus sein!</p>
+					<span class="top">
+						<span class ="table white align-center">
+							<p class="tr white">
+								<span class="td vertical-middle">
+									<img id="menu-user-image"  class="white-bg white-bd" src="img/no_avatar.gif"/>
+								</span>
+								<span class="td vertical-bottom ">
+									<span id="menu-login" class="login btn vertical-middle align-center white">
+										ANMELDEN
+									</span>
+									<span id="menu-logout" class="logout btn vertical-middle align-center white hidden">
+										ABMELDEN
+									</span>
+								</span>
+							</p>
+						</span>
 					</span>
 					<span class="bottom white-bg-t7">
-						<h5 class="white">UserInfo</h5>
+						<h5 id="menu-user-name" class="blue">nicht angemeldet</h5>
 					</span>
 				</div>
 				<div class="menu-bottom">

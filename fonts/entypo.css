@@ -68,7 +68,9 @@ font-family: 'EntypoSocialRegular';
 .et-quote:before{ content:'\275E'; }
 .et-home:before{ content:'\2302'; }
 .et-popup:before{ content:'\E74C'; }
+/* changed because the unicode character 1F50D is not supported widely */
 .et-search:before{ content:'\2315'; }
+/* ------------------------------------------------------------------- */
 .et-flashlight:before{ content:'\1F526'; }
 .et-print:before{ content:'\E716'; }
 .et-bell:before{ content:'\1F514'; }
