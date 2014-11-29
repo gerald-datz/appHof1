@@ -1708,10 +1708,10 @@ var helper = {
     */
 	splash:{
 		show:function(){
-			$("#splash").addClass("active");
+			$("#splash").addClass("visible");
 		},
 		hide:function(){
-			$("#splash").removeClass("active");
+			$("#splash").removeClass("visible");
 		}
 	},
 	popup:{

@@ -256,7 +256,7 @@ a, a:active, a:link, a:visited {
 	z-index:-10;
 }
 
-#splash.active{
+#splash.visible{
 	display:block;
 	z-index:100;
 }
@@ -279,7 +279,7 @@ a, a:active, a:link, a:visited {
 		
 		display:none;
 }
-#splash.active .spinner{
+#splash.visible .spinner{
 	display:block;
 	z-index:110;/*  above splash */
 }
