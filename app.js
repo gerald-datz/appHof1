@@ -145,27 +145,27 @@ var app={
 		console.log("app bind...");
                 
         // bind menu buttons click handler
-        $("#btn-menu").unbind('click').click(function(){ 
+        $("#btn-menu").click(function(){ 
 			app.menu.toggle();
         });
 		
-		$("#exitBtn").unbind('click').click(function(){
+		$("#exitBtn").click(function(){
 			app.exit();
 			app.menu.close();
         });
 		
 		// bind menu items & header Buttons click handler
-		$(".btn-pg").unbind('click').click(function(){
+		$(".btn-pg").click(function(){
 			app.menu.close();
             app.page.show($(this).attr("rel"));
         });
         
-		$("#menuCloseTop").unbind('click').click(function(){
+		$("#menuCloseTop").click(function(){
 			app.menu.close();
         });
 		
 		// login and logout buttons
-		$("#menu-login").unbind('click').click(function(){
+		$("#menu-login").click(function(){
 			// get logindata
 			var us = helper.settings.get("UserName");
 			var pw = helper.settings.get("UserPass");
@@ -191,7 +191,7 @@ var app={
 				app.loginerror();
 			}
         });
-		$("#menu-logout").unbind('click').click(function(){
+		$("#menu-logout").click(function(){
 			app.logout();
         });
 		
@@ -205,7 +205,7 @@ var app={
 				app.search.suggest($("#searchMain").val());
 			}
 		});
-		$("#searchNow").unbind('click').click(function() {
+		$("#searchNow").click(function() {
 			app.search.result($("#searchMain").val());
 		});	
 		
@@ -1825,7 +1825,7 @@ var helper = {
                 leftPos = 10;
             }
             theOverlay.css({'top': topPos + 'px','margin-left': leftPos + 'px','margin-right': leftPos + 'px'});
-			theOverlay.addClass("open");
+			theOverlay.addClass("visible");
         },
         hide: function(){	
             var theOverlay = $("#popup");
@@ -1833,7 +1833,7 @@ var helper = {
 			$('#mask').removeClass("visible");
             theOverlay.hide();	
 			
-			theOverlay.removeClass("open");
+			theOverlay.removeClass("visible");
         }
     },    
     spinner:{
@@ -1842,11 +1842,11 @@ var helper = {
         show: function(showModal,autohide){
             helper.spinner.queue = helper.spinner.queue + 1;
             if( typeof(showModal) != "undefined" && showModal == true){                
-                $("#spinnermask").show();
-                $("#spinner").show();
+                $("#spinnermask").addClass("visible");
+                $("#spinner").addClass("visible");
             }
             else{
-                $("#spinner").show();
+                $("#spinner").addClass("visible");
             }
             if( typeof(autohide) != "undefined" && autohide == true){                
                 setTimeout(helper.spinner.hide,helper.spinner.timeout);
@@ -1856,8 +1856,8 @@ var helper = {
             helper.spinner.queue = helper.spinner.queue - 1;
             if (helper.spinner.queue <= 0){
                 helper.spinner.queue = 0;
-                $("#spinnermask").hide();                
-                $("#spinner").hide();
+                $("#spinnermask").removeClass("visible");               
+                $("#spinner").removeClass("visible");
             }
         }
     },

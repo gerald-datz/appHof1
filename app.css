@@ -252,16 +252,18 @@ a, a:active, a:link, a:visited {
 	
 	padding:0px;
 	margin:0px;	
-
-	z-index:100; 
+ 
+	z-index:-10;
 }
 
 #splash.active{
 	display:block;
+	z-index:100;
 }
 
 /* splash page spinner */
 #splash .spinner{
+		display:none;
 		width:220px;
 		height:140px;
 		padding:30px 20px 20px 20px;
@@ -272,8 +274,14 @@ a, a:active, a:link, a:visited {
 		position: absolute;
 		top: 0; left: 0; bottom: 0; right: 0;
   
-		z-index:110;		/*  above splash */
+		z-index:-2;		
         text-align: center;
+		
+		display:none;
+}
+#splash.active .spinner{
+	display:block;
+	z-index:110;/*  above splash */
 }
 
 #mask{
@@ -296,11 +304,12 @@ a, a:active, a:link, a:visited {
 	padding:0px;
 	margin:0px;	
 
-	z-index:30; 
+	z-index:-2;
 }
 
 #mask.visible{
 	display:block;
+	z-index:30; 
 }
 /* ------------ modal popup ------------- */
 #popup{
@@ -311,6 +320,13 @@ a, a:active, a:link, a:visited {
 	max-width: 440px;
 	margin-bottom:60px;
 	overflow:hidden;
+	
+	z-index:-2;
+}
+
+#popup.visible{
+	display:block;
+	z-index:35;
 }
 .popup-modal{
 	position:absolute;
@@ -319,7 +335,6 @@ a, a:active, a:link, a:visited {
 	display:block;
 	
 	padding:0px;
-	z-index:35;
 }
 	.popup-head{
 		position:absolute;
@@ -427,11 +442,16 @@ a, a:active, a:link, a:visited {
 	left:0;
 	padding:0;
 	margin:0;
-	z-index:115;
+	z-index:-2;
 	height:100%;
 	width:100%;
 }
+#spinnermask.visible{
+	z-index:115;
+	display:block;
+}
     #spinner{
+		display:none;
 		width:220px;
 		height:140px;
 		padding:30px 20px 20px 20px;
@@ -442,9 +462,13 @@ a, a:active, a:link, a:visited {
 		position: absolute;
 		top: 0; left: 0; bottom: 0; right: 0;
   
-		z-index:120;		/*  above splash */
+		z-index:-2;
         text-align: center;
 	}		
+	#spinner.visible{
+		display:block;
+		z-index:120;		/*  above splash */
+	}
 /* ###################################################
 					  main app
    ################################################### */
