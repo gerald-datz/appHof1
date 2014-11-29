@@ -1575,7 +1575,7 @@ var helper = {
 				helper.data.set(settingName,settingValue);
 			});
 			console.log("settings saved");
-			helper.initialize();
+			//helper.initialize();
 		},
 		get: function(setting){
 			var settingName = app.name + setting;
