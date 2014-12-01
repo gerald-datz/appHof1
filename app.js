@@ -1361,16 +1361,21 @@ var helper = {
 		// check browser/app independent status infos
 		helper.online.state = helper.check.online();
 		helper.online.type = helper.check.network();
+			helper.errorLog("1 ...");
 		
 		helper.screen.width = helper.check.screen.width();
 		helper.screen.height = helper.check.screen.height();
 		helper.screen.maxpixel = helper.check.screen.maxpixel();
+			helper.errorLog("2 ...");
 		
 		if (helper.settings.get("GPS") == true){
 			helper.check.gps();
 		}
+		
+			helper.errorLog("3 ...");
 		// load settings
 		helper.settings.load();
+			helper.errorLog("4 ...");
 		
 		/** bind buttons of common elements */
 		// overlay - close
@@ -1379,6 +1384,7 @@ var helper = {
             helper.popup.hide();
         });
 		
+			helper.errorLog("5 ...");
 		// settings page
 		$("#settingsUserShowPass").on("click");
 		$("#settingsUserShowPass").on("click",function() {
@@ -1389,12 +1395,14 @@ var helper = {
 				$("#settingsUserPass").attr("type","password");
 			}
 		});
+			helper.errorLog("6 ...");
 		$("#settingsSave").on("click");
 		$("#settingsSave").on("click",function() {
 			helper.settings.save($("#settingsWrap"));
 			app.page.show("start");
 		});
 		
+			helper.errorLog("7 ...");
 		// now initialize the app and start over
 		app.initialize();
     },
