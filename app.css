@@ -235,6 +235,13 @@ a, a:active, a:link, a:visited {
    ################################################### */
 #splash{
 	display:none;
+	z-index:-2;
+	background:none;
+	
+}
+
+#splash.visible{
+	display:block;
 	position:absolute;
 	top:0;
 	left:0;
@@ -253,35 +260,7 @@ a, a:active, a:link, a:visited {
 	padding:0px;
 	margin:0px;	
  
-	z-index:-10;
-}
-
-#splash.visible{
-	display:block;
 	z-index:100;
-}
-
-/* splash page spinner */
-#splash .spinner{
-		display:none;
-		width:220px;
-		height:140px;
-		padding:30px 20px 20px 20px;
-		
-		border:1px solid #fff;
-        border-radius:5px;
-		margin: auto;
-		position: absolute;
-		top: 0; left: 0; bottom: 0; right: 0;
-  
-		z-index:-2;		
-        text-align: center;
-		
-		display:none;
-}
-#splash.visible .spinner{
-	display:block;
-	z-index:110;/*  above splash */
 }
 
 #mask{

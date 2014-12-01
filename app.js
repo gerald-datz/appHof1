@@ -336,11 +336,13 @@ var app={
 					app.logout();	
 					app.page.show("settings");
 					helper.popup.hide();
+					app.menu.close();
 				},
 				function () { // callback REGISTER button
 					app.logout();	
 					app.page.show("signup");
 					helper.popup.hide();
+					app.menu.close();
 				},
 				"EINSTELLUNGEN",
 				"REGISTRIEREN"
@@ -1295,7 +1297,8 @@ var helper = {
 	},
 	screen:{
 		width:100,
-		height:100
+		height:100,
+		maxpixel:0
 	},
 	gps:{
 		on: false,
@@ -1348,6 +1351,7 @@ var helper = {
 		
 		helper.screen.width = helper.check.screen.width();
 		helper.screen.height = helper.check.screen.height();
+		helper.screen.maxpixel = helper.check.screen.maxpixel();
 		
 		if (helper.settings.get("GPS") == true){
 			helper.check.gps();
@@ -1432,7 +1436,17 @@ var helper = {
 			},
 			width: function(){
 				return $(window).width();
-			}			
+			},
+			maxpixel:function(){
+				var result = 0;
+				if (helper.check.screen.width >= helper.check.screen.height){
+					result = helper.screen.width;
+				}
+				else{
+					result = helper.screen.height;
+				}
+				return result;
+			}
 		},
 		// network connection state - available after DEVICEREADY
 		network: function(raw){
@@ -1653,7 +1667,7 @@ var helper = {
             rel should hold the image-id from the db 
             after inserting the generated markup in the DOM call: helper.imageupdate("wrapperID");
         */
-        update: function(wrapperID){
+        update: function(wrapperID, originalSize){
             // iterate over the images in the wrapper
 			var theSelector = $("#" + wrapperID + " .lazy");
             $.each(theSelector, function(){
@@ -1667,22 +1681,42 @@ var helper = {
 						var theURL = app.imageURL + "?File=IMG/" + imgObj.FilePath
 									+ "/" + imgObj.FileName + "." + imgObj.FileType ;
 									
-						if ( imageToChange.is("img")){
-							// change image parameters
-							theURL = theURL +  "&width=" + imageToChange[0].width;
-							imageToChange.attr("src",theURL);
-							imageToChange.attr("title", imgObj.Title);
-							imageToChange.attr("alt", imgObj.Alt);
+						var maxImageWidth = 0;
+						if (typeof(originalSize) == "undefined" || originalSize == false){
+							maxImageWidth = helper.screen.maxpixel;
+						}
+						else
+						{
+							// load in original size
+							maxImageWidth = imageToChange[0].width;
+						}
+						if ( imageToChange.is("img")){							
+								// change image parameters (load image in maximum needed size)
+								theURL = theURL +  "&width=" + maxImageWidth;
+								imageToChange.attr("src",theURL);
+								imageToChange.attr("title", imgObj.Title);
+								imageToChange.attr("alt", imgObj.Alt);
 						}
 						else{
 							// change background of element
 							if( theImage.hasClass("height100") ){
 								// 100% height
-								imageToChange.css({'background': 'url(' + theURL + ') no-repeat','background-size': 'auto 100%', 'background-position':'center center'});
+								if (typeof(originalSize) == "undefined" || originalSize == false){
+									imageToChange.css({'background': 'url(' + theURL + '&height=' + maxImageWidth + ') no-repeat','background-size': 'auto 100%', 'background-position':'center center'});
+								}
+								else{
+									imageToChange.css({'background': 'url(' + theURL + ') no-repeat','background-size': 'auto 100%', 'background-position':'center center'});
+								}
 							}
 							else{
 								// 100% width
-								imageToChange.css({'background': 'url(' + theURL + ') no-repeat','background-size': '100% auto', 'background-position':'center center'});
+								if (typeof(originalSize) == "undefined" || originalSize == false){
+									imageToChange.css({'background': 'url(' + theURL + '&width=' + maxImageWidth +  ') no-repeat','background-size': '100% auto', 'background-position':'center center'});
+								}
+								else{
+									imageToChange.css({'background': 'url(' + theURL + ') no-repeat','background-size': '100% auto', 'background-position':'center center'});
+								}
+								
 							}
 						}
                     }
