@@ -1475,6 +1475,7 @@ var helper = {
 		},
 		// network connection state - available after DEVICEREADY
 		network: function(raw){
+			/*
 			if (navigator.connection) {
 				if (typeof(raw) != "undefined" &&  raw == true){			
 					return navigator.connection.type;
@@ -1501,6 +1502,8 @@ var helper = {
 					return 'Unknown connection';
 				}
 			}
+			*/
+			return 'Unknown connection';
 		},
 		gps:function(){
 			 // check if geolocation is available
