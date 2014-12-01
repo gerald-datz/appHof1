@@ -1650,6 +1650,7 @@ var helper = {
 	data:{
 		get: function(key){
 			if(typeof(Storage) !== "undefined") {
+				/*
 				if (localStorage !== null && localStorage.getItem(key) !== null) {
 				  return window.localStorage.getItem(key);	
 				}
@@ -1657,6 +1658,8 @@ var helper = {
 					// Sorry! No Web Storage support..
 					return "err";
 				}
+				*/
+				return window.localStorage.getItem(key);	
 							
 			} else {
 				// Sorry! No Web Storage support..
@@ -1665,6 +1668,7 @@ var helper = {
 		},
 		set: function(key,val){
 			if(typeof(Storage) !== "undefined") {
+				/*
 				if (localStorage !== null && localStorage.getItem(key) !== null) {
 					window.localStorage.setItem(key, val);
 					return "ok";
@@ -1673,6 +1677,9 @@ var helper = {
 					// Sorry! No Web Storage support..
 					return "err";
 				}
+				*/
+				window.localStorage.setItem(key, val);
+				return "ok";
 			} else {
 				// Sorry! No Web Storage support..
 				return "err";
