@@ -2270,7 +2270,7 @@ var helper = {
 		if (typeof(logtype) == "undefined"){
 			logtype="console";
 		}
-		logtype="alert";
+		//logtype="alert";
 		switch(logtype){ 
 			case 'alert': 
 				alert(err);
