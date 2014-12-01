@@ -56,7 +56,6 @@ $(document).ready(function() {
 		helper.deviceready();
 	}, false);
 	helper.initialize();
-	app.initialize();
 });
 
 /**###################################################
