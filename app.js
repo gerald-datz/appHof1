@@ -50,10 +50,10 @@ window.onresize = function(event) {
 
 // intialize helper and app
 $(document).ready(function() {
-	console.log("document ready ...");
+	helper.errorLog("document ready ...");
 	// add deviceready event to bind the hardwarekeys (back, menu) to the proper functions and use phone functions safely now
 	document.addEventListener('deviceready', function(){		
-		console.log("device ready ...");
+		helper.errorLog("device ready ...");
 		helper.deviceready();
 	}, false);
 	helper.initialize();
@@ -79,7 +79,7 @@ var app={
     },
     initialize: function () {
         $("#pageTitle").text($(".page.active").attr("pghead"));
-		console.log("app initialize...");
+		helper.errorLog("app initialize...");
 		// initially do not show password cleartext in settings
 		$("#settingsUserShowPass").prop("checked",false);
 		
@@ -142,7 +142,7 @@ var app={
 	},
     // MENU clicks and header button clicks binding
 	bind: function () {
-		console.log("app bind...");
+		helper.errorLog("app bind...");
                 
         // bind menu buttons click handler
         $("#btn-menu").off("click");
@@ -582,14 +582,14 @@ var app={
 			map.addLayer(mePosMarker);  
         },
         refresh: function(){
-            console.log("Refreshing Map");
+            helper.errorLog("Refreshing Map");
             map.invalidateSize(false);
         },
         markersSet:function(){
             var markers = new L.markerClusterGroup();    
             //var markers = l.Marker();
             if (typeof(app.obj.locations) !== "undefined" && typeof(app.obj.locations.length) !== "undefined" && app.obj.locations.length != 0 ){
-                console.log("Adding Markers");
+                helper.errorLog("Adding Markers");
                 $.each(app.obj.locations,function(){
                     var item = this;
 					
@@ -1341,7 +1341,7 @@ var helper = {
     /** initialization and event binding ------------------------------------ */
     initialize: function(){
 		// this is called on documentready:
-		console.log("helper initialize ...");
+		helper.errorLog("helper initialize ...");
 		// document ready does not mean the device is ready and you can use phonegap functions
 		
 		// Allow Cross domain requests per ajax!
@@ -1351,12 +1351,12 @@ var helper = {
 		if (helper.check.mobileapp == true){
 			// this code runs in mobile app
 			helper.app = true;
-			console.log("executed as mobile app ...");
+			helper.errorLog("executed as mobile app ...");
 		}
 		else{
 			// this code runs in browser
 			helper.app = false;
-			console.log("executed as browser app ...");
+			helper.errorLog("executed as browser app ...");
 		}		
 		// check browser/app independent status infos
 		helper.online.state = helper.check.online();
@@ -1402,7 +1402,7 @@ var helper = {
 		// this only fires in the app and so is only intended for device specific functions
 		// note that this is an event handler so the scope is that of the event ( which happens outside of "app" in "window" )
 		// so we need to call e.g. app.menuKeyDown(), and not this.menuKeyDown()
-		console.log('device ready...');
+		helper.errorLog('device ready...');
 		
 		// add a class for app-optimization (showing exit menu function ...
 		$("body").addClass("mobileApp");
@@ -1505,7 +1505,7 @@ var helper = {
 						//window.gpsAcc = position.coords.accuracy;
 						helper.gps.success = true;
 						helper.gps.failed = 0;
-						console.log("gps positioned ...");
+						helper.errorLog("gps positioned ...");
 						//update user pos in map
 						app.map.mypos();
 					},
@@ -1513,7 +1513,7 @@ var helper = {
 						// error
 						helper.gps.success = false;
 						helper.gps.failed++; 
-						console.log("gps failed " + helper.gps.failed + " times ...");                
+						helper.errorLog("gps failed " + helper.gps.failed + " times ...");                
 					},
 					{
 						// gegolocation parameters
@@ -1569,7 +1569,7 @@ var helper = {
 					settingElem.val("");
 				}
 			});
-			console.log("settings loaded");
+			helper.errorLog("settings loaded");
 		},
 		save: function(wrapperElem){
 			if( typeof(wrapperElem) == "undefined" ){
@@ -1604,8 +1604,8 @@ var helper = {
 				}
 				helper.data.set(settingName,settingValue);
 			});
-			console.log("settings saved");
-			//console.log("...trying to log in");
+			helper.errorLog("settings saved");
+			//helper.errorLog("...trying to log in");
 			//app.login();
 			//helper.initialize();
 		},
@@ -2134,7 +2134,7 @@ var helper = {
 		*/
 			// only used if on mobile device, otherwise the link - method via web-browser is used
 			// initially set all parameters to null for not used parts to ensure the proper function of the sharing plugin
-			console.log("sharing pressed");
+			helper.errorLog("sharing pressed");
 			var theMessage = null;
 			var theSubject = null;
 			var theImage = null;
@@ -2258,8 +2258,48 @@ var helper = {
     },
     /** error handling & logging
         ------------------------------------ */
-    errorLog: function(err){        
-        console.log(JSON.stringify(err));   
+    errorLog: function(err, loglevel, logtype){    
+		if (typeof(logtype) == "undefined"){
+			logtype="console";
+		}
+		logtype="alert";
+		switch(logtype){ 
+			case 'alert': 
+				alert(err);
+				break;        
+			case 'server': 
+				var theParameters = {};
+				theParameters.UserID = app.obj.user.UserID;
+				theParameters.D = 0;
+				theParameters.ObjectTypeID =objTypeID;
+				theParameters.ObjectID = objID;
+				theParameters.ParentID = 0;                
+				theParameters.DateCreated = helper.datetimeDB();
+				var params = {v:theParameters};
+				helper.dataAPI("setData","log", params ,function(err,data){ 
+					if(!err){                                            
+						var result = data;
+						if (data == "saved"){
+							//log saved
+						}
+						else{
+							// error on trying to save loglevel
+						}
+					}
+					else{
+						
+							// error on trying to save loglevel
+					}
+
+				}); 
+				break;        
+			default:
+				//log to console
+				console.log(err);
+				break;
+		}
+		
+        //helper.errorLog(JSON.stringify(err));   
         //alert(JSON.stringify(err));
     },
 	/** PAD -> add leading zeros to numbers
