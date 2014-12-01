@@ -53,7 +53,6 @@ $(document).ready(function() {
 	helper.errorLog("document ready ...");
 	// add deviceready event to bind the hardwarekeys (back, menu) to the proper functions and use phone functions safely now
 	document.addEventListener('deviceready', function(){		
-		helper.errorLog("device ready ...");
 		helper.deviceready();
 	}, false);
 	helper.initialize();
@@ -1423,9 +1422,10 @@ var helper = {
 	check:{
 		// check if this is the mobile app (true) or webapp (false)
 		mobileapp: function(){
-			return (window.cordova || window.PhoneGap || window.phonegap)
+			return (typeof(cordova) !== 'undefined' || typeof(phonegap) !== 'undefined');
+			/*return (window.cordova || window.PhoneGap || window.phonegap)
 			&& /^file:\/{3}[^\/]/i.test(window.location.href)
-			&& /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);
+			&& /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);*/
 		},
 		online: function(testurl){
 			if (typeof(testurl) == "undefined" ||  testurl == ""){			
