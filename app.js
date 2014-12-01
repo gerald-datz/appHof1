@@ -145,27 +145,32 @@ var app={
 		console.log("app bind...");
                 
         // bind menu buttons click handler
-        $("#btn-menu").click(function(){ 
+        $("#btn-menu").off("click");
+        $("#btn-menu").on("click",function(){ 
 			app.menu.toggle();
         });
 		
-		$("#exitBtn").click(function(){
+		$("#exitBtn").off("click");
+		$("#exitBtn").on("click",function(){
 			app.exit();
 			app.menu.close();
         });
 		
 		// bind menu items & header Buttons click handler
-		$(".btn-pg").click(function(){
+		$(".btn-pg").off("click");
+		$(".btn-pg").on("click",function(){
 			app.menu.close();
             app.page.show($(this).attr("rel"));
         });
         
-		$("#menuCloseTop").click(function(){
+		$("#menuCloseTop").off("click");
+		$("#menuCloseTop").on("click",function(){
 			app.menu.close();
         });
 		
 		// login and logout buttons
-		$("#menu-login").click(function(){
+		$("#menu-login").off("click");
+		$("#menu-login").on("click",function(){
 			// get logindata
 			var us = helper.settings.get("UserName");
 			var pw = helper.settings.get("UserPass");
@@ -191,7 +196,8 @@ var app={
 				app.loginerror();
 			}
         });
-		$("#menu-logout").click(function(){
+		$("#menu-logout").off("click");
+		$("#menu-logout").on("click",function(){
 			app.logout();
         });
 		
@@ -205,7 +211,8 @@ var app={
 				app.search.suggest($("#searchMain").val());
 			}
 		});
-		$("#searchNow").click(function() {
+		$("#searchNow").off("click");
+		$("#searchNow").on("click",function() {
 			app.search.result($("#searchMain").val());
 		});	
 		
@@ -828,8 +835,8 @@ var app={
 							var selector = $("#" + wrapperID + " span.optionsBtn");
 							$.each(selector, function(){
 								var sel = $(this);
-								sel.unbind('click');
-								sel.click(function(){
+								sel.off('click');
+								sel.on("click",function(){
 									app.tipp.options.popUp(sel.attr("rel"));
 								});
 							});
@@ -837,8 +844,8 @@ var app={
 							selector = $("#" + wrapperID + " span.trashBtn");
 							$.each(selector, function(){
 								var sel = $(this);
-								sel.unbind('click');
-								sel.click(function(){
+								sel.off('click');
+								sel.on("click",function(){
 									var elemToHide = sel.closest("li.tipps");
 									app.tipp.trash(sel.attr("rel"),elemToHide);
 								});
@@ -927,24 +934,24 @@ var app={
 					
 					// find the elements and bind functions to the options
 					var tippDetails = $("#tippOptions .tippDetails");
-					tippDetails.unbind('click');
-					tippDetails.click(function(){
+					tippDetails.off('click');
+					tippDetails.on("click",function(){
 						app.tipp.details(tippID);
 					});
 					var tippMap = $("#tippOptions .tippMap");
-					tippMap.unbind('click');
-					tippMap.click(function(){
+					tippMap.off('click');
+					tippMap.on("click",function(){
 						app.tipp.map(tippID);
 					});
 					var tippFavourite = $("#tippOptions .tippFavourite");
-					tippFavourite.unbind('click');
-					tippFavourite.click(function(){
+					tippFavourite.off('click');
+					tippFavourite.on("click",function(){
 						app.fav.add(tippID);
 					});
 					if( $("#tippOptions .tippShare").length > 0 ){
 						var tippShare = $("#tippOptions .tippShare");
-						tippShare.unbind('click');
-						tippShare.click(function(){
+						tippShare.off('click');
+						tippShare.on("click",function(){
 							helper.share("TestMessage", "TestSubject" ,"http://in-u.at/Portals/0/inuLogoWEB.png", "http://in-u.at");
 						});						
 					}
@@ -957,22 +964,28 @@ var app={
 						$("#tippShareXI").unbind('click');
 						$("#tippShareLI").unbind('click');
 						
-						$("#tippShareTW").click(function(){
+						$("#tippShareTW").off("click");
+						$("#tippShareTW").on("click",function(){
 							window.open("https://twitter.com/intent/tweet?text=TITLE&url=http://in-u.at&via=TWITTER-HANDLE",'_blank');
 						});
-						$("#tippShareFB").click(function(){
+						$("#tippShareFB").off("click");
+						$("#tippShareFB").on("click",function(){
 							window.open("http://www.facebook.com/sharer/sharer.php?u=http://in-u.at",'_blank');
 						});			
-						$("#tippShareGP").click(function(){
+						$("#tippShareGP").off("click")
+						$("#tippShareGP").on("click",function(){
 							window.open("https://plus.google.com/share?url=http://in-u.at",'_blank');
 						});
-						$("#tippSharePI").click(function(){
+						$("#tippSharePI").on("click");
+						$("#tippSharePI").on("click",function(){
 							window.open("http://pinterest.com/pin/create/button/?url=http://in-u.at&description=YOUR-DESCRIPTION&media=YOUR-IMAGE-SRC",'_blank');
 						});
-						$("#tippShareXI").click(function(){
+						$("#tippShareXI").on("click");
+						$("#tippShareXI").on("click",function(){
 							window.open("https://www.xing-share.com/app/user?op=share;sc_p=xing-share;url=http://in-u.at",'_blank');
 						});
-						$("#tippShareLI").click(function(){
+						$("#tippShareLI").on("click");
+						$("#tippShareLI").on("click",function(){
 							window.open("http://www.linkedin.com/shareArticle?mini=true&url=http://in-u.at&title=YOUR-TITLE&summary=YOUR-SUMMARY&source=http://in-u.at",'_blank');
 						});
 					}
@@ -1361,12 +1374,14 @@ var helper = {
 		
 		/** bind buttons of common elements */
 		// overlay - close
-        $("#overlayHideBtn").click(function(){
+        $("#overlayHideBtn").on("click");
+        $("#overlayHideBtn").on("click",function(){
             helper.popup.hide();
         });
 		
 		// settings page
-		$("#settingsUserShowPass").click(function() {
+		$("#settingsUserShowPass").on("click");
+		$("#settingsUserShowPass").on("click",function() {
 			if ($("#settingsUserShowPass").prop('checked')){
 				$("#settingsUserPass").attr("type","text");
 			}
@@ -1374,7 +1389,8 @@ var helper = {
 				$("#settingsUserPass").attr("type","password");
 			}
 		});
-		$("#settingsSave").click(function() {
+		$("#settingsSave").on("click");
+		$("#settingsSave").on("click",function() {
 			helper.settings.save($("#settingsWrap"));
 			app.page.show("start");
 		});
@@ -1589,6 +1605,8 @@ var helper = {
 				helper.data.set(settingName,settingValue);
 			});
 			console.log("settings saved");
+			//console.log("...trying to log in");
+			//app.login();
 			//helper.initialize();
 		},
 		get: function(setting){
@@ -1620,7 +1638,14 @@ var helper = {
 	data:{
 		get: function(key){
 			if(typeof(Storage) !== "undefined") {
-				return localStorage.getItem(key);				
+				if (localStorage !== null && localStorage.getItem(key) !== null) {
+				  return window.localStorage.getItem(key);	
+				}
+				else{
+					// Sorry! No Web Storage support..
+					return "err";
+				}
+							
 			} else {
 				// Sorry! No Web Storage support..
 				return "err";
@@ -1628,8 +1653,14 @@ var helper = {
 		},
 		set: function(key,val){
 			if(typeof(Storage) !== "undefined") {
-				localStorage.setItem(key, val);
-				return "ok";
+				if (localStorage !== null && localStorage.getItem(key) !== null) {
+					window.localStorage.setItem(key, val);
+					return "ok";
+				}
+				else{
+					// Sorry! No Web Storage support..
+					return "err";
+				}
 			} else {
 				// Sorry! No Web Storage support..
 				return "err";
@@ -1779,15 +1810,15 @@ var helper = {
 						}
                         okBtn.show();
                         if (typeof(callbackOk) != "undefined"){ 
-                            okBtn.unbind('click');
-                            okBtn.click(function(){
+                            okBtn.off('click');
+                            okBtn.on("click",function(){
                                 callbackOk();
                             });
                         }
                         else{
                             // bind close function
-                            okBtn.unbind('click');
-                            okBtn.click(function(){
+                            okBtn.off('click');
+                            okBtn.on("click",function(){
                                 helper.popup.hide();
                             });
                         }
@@ -1807,15 +1838,15 @@ var helper = {
 						}
                         cancelBtn.show();
                         if (typeof(callbackCancel) != "undefined"){ 
-                            cancelBtn.unbind('click');                        
-                            cancelBtn.click(function(){
+                            cancelBtn.off('click');                        
+                            cancelBtn.on("click",function(){
                                 callbackCancel();
                             });
                         }
                         else{
                             // bind close function
-                            cancelBtn.unbind('click');                        
-                            cancelBtn.click(function(){
+                            cancelBtn.off('click');                        
+                            cancelBtn.on("click",function(){
                                 helper.popup.hide();
                             });
                         }
