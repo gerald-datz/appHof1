@@ -1659,7 +1659,7 @@ var helper = {
 					return "err";
 				}
 				*/
-				return window.localStorage.getItem(key);	
+				return localStorage.getItem(key);	
 							
 			} else {
 				// Sorry! No Web Storage support..
@@ -1678,7 +1678,7 @@ var helper = {
 					return "err";
 				}
 				*/
-				window.localStorage.setItem(key, val);
+				localStorage.setItem(key, val);
 				return "ok";
 			} else {
 				// Sorry! No Web Storage support..
