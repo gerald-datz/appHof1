@@ -498,7 +498,7 @@ var app={
 		if ( $("#menu").hasClass("open") ){
 			app.menu.close();
 		}
-		else if ( $("#popup").hasclass("open") ){
+		else if ( $("#popup").hasclass("visible") ){
 			helper.popup.hide();
 		}
 		else if ( $(".page.active:first").attr("rel") == "start" && appIsMobile ){
