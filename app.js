@@ -498,10 +498,10 @@ var app={
 		if ( $("#menu").hasClass("open") ){
 			app.menu.close();
 		}
-		else if ( $("#popup").hasclass("visible") ){
+		else if ( $("#popup").hasClass("visible") ){
 			helper.popup.hide();
 		}
-		else if ( $(".page.active:first").attr("rel") == "start" && appIsMobile ){
+		else if ( $(".page.active:first").attr("rel") == "start" && appIsMobile == true ){
 			// ask if to exit if app - sure ?
 			helper.popup.show(  "AppHOF beenden" ,                                        // overlay title
 						"<p>Sind Sie sicher, dass Sie die App beenden möchten ?<p>",     // overlay textarea
