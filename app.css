@@ -156,6 +156,16 @@ a, a:active, a:link, a:visited {
 	vertical-align:bottom;
 }
 
+.height100{
+	height:100%;
+	min-height:100%;
+	max-height:100%;
+}
+.width100{
+	width:100%;
+	min-width:100%;
+	max-width:100%;
+}
 .margin-auto{
 	margin:0px auto;
 }
@@ -936,6 +946,7 @@ a, a:active, a:link, a:visited {
 			span.tippsBottom, span.tippsTop{
 				font-weight:700;
 				font-size:80%;
+				padding-left:8px;
 			}
 			span.tippsBottom.small{
 				display:block;
@@ -991,6 +1002,7 @@ ul.comments{
             padding:10px;
             vertical-align: top;
             border-bottom:1px solid #d4d4d4;
+			font-size:14px;
         }
         span.comments.head1{
             min-width:70px;
@@ -1003,13 +1015,13 @@ ul.comments{
             text-align:right;          
         }
         span.comments.col1{
-            min-width:70px;
-            max-width:140px;
-            width: 70px;
-            height:80px;
+            min-width:100px;
+            max-width:100px;
+            width: 90px;
+            height:auto;
             text-align:left; 
-            font-size:10px;
             text-align:center;
+			overflow:hidden;
         }
             img.profileSmall{
                 width:64px;
@@ -1403,3 +1415,14 @@ img.lazy{
 	font-weight:bold;
 	color:#fff;
 	}
+/* overrides to make fa same height and alignment as et - icon font */
+.fa, .btn-icon i.fa {
+	font-size:1em;
+	display:inline-block;
+	top:-2px;
+	position:relative;
+}
+
+#votingswrapper .fa,#commentswrapper .fa{
+	font-size:0.7em;
+}

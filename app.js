@@ -51,6 +51,12 @@ window.onresize = function(event) {
 // intialize helper and app
 $(document).ready(function() {
 	helper.errorLog("document ready ...");
+	
+	// if this entity is the embedded one in the website - prevent scrolling of the frame while in app area
+	/*if($("body").hasClass("fromWebsite")){
+		helper.preventPageScroll($("html"));		
+	}*/
+	
 	// add deviceready event to bind the hardwarekeys (back, menu) to the proper functions and use phone functions safely now
 	document.addEventListener('deviceready', function(){		
 		helper.deviceready();
@@ -87,35 +93,78 @@ var app={
 		
 		// app start procedure
 		if (helper.online.state){
+					
 			// autologin ?
-			if(helper.settings.get("AutoLogin") == true){
+			var urlauth =  helper.urlparam.get("a");
+			if (urlauth == ""){
+				// not called from website
+				$("body").removeClass("fromWebsite");				
+			}
+			else if (urlauth == "noauth"){
+				// called from website, but not logged in
+				$("body").addClass("fromWebsite");
+			}
+			else{
+				//called from website with auth
+				$("body").addClass("fromWebsite");				
+			}
+			
+			if(helper.settings.get("AutoLogin") == true || ( urlauth != "" && urlauth != "noauth" ) ){
 				// get logindata
-				var us = helper.settings.get("UserName");
-				var pw = helper.settings.get("UserPass");
-				if	(us != "" && us != false && pw != "" && pw != false){
-					// got login from local store - try to login
-					app.auth = Base64.encode(us + ":" + pw);
-					app.user = us;
+				if (urlauth != "" && urlauth != "noauth"){
+					app.auth = urlauth;
 					app.login(
 						function(result){
 							// callback from login function
 							if (result != "failed"){
 								//nothing to do ... everyting ok
+								helper.errorLog("login success from url");
 							}
 							else{
 								//login failed - show message - show loginForm?
+								helper.errorLog("login failed from url");
+								app.logout();			
 								app.loginerror();			
 							}
 						}					
-					);								
+					);		
+				}
+				else if (urlauth == "noauth"){
+					helper.errorLog("login failed from url because user not logged in on website");
+					app.logout();			
 				}
 				else{
-					// no login in local store
-					app.loginerror();
+					var us = helper.settings.get("UserName");
+					var pw = helper.settings.get("UserPass");
+					if	(us != "" && us != false && pw != "" && pw != false){
+						// got login from local store - try to login
+						app.auth = Base64.encode(us + ":" + pw);
+						app.user = us;
+						app.login(
+							function(result){
+								// callback from login function
+								if (result != "failed"){
+									//nothing to do ... everyting ok
+									helper.errorLog("login success from stored data");
+								}
+								else{
+									//login failed - show message - show loginForm?
+									helper.errorLog("login failed from stored data");
+									app.loginerror();			
+								}
+							}					
+						);								
+					}
+					else{
+						// no login in local store
+						helper.errorLog("login failed - no login in stored data");
+						app.loginerror();
+					}
 				}
 			}
 			else{
 				// do not autologin - use anonymous
+				helper.errorLog("login not done - user wants to use anonymous");
 				app.logout();			
 			}
 			app.appdata.online();
@@ -129,6 +178,7 @@ var app={
 			// not online - use offline - do not try to load online data
 			// is this the first start of the app? - if so - show message - first start needs mobile to load minimum offline data
 			
+			helper.errorLog("not online - entering offline mode");
 			// else - use offline data in localstore
 			app.appdata.offline();
 			
@@ -459,6 +509,7 @@ var app={
 	},
 	exit: function(){
 		// ask if to exit if app - sure ?
+		/*
 		//helper.popup.show(title, content, iconname, ok, cancel,callbackOk,callbackCancel){
 		helper.popup.show(  "AppHOF beenden" ,                                        // overlay title
 						"<p>Sind Sie sicher, dass Sie die App beenden möchten ?<p>",     // overlay textarea
@@ -470,6 +521,8 @@ var app={
 						},                       
 						function(){helper.popup.hide();} ,"AppHOF beenden"                   // callback function to bind to the CANCEL button
 					);
+		*/
+		navigator.app.exitApp();
 	},
     // search functions
 	search:{
@@ -523,7 +576,7 @@ var app={
 							}
 							suggestions += "<div id='searchSuggestsList' class='tr' onclick='" + onclick + "' title='" + text + "'>";
 							suggestions += 	"<div class='td ellipsis align-center vertical-middle'>";	
-							suggestions +=		"<i class='et et-" + icon + " btn-icon'></i>";	
+							suggestions +=		"<i class='et et-" + icon + " fa fa-" + icon + " btn-icon'></i>";	
 							suggestions += 	"</div>";							
 							suggestions += 	"<div class='td ellipsis align-left vertical-middle'>";
 							suggestions += 		item.Name + ", " + item.InfoName;
@@ -661,28 +714,28 @@ var app={
 						markup += "<table class='popupTable'>";
 						if(data.Phone && data.Phone != ""){                    
 							markup += "<tr><td>";
-							markup += "<i class='et et-phone'></i></td>"
+							markup += "<i class='fa fa-phone'></i></td>"
 							markup += "<td>&nbsp;<a href='tel:" + data.Phone.replace(/\s+/g, '') + "'>";
 							markup += data.Phone + "</a>";
 							markup += "</td></tr>";
 						}
 						if(data.Cell && data.Cell != ""){                  
 							markup += "<tr><td>";
-							markup += "<i class='et et-mobile'></i></td>"
+							markup += "<i class='fa fa-mobile'></i></td>"
 							markup += "<td>&nbsp;<a href='tel:" + data.Cell.replace(/\s+/g, '');
 							markup += "'>" + data.Cell + "</a>";
 							markup += "</td></tr>";
 						}                    
 						if(data.Mail && data.Mail != ""){                  
 							markup += "<tr><td>";
-							markup += "<i class='et et-mail'></i></td>"
+							markup += "<i class='fa fa-envelope'></i></td>"
 							markup += "<td>&nbsp;<a href='mailto:" + data.Mail.replace(/\s+/g, '');
 							markup += "'>" + data.Mail + "</a>";
 							markup += "</td></tr>";
 						}
 						if(data.Web && data.Web != ""){                  
 							markup += "<tr><td>";
-							markup += "<i class='et et-globe'></i></td>";
+							markup += "<i class='fa fa-globe'></i></td>";
 							markup += "<td>&nbsp;";
 							/* fix for InAppBrowser Issue on PG Build */
 							if (helper.isMobileApp){
@@ -797,10 +850,10 @@ var app={
 							markup += "	  </div>";
 							markup += "   <div class='tippsInner table'>";
 							markup += "     <span class='tipps row1 tr'>";      
-							markup += "       <span class='tipps td vertical-middle align-left'>";   
-							markup += "         <span class='createdDate tippsTop'>" + data.DateCreated + "</span>&nbsp;";        
-							markup += "         <span class='trashBtn btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-trash'></i></span>"; 
-							markup += "         <span class='optionsBtn btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-three-dots'></i></span>";
+							markup += "       <span class='tipps table vertical-middle align-left'>";   
+							markup += "         <span class='td tippsTop vertical-middle'>" + data.DateCreated + "</span>&nbsp;";        
+							markup += "         <span class='td trashBtn btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-trash'></i></span>"; 
+							markup += "         <span class='td optionsBtn btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-docs'></i></span>";
 							markup += "       </span>";                                   
 							markup += "     </span>";       
 							markup += "     <span class='tipps row2 tr'>";      
@@ -904,7 +957,7 @@ var app={
 					markup += "      <i id='tippShareFB' class='btn ets ets-facebook'></i><br>";					
 					markup += "      <i id='tippShareGP' class='btn ets ets-googleplus'></i><br>";					
 					markup += "      <i id='tippSharePI' class='btn ets ets-pinterest'></i><br>";				
-					markup += "      <i id='tippShareXI' class='btn et et-flash'></i><br>";				
+					markup += "      <i id='tippShareXI' class='btn fa fa-xing'></i><br>";				
 					markup += "      <i id='tippShareLI' class='btn ets ets-linkedin'></i>";
 					markup += "    </span>";
 				}
@@ -1093,16 +1146,16 @@ var app={
                             var votingFull = Math.floor(voting);
                             var count = 0
                             for (var i = 0; i < votingFull; i++) {
-                                markup += "<i class='et et-star orange'></i>";
+                                markup += "<i class='fa fa-star orange'></i>";
                                 count++;
                             }
                             var votingDecimal= (voting -votingFull) *100;
                             if (Math.floor(votingDecimal) >= 50){
-                                markup += "<i class='et-et-star orange'></i>";
+                                markup += "<i class='fa fa-star-half-o orange'></i>";
                                 count++
                             }
                             for (var i = count; i < 5; i++) {
-                                markup += "<i class='et et-star-empty lightgray'></i>";
+                                markup += "<i class='fa fa-star-o lightgray'></i>";
                             }
                             markup += "&nbsp;<span class='votingcount'> aus " + data.VotingCount + " Votings</span>";
                         }  
@@ -1231,32 +1284,31 @@ var app={
                                 var count = 0
                                 votingMarkup += "<span class='votingsum'>";
                                 for (var i = 0; i < votingFull; i++) {
-                                    votingMarkup += "<i class='et et-star orange'></i>";
+                                    votingMarkup += "<i class='fa fa-star orange'></i>";
                                     count++;
                                 }
                                 var votingDecimal= (voting -votingFull) *100;
                                 if (Math.floor(votingDecimal) >= 50){
-                                    votingMarkup += "<i class='et et-star orange'></i>";
+                                    votingMarkup += "<i class='fa fa-star-half-o orange'></i>";
                                     count++
                                 }
                                 for (var i = count; i < 5; i++) {
-                                    votingMarkup += "<i class='et et-star-empty lightgray'></i>";
+                                    votingMarkup += "<i class='fa fa-star-o lightgray'></i>";
                                 }
+                                votingMarkup += "</span>";								
                             }
                             markup += "     </span>";  
                             markup += "</li>";  
                             markup += "<li class='comments'>";      
-                            markup += "     <span class='comments col1'>";   
-                            markup += "         <span class='createdDate'>" + data.DateCreated + "</span><br/>";                                
-                            markup += "         <img class='profileSmall' src='" + app.imageUserURL + "?userId=" + data.UserID +  "&h=64&w=64'/><br/>";    
-                            markup += "         <span class='profileName'>" + data.DisplayName + "</span>";                 
+                            markup += "     <span class='comments col1'>";                                      
+                            markup += "         <img class='profileSmall' src='" + app.imageUserURL + "?userId=" + data.UserID +  "&h=64&w=64'/><br/>";
+                            markup += "         <span class='profileName'>" + data.DisplayName + "</span><br/>";                 
+                            markup += "         <span class='createdDate'>" + data.DateCreated + "</span>"; 
                             markup += "     </span>";       
-                            markup += "     <span class='comments col2'>";                 
+                            markup += "     <span class='comments col2'>";                  
+                            markup += votingMarkup + "<br>";                
                             markup += data.Comment;       
                             markup += "     </span>";          
-                            markup += "     <span class='comments col3'>";              
-                            markup += votingMarkup;       
-                            markup += "     </span>";                      
                             markup += "</li>";
                         });
                         markup += "</ul></div>";                        
@@ -1360,21 +1412,17 @@ var helper = {
 		// check browser/app independent status infos
 		helper.online.state = helper.check.online();
 		helper.online.type = helper.check.network();
-			helper.errorLog("1 ...");
 		
 		helper.screen.width = helper.check.screen.width();
 		helper.screen.height = helper.check.screen.height();
 		helper.screen.maxpixel = helper.check.screen.maxpixel();
-			helper.errorLog("2 ...");
 		
 		if (helper.settings.get("GPS") == true){
 			helper.check.gps();
 		}
 		
-			helper.errorLog("3 ...");
 		// load settings
 		helper.settings.load();
-			helper.errorLog("4 ...");
 		
 		/** bind buttons of common elements */
 		// overlay - close
@@ -1383,7 +1431,6 @@ var helper = {
             helper.popup.hide();
         });
 		
-			helper.errorLog("5 ...");
 		// settings page
 		$("#settingsUserShowPass").on("click");
 		$("#settingsUserShowPass").on("click",function() {
@@ -1394,14 +1441,12 @@ var helper = {
 				$("#settingsUserPass").attr("type","password");
 			}
 		});
-			helper.errorLog("6 ...");
 		$("#settingsSave").on("click");
 		$("#settingsSave").on("click",function() {
 			helper.settings.save($("#settingsWrap"));
 			app.page.show("start");
 		});
 		
-			helper.errorLog("7 ...");
 		// now initialize the app and start over
 		app.initialize();
     },
@@ -1511,8 +1556,8 @@ var helper = {
 				navigator.geolocation.getCurrentPosition(
 					function(position){
 						// success
-						helper.gpsLat = position.coords.latitude;
-						helper.gpsLon = position.coords.longitude;
+						helper.gps.lat = position.coords.latitude;
+						helper.gps.lon = position.coords.longitude;
 						//window.gpsAcc = position.coords.accuracy;
 						helper.gps.success = true;
 						helper.gps.failed = 0;
@@ -2274,6 +2319,82 @@ var helper = {
                         helper.pad(second, 2);
         return timeString;
     },
+	/** prevent page scroll while mouse over a specific area
+	    ------------------------------------ */
+	preventPageScroll: function(jqElem) {
+		jqElem.on('DOMMouseScroll mousewheel', function (ev) {
+			var $this = $(this),
+				scrollTop = this.scrollTop,
+				scrollHeight = this.scrollHeight,
+				height = $this.height(),
+				delta = (ev.type == 'DOMMouseScroll' ?
+					ev.originalEvent.detail * -40 :
+					ev.originalEvent.wheelDelta),
+				up = delta > 0;
+
+			var prevent = function () {
+				ev.stopPropagation();
+				ev.preventDefault();
+				ev.returnValue = false;
+				return false;
+			}
+
+			if (!up && -delta > scrollHeight - height - scrollTop) {
+				// Scrolling down, but this will take us past the bottom.
+				$this.scrollTop(scrollHeight);
+				return prevent();
+			} else if (up && delta > scrollTop) {
+				// Scrolling up, but this will take us past the top.
+				$this.scrollTop(0);
+				return prevent();
+			}
+		});
+	},
+	/** get and set urlparameters 
+	    ------------------------------------ */
+	urlparam:{
+		// get a URL Parameters value by its name from querystring
+		get:function(name){
+			name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+			var regexS = "[\\?&]" + name + "=([^&#]*)";
+			var regex = new RegExp(regexS);
+			var results = regex.exec(window.location.search);
+			if(results == null){
+				return "";
+			}
+			else{
+				return decodeURIComponent(results[1].replace(/\+/g, " "));
+			}
+		},		
+		// add/remove/update a querystring parameter. 
+		// Not supplying a value will remove the parameter, 
+		// supplying one will add/update the paramter. 
+		// If no URL is supplied, it will be grabbed from window.location. 
+		set: function(name,value){
+			if (!url) url = window.location.href;
+			var re = new RegExp("([?|&])" + key + "=.*?(&|#|$)(.*)", "gi");
+
+			if (re.test(url)) {
+				if (value)
+					return url.replace(re, '$1' + key + "=" + value + '$2$3');
+				else {
+					return url.replace(re, '$1$3').replace(/(&|\?)$/, '');
+				}
+			}
+			else {
+				if (value) {
+					var separator = url.indexOf('?') !== -1 ? '&' : '?',
+						hash = url.split('#');
+					url = hash[0] + separator + key + '=' + value;
+					if (hash[1]) url += '#' + hash[1];
+					return url;
+				}
+				else
+					return url;
+			}
+		}
+
+	},
     /** error handling & logging
         ------------------------------------ */
     errorLog: function(err, loglevel, logtype){    

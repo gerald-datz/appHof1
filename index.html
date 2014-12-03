@@ -6,6 +6,7 @@
 	<meta name="format-detection" content="telephone=no" />	
 	
 	<!-- Fonts & Icons -->
+	<link rel="stylesheet" href="fonts/font-awesome.min.css">
 	<link rel="stylesheet" href="fonts/entypo.css">
 	<link rel="stylesheet" href="fonts/flaticon.css">
 	<!-- Maps & Markers -->
@@ -20,8 +21,8 @@
 </head>
 
 <body>
-	<!--<div id="splash" class="visible">
-	</div>-->
+	<div id="splash" class="visible">
+	</div>
 	<!-- mask and overlays -->
 	<div id="info"></div>
 	<div id="mask">
@@ -72,8 +73,8 @@
 		<div id="topbar" class="darkgray lightgray-bd white-bg">
 			<div class="table">
 				<ul class="tr">
-					<li class="td btn logo align-left vertical-middle">
-						<img id="btn-menu" src="img/LogoSmall.png"/>
+					<li id="btn-menu" class="td btn logo align-left vertical-middle">
+						<img src="img/LogoSmall.png"/>
 					</li>
 					<li class="td title vertical-middle align-center ">
 						<h1 id ="top-title" class="darkgray">Start</h1>
@@ -82,10 +83,10 @@
 						<i class="et et-home"></i>
 					</li>
 					<li class="td btn btn-pg vertical-middle align-center hide-xs" rel="map">
-						<i class="et et-map"></i>
+						<i class="fa fa-map-marker"></i>
 					</li>
 					<li class="td btn btn-pg vertical-middle align-center" rel="search">
-						<i class="et et-search"></i>
+						<i class="fa fa-search"></i>
 					</li>
 				</ul>
 			</div>
@@ -123,7 +124,7 @@
 								<div class="tr">
 									<input id="searchMain" class="td searchField darkgray darkgray-bd" type="search" placeholder="Suchen ..."/>
 									<span id="searchNow" class="td searchButton white blue-bd blue-bg">
-										<i class="et et-search"></i>
+										<i class="fa fa-search"></i>
 									</span>
 								</div>
 							</div>
@@ -225,7 +226,7 @@
 							</div>
 							<div class="tr btn btn-pg menu-item" rel="map">
 								<span class="menu-item-icon td align-center vertical-middle">
-									<i class="et et-map"></i>
+									<i class="fa fa-map-marker"></i>
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Kartenansicht</span>
@@ -234,7 +235,7 @@
 							</div>
 							<div class="tr btn btn-pg menu-item" rel="search">
 								<span class="menu-item-icon td align-center vertical-middle">
-									<i class="et et-search"></i>
+									<i class="fa fa-search"></i>
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Suche</span>
