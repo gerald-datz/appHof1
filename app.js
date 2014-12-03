@@ -504,7 +504,7 @@ var app={
 		else if ( $("#popup").hasclass("open") ){
 			helper.popup.hide();
 		}
-		else if ( $(".page.active:first").attr("rel") == "start" && window.appIsMobile ){
+		else if ( $(".page.active:first").attr("rel") == "start" && appIsMobile ){
 			// ask if to exit if app - sure ?
 			helper.popup.show(  "AppHOF beenden" ,                                        // overlay title
 						"<p>Sind Sie sicher, dass Sie die App beenden möchten ?<p>",     // overlay textarea
@@ -956,7 +956,7 @@ var app={
 				markup += "    </span>";
 				markup += "  </div>";
 				markup += "  <div class='tr'>";
-				if (window.appIsMobile){
+				if (appIsMobile){
 					markup += "    <span class='td tippShare vertical-middle'>";
 					markup += "      Diesen Tipp teilen";
 					markup += "    </span>";
@@ -1462,6 +1462,7 @@ var helper = {
 		
 		// add a class for app-optimization (showing exit menu function ...
 		$("body").addClass("mobileApp");
+		appIsMobile = true;
 		
 		// bind device hardwarebuttons to app-functions
 		// bind menu and back button
