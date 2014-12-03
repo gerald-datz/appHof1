@@ -507,7 +507,7 @@ var app={
 						"<p>Sind Sie sicher, dass Sie die App beenden möchten ?<p>",     // overlay textarea
 						'',                                        				// image for title row (auto resized to 20x20 px)
 						true,                                                  	// show OK button?
-						false,                                                  // show CANCEL button?
+						true,                                                   // show CANCEL button?
 						function(){												// callback function to bind to the OK button
 							navigator.app.exitApp();
 						},                       
