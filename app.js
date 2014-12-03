@@ -59,13 +59,10 @@ $(document).ready(function() {
 		helper.preventPageScroll($("html"));		
 	}*/
 	
-	// add deviceready event to bind the hardwarekeys (back, menu) to the proper functions and use phone functions safely now
-	document.addEventListener('deviceready', function(){		
-		helper.deviceready();
-	}, false);
 	helper.initialize();
 });
 
+	
 /**###################################################
 			main app properties & methods
    ################################################### */
@@ -1454,21 +1451,6 @@ var helper = {
 		// now initialize the app and start over
 		app.initialize();
     },
-	deviceready: function(){
-		// this only fires in the app and so is only intended for device specific functions
-		// note that this is an event handler so the scope is that of the event ( which happens outside of "app" in "window" )
-		// so we need to call e.g. app.menuKeyDown(), and not this.menuKeyDown()
-		helper.errorLog('device ready...');
-		
-		// add a class for app-optimization (showing exit menu function ...
-		$("body").addClass("mobileApp");
-		appIsMobile = true;
-		
-		// bind device hardwarebuttons to app-functions
-		// bind menu and back button
-		document.addEventListener("menubutton", app.menuKeyDown, true);
-		document.addEventListener("backbutton", app.backKeyDown, false);		
-	},
 	check:{
 		// check if this is the mobile app (true) or webapp (false)
 		mobileapp: function(){

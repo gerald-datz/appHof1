@@ -328,8 +328,22 @@
 	<!-- main app frame end -->
 	
 	<!-- app scripts -->
-	<script src="phonegap.js" onload="appIsMobile = true;console.log('executed on mobile pg...');"></script>
-	<script src="cordova.js" onload="appIsMobile = true;console.log('executed on mobile cd ...');"></script>
+	<script type="text/javascript">
+	// add deviceready event to bind the hardwarekeys (back, menu) to the proper functions and use phone functions safely now
+		document.addEventListener('deviceready', ondeviceready, false);
+		
+		function ondeviceready(){			
+			helper.errorLog('device ready...');
+			
+			$("body").addClass("mobileApp");
+			appIsMobile = true;
+			
+			document.addEventListener("menubutton", app.menuKeyDown, true);
+			document.addEventListener("backbutton", app.backKeyDown, false);		
+		}
+	</script>
+	
+	<script src="phonegap.js"></script>
 	<script src="js/jQuery.js"></script><!-- initial Version v.1.11.1 -->
 	<script src="js/leaflet.js"></script>
 	<script src="js/leaflet.markercluster.js"></script>
