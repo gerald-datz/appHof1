@@ -5,7 +5,7 @@ jQuery.extend({
    getScript: function(url, callback) {
       var head = document.getElementsByTagName("head")[0];
       var script = document.createElement("script");
-      script.src = url;
+      script.src = url + "?" + helper.timeActual();
 
       // Handle Script loading
       {
