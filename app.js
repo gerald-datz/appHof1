@@ -48,6 +48,8 @@ window.onresize = function(event) {
     app.screenChange();
 }
 
+var appIsMobile = false;
+
 // intialize helper and app
 $(document).ready(function() {
 	helper.errorLog("document ready ...");
@@ -499,16 +501,30 @@ var app={
 		if ( $("#menu").hasClass("open") ){
 			app.menu.close();
 		}
-		else if ( $("popup").hasclass("open") ){
+		else if ( $("#popup").hasclass("open") ){
 			helper.popup.hide();
 		}
-		else if ( $(".page.active").attr("rel") == "start" && helper.app ){
-			app.exit();
+		else if ( $(".page.active:first").attr("rel") == "start" && window.appIsMobile ){
+			// ask if to exit if app - sure ?
+			helper.popup.show(  "AppHOF beenden" ,                                        // overlay title
+						"<p>Sind Sie sicher, dass Sie die App beenden möchten ?<p>",     // overlay textarea
+						'',                                        				// image for title row (auto resized to 20x20 px)
+						true,                                                  	// show OK button?
+						false,                                                  // show CANCEL button?
+						function(){												// callback function to bind to the OK button
+							navigator.app.exitApp();
+						},                       
+						function(){helper.popup.hide();} ,"JA","NEIN"           // callback function to bind to the CANCEL button
+					);
+		}
+		else{
+			// back in page history
+			
 		}
 		
 	},
 	exit: function(){
-		// ask if to exit if app - sure ?
+		
 		/*
 		//helper.popup.show(title, content, iconname, ok, cancel,callbackOk,callbackCancel){
 		helper.popup.show(  "AppHOF beenden" ,                                        // overlay title
@@ -940,7 +956,7 @@ var app={
 				markup += "    </span>";
 				markup += "  </div>";
 				markup += "  <div class='tr'>";
-				if (helper.app){
+				if (window.appIsMobile){
 					markup += "    <span class='td tippShare vertical-middle'>";
 					markup += "      Diesen Tipp teilen";
 					markup += "    </span>";
@@ -1354,7 +1370,6 @@ var app={
 ###################################################### */
 var helper = {
 	/** various status infos ------------------------------------ */
-	app: false, //deviceready does not fire on normal browsers - so default is false - check done in deviceready
 	online:{
 		state: false,
 		type: ""
@@ -1398,17 +1413,6 @@ var helper = {
 		// Allow Cross domain requests per ajax!
 		$.support.cors = true;
 		
-		// check if app or not
-		if (helper.check.mobileapp == true){
-			// this code runs in mobile app
-			helper.app = true;
-			helper.errorLog("executed as mobile app ...");
-		}
-		else{
-			// this code runs in browser
-			helper.app = false;
-			helper.errorLog("executed as browser app ...");
-		}		
 		// check browser/app independent status infos
 		helper.online.state = helper.check.online();
 		helper.online.type = helper.check.network();
