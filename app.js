@@ -169,7 +169,7 @@ var app={
 			app.appdata.online();
 			
 			// init the map screen and set markers if not present
-			if(typeof(map) == "undefined"){
+			if(typeof(map) != "undefined"){
 				app.map.init();
 			}
 		}
@@ -426,22 +426,23 @@ var app={
 			var actPage = $(".page[rel=" + pageName + "]");
             var pageTitle = actPage.attr("pghead");
             // set all pages to inactive
-            $(".page").removeClass("active");
+            $(".page").removeClass("active");			
             $(".btn-pg").removeClass("active");
+			
             // set selected page to active
 			actPage.addClass("active");
             $(".btn-pg[rel=" + pageName + "]").addClass("active");
+			
             // set page title to selected page´s pghead tag
             app.page.setTitle(pageTitle);
 			
 			//helper.screen.update($(".page[rel=" + pageName + "]"));
-			actPage.hide();
-			actPage.show();
-			
+						
             // hack for the map to show up correctly, because hidden map will not update properly
             if(pageName == "map"){
                 if (map){
-                    map.invalidateSize(false);
+                    //map.invalidateSize(false);
+                    map.invalidateSize();
                 }
             }  
         },
@@ -624,6 +625,8 @@ var app={
     map: {
 		zoom: 9,
         init: function(){
+			
+			helper.errorLog("map init ...");
             // init Map - workaround for map size bug
             $('#map').height($(document).height());
             $('#map').width($(document).width());
@@ -651,7 +654,15 @@ var app={
 			meMarkerIcon = new meIcon(); 
 			mePosMarker = new  L.LatLng(parseFloat(helper.gps.lat), parseFloat(helper.gps.lon)), mePosMarker = new L.Marker(mePosMarker,{icon: meMarkerIcon});
 			map.addLayer(mePosMarker);  
+			
+			
+			// define click function on map
+			map.on('click', app.map.click);
+			
         },
+		click:function(e){
+			helper.errorLog("You clicked the map at " + e.latlng);
+		},
         refresh: function(){
             helper.errorLog("Refreshing Map");
             map.invalidateSize(false);

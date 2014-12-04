@@ -191,6 +191,9 @@ a, a:active, a:link, a:visited {
 	cursor:hand;
 	text-transform:uppercase;
 }
+.btn-pg.active{
+	color:#18A1A8;
+}
 
 .btn-icon{
 	display:inline-block;
