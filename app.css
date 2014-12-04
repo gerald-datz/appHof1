@@ -247,7 +247,8 @@ a, a:active, a:link, a:visited {
 	display:none;
 	z-index:-2;
 	background:none;
-	
+	-webkit-transform: translate3d(0,0,0);
+	transform: translate3d(0,0,0);
 }
 
 #splash.visible{
@@ -294,6 +295,8 @@ a, a:active, a:link, a:visited {
 	margin:0px;	
 
 	z-index:-2;
+	-webkit-transform: translate3d(0,0,0);
+	transform: translate3d(0,0,0);
 }
 
 #mask.visible{
@@ -311,6 +314,8 @@ a, a:active, a:link, a:visited {
 	overflow:hidden;
 	
 	z-index:-2;
+	-webkit-transform: translate3d(0,0,0);
+	transform: translate3d(0,0,0);
 }
 
 #popup.visible{
@@ -398,6 +403,8 @@ a, a:active, a:link, a:visited {
         max-width:100%;
 		height:auto;
         text-align: center;
+		-webkit-transform: translate3d(0,0,0);
+		transform: translate3d(0,0,0);
 	}
 
         .infoelement{
@@ -434,6 +441,8 @@ a, a:active, a:link, a:visited {
 	z-index:-2;
 	height:100%;
 	width:100%;
+	-webkit-transform: translate3d(0,0,0);
+	transform: translate3d(0,0,0);
 }
 #spinnermask.visible{
 	z-index:115;
@@ -453,6 +462,9 @@ a, a:active, a:link, a:visited {
   
 		z-index:-2;
         text-align: center;
+		
+		-webkit-transform: translate3d(0,0,0);
+		transform: translate3d(0,0,0);
 	}		
 	#spinner.visible{
 		display:block;
@@ -478,6 +490,9 @@ a, a:active, a:link, a:visited {
 	
 	padding:0px;
 	margin:0px;
+	
+	-webkit-transform: translate3d(0,0,0);
+	transform: translate3d(0,0,0);
 }
 
 	/* ------------ header bar ------------- */
