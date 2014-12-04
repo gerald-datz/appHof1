@@ -169,9 +169,9 @@ var app={
 			app.appdata.online();
 			
 			// init the map screen and set markers if not present
-			if(typeof(map) != "undefined"){
+			
 				app.map.init();
-			}
+		
 		}
 		else{
 			// not online - use offline - do not try to load online data
@@ -415,9 +415,9 @@ var app={
         helper.screen.height = helper.check.screen.height();
         helper.screen.width = helper.check.screen.width();
         	
-        if (map){
+      
            app.map.refresh();
-        }        
+      
     },
 	page: {
         show: function(pageName){
@@ -442,7 +442,7 @@ var app={
             if(pageName == "map"){
                 if (map){
                     //map.invalidateSize(false);
-                    map.invalidateSize();
+                    map.invalidateSize(false);
                 }
             }  
         },
@@ -653,6 +653,9 @@ var app={
 			});
 			meMarkerIcon = new meIcon(); 
 			mePosMarker = new  L.LatLng(parseFloat(helper.gps.lat), parseFloat(helper.gps.lon)), mePosMarker = new L.Marker(mePosMarker,{icon: meMarkerIcon});
+			mePosMarker.on('click',function(e){
+				app.map.markerMe.click(e);
+			});
 			map.addLayer(mePosMarker);  
 			
 			
@@ -661,7 +664,7 @@ var app={
 			
         },
 		click:function(e){
-			helper.errorLog("You clicked the map at " + e.latlng);
+			//helper.errorLog("You clicked the map at " + e.latlng);
 		},
         refresh: function(){
             helper.errorLog("Refreshing Map");
@@ -722,6 +725,34 @@ var app={
 			click: function(locID){
 				app.location.details.show(locID);
 			}
+		},
+		markerMe:{
+			// click on marker - show the details
+			click: function(e){
+				app.map.markerMe.options();
+			},
+			options:function(){
+				var markup = "<p>Das ist Dein Standort<p>";
+				markup += "<div class='tippOptions table'>";
+				markup += "  <div class='tr'>";
+				markup += "     <span class='td tippDetails vertical-middle'>Position neu bestimmen</span>";
+				markup += "     <span class='td tippDetails align-center vertical-middle btn-icon'><i class='btn fa fa-map-marker'></i></span>";
+				markup += "  </div>";
+				markup += "  <div class='tr'>";
+				markup += "     <span class='td tippDetails vertical-middle'>Was ist in der Nähe?</span>";
+				markup += "     <span class='td tippDetails align-center vertical-middle btn-icon'><i class='btn fa fa-flag-o'></i></span>";
+				markup += "  </div>";
+				markup += "</div>";
+				helper.popup.show(  "Dein Standort" ,                           // overlay title
+						markup,     											// overlay textarea
+						'fa fa-child',                                     		// image for title row (auto resized to 20x20 px)
+						false,                                                  	// show OK button?
+						false,                                                  // show CANCEL button?
+						function(){												// callback function to bind to the OK button
+							helper.popup.hide();},                       
+						function(){helper.popup.hide();} ,"",""                   // callback function to bind to the CANCEL button
+					);
+			}
 		}
     },
     // location functions
@@ -772,7 +803,7 @@ var app={
 								markup += "<a href='#' onclick='event.preventDefault();openDeviceBrowser(" + '"' + data.Web.replace(/\s+/g, '') + '"' + ");'>";
 							}
 							else{
-								markup += "<a href='http://" + data.Web.replace(/\s+/g, '') + "' target='_blank'>"
+								markup += "<a href='http://" + data.Web.replace(/\s+/g, '') + "' target='_system'>"
 							}							
 							
 							markup += data.Web ;
@@ -1048,27 +1079,27 @@ var app={
 						
 						$("#tippShareTW").off("click");
 						$("#tippShareTW").on("click",function(){
-							window.open("https://twitter.com/intent/tweet?text=TITLE&url=http://in-u.at&via=TWITTER-HANDLE",'_blank');
+							window.open("https://twitter.com/intent/tweet?text=TITLE&url=http://in-u.at&via=TWITTER-HANDLE",'_system');
 						});
 						$("#tippShareFB").off("click");
 						$("#tippShareFB").on("click",function(){
-							window.open("http://www.facebook.com/sharer/sharer.php?u=http://in-u.at",'_blank');
+							window.open("http://www.facebook.com/sharer/sharer.php?u=http://in-u.at",'_system');
 						});			
 						$("#tippShareGP").off("click")
 						$("#tippShareGP").on("click",function(){
-							window.open("https://plus.google.com/share?url=http://in-u.at",'_blank');
+							window.open("https://plus.google.com/share?url=http://in-u.at",'_system');
 						});
 						$("#tippSharePI").on("click");
 						$("#tippSharePI").on("click",function(){
-							window.open("http://pinterest.com/pin/create/button/?url=http://in-u.at&description=YOUR-DESCRIPTION&media=YOUR-IMAGE-SRC",'_blank');
+							window.open("http://pinterest.com/pin/create/button/?url=http://in-u.at&description=YOUR-DESCRIPTION&media=YOUR-IMAGE-SRC",'_system');
 						});
 						$("#tippShareXI").on("click");
 						$("#tippShareXI").on("click",function(){
-							window.open("https://www.xing-share.com/app/user?op=share;sc_p=xing-share;url=http://in-u.at",'_blank');
+							window.open("https://www.xing-share.com/app/user?op=share;sc_p=xing-share;url=http://in-u.at",'_system');
 						});
 						$("#tippShareLI").on("click");
 						$("#tippShareLI").on("click",function(){
-							window.open("http://www.linkedin.com/shareArticle?mini=true&url=http://in-u.at&title=YOUR-TITLE&summary=YOUR-SUMMARY&source=http://in-u.at",'_blank');
+							window.open("http://www.linkedin.com/shareArticle?mini=true&url=http://in-u.at&title=YOUR-TITLE&summary=YOUR-SUMMARY&source=http://in-u.at",'_system');
 						});
 					}
 				}
@@ -1947,23 +1978,23 @@ var helper = {
 			$('#mask').addClass("visible");
             
 			//Set height and width to mask to fill up the whole screen
-            $('#mask').css({ 'width': app.screenWidth, 'height': app.screenHeight + 50 });
+            $('#mask').css({ 'width': helper.screen.width, 'height': helper.screen.height + 50 });
 
             
             theOverlay.show();
-
-            //Get the window height and width
-            var winH = theOverlay.outerHeight();
-            var winW = theOverlay.outerWidth();
-            var topPos = (app.screenHeight - winH) / 2;
+			
+			var popupH = theOverlay.outerHeight();
+			var popupW = theOverlay.outerWidth();
+			
+            var topPos = (helper.screen.height - popupH) / 2;
             if (topPos < 10) {
                 topPos = 10;
             }
-            var leftPos = (app.screenWidth - winW) / 2;
+            var leftPos = (helper.screen.width - popupW) / 2;
             if (leftPos < 10) {
                 leftPos = 10;
             }
-            theOverlay.css({'top': topPos + 'px','margin-left': leftPos + 'px','margin-right': leftPos + 'px'});
+            theOverlay.css({'top': topPos + 'px','margin-left': leftPos + 'px','margin-left': leftPos + 'px'});
 			theOverlay.addClass("visible");
         },
         hide: function(){	

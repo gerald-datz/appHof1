@@ -704,6 +704,12 @@ a, a:active, a:link, a:visited {
 								margin:-10px 4px 8px 4px;
 							}
 						.jumbo span.top{
+							position:absolute;
+							top:0;
+							left:0;
+							
+							display:block;
+							width:100%;
 						
 						}
 						.jumbo span.bottom{
