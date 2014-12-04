@@ -423,18 +423,20 @@ var app={
         show: function(pageName){
             //close all menus which are open to show whole content afer menu click
             $(".menu-main.open").removeClass("open"); 
-			
-            var pageTitle = $(".page[rel=" + pageName + "]").attr("pghead");
+			var actPage = $(".page[rel=" + pageName + "]");
+            var pageTitle = actPage.attr("pghead");
             // set all pages to inactive
             $(".page").removeClass("active");
             $(".btn-pg").removeClass("active");
             // set selected page to active
-            $(".page[rel=" + pageName + "]").addClass("active");
+			actPage.addClass("active");
             $(".btn-pg[rel=" + pageName + "]").addClass("active");
             // set page title to selected page´s pghead tag
             app.page.setTitle(pageTitle);
 			
-			helper.screen.update($(".page[rel=" + pageName + "]"));
+			//helper.screen.update($(".page[rel=" + pageName + "]"));
+			actPage.hide();
+			actPage.show();
 			
             // hack for the map to show up correctly, because hidden map will not update properly
             if(pageName == "map"){
