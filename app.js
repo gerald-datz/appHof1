@@ -421,6 +421,9 @@ var app={
     },
 	page: {
         show: function(pageName){
+            //close all menus which are open to show whole content afer menu click
+            $(".menu-main.open").removeClass("open"); 
+			
             var pageTitle = $(".page[rel=" + pageName + "]").attr("pghead");
             // set all pages to inactive
             $(".page").removeClass("active");
@@ -430,14 +433,15 @@ var app={
             $(".btn-pg[rel=" + pageName + "]").addClass("active");
             // set page title to selected page´s pghead tag
             app.page.setTitle(pageTitle);
-            // hack for the map to show up correctly, because hidden map will not updae properly
+			
+			helper.screen.update($(".page[rel=" + pageName + "]"));
+			
+            // hack for the map to show up correctly, because hidden map will not update properly
             if(pageName == "map"){
                 if (map){
                     map.invalidateSize(false);
                 }
-            }
-            //close all menus which are open to show whole content afer menu click
-            $(".menu-main.open").removeClass("open");   
+            }  
         },
         setTitle: function(theTitle){
             $("#top-title").text(theTitle);
@@ -1374,7 +1378,14 @@ var helper = {
 	screen:{
 		width:100,
 		height:100,
-		maxpixel:0
+		maxpixel:0,
+		update:function(jqElem){
+			// this should fix issues on elements not redrawing on android screens
+			// http://www.eccesignum.org/blog/solving-display-refreshredrawrepaint-issues-in-webkit-browsers
+			var n = document.createTextNode(' ');
+			jqElem.append(n);
+			setTimeout(function(){n.parentNode.removeChild(n)}, 0);
+		}
 	},
 	gps:{
 		on: false,
