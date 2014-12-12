@@ -908,15 +908,7 @@ var app={
 							markup += "<i class='fa fa-globe'></i></td>";
 							markup += "<td>&nbsp;";
 							/* fix for InAppBrowser Issue on PG Build */
-							if (helper.check.mobileapp){
-								helper.errorLog("opened link in external browser");
-								markup += "<a href='#' onclick='event.preventDefault();window.open(" + '"' + data.Web.replace(/\s+/g, '') + '","_system"' + " );'>";
-							}
-							else{
-								markup += "<a href='http://" + data.Web.replace(/\s+/g, '') + "' target='_blank'>"
-							}							
 							
-							markup += data.Web ;
 							var webshort = data.Web.replace(/\s+/g, '');
 							if (  helper.left(webshort,4).toLowerCase() == "http"  ){
 								// nothing to change
@@ -929,11 +921,22 @@ var app={
 								webshort = "http:\\\\" + webshort;   
 							}
 							// change slashes to backslashes in url for bbimghandler
-							webshort = webshort.replace(/\//g, "\\");   
-
+							var webshort2 = webshort.replace(/\//g, "\\");   
+							
+							
+							if (helper.check.mobileapp){
+								helper.errorLog("opened link in external browser");
+								markup += "<a href='#' onclick='event.preventDefault();window.open(" + '"' + webshort + '","_system"' + " );'>";
+							}
+							else{
+								markup += "<a href='http://" + webshort + "' target='_blank'>"
+							}							
+							
+							// markup += data.Web ;
+							
 							markup += "<div>";
 							markup += "<img style='border: 1px solid #eee;' src='" + app.imageURL + "?Url=" + webshort + "&height=100&ratio=screen' />";
-							markup += "<img class='hide-xs hide-sm' style='margin-left:10px;' src='" + app.imageURL + "?barcode=1&width=100&height=100&type=qrcode&content=" + encodeURIComponent(webshort) + "' />"; 
+							markup += "<img class='hide-xs hide-sm' style='margin-left:10px;' src='" + app.imageURL + "?barcode=1&width=100&height=100&type=qrcode&content=" + encodeURIComponent(webshort2) + "' />"; 
 							markup += "</a>"; 
 							markup += "</td></tr>";
 						}
