@@ -851,14 +851,14 @@ var app={
 				var refreshPos = $("#meOptions .refreshPos");
 					refreshPos.off('click');
 					refreshPos.on("click",function(){
-					
+						app.map.markerMe.refresh();
 						helper.popup.hide();
 					});
 				// what큦 near
 				var nearPos = $("#meOptions .nearPos");
 					nearPos.off('click');
 					nearPos.on("click",function(){
-					
+						alert("what큦 near or not what큦 near, that큦 the question");
 						helper.popup.hide();
 					});
 			}
