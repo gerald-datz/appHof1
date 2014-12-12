@@ -908,7 +908,8 @@ var app={
 							markup += "<i class='fa fa-globe'></i></td>";
 							markup += "<td>&nbsp;";
 							/* fix for InAppBrowser Issue on PG Build */
-							if (helper.isMobileApp){
+							if (helper.check.mobileapp){
+								helper.errorLog("opened link in external browser");
 								markup += "<a href='#' onclick='event.preventDefault();window.open(" + '"' + data.Web.replace(/\s+/g, '') + '","_system"' + " );'>";
 							}
 							else{
@@ -1677,6 +1678,7 @@ var helper = {
 		// check if this is the mobile app (true) or webapp (false)
 		mobileapp: function(){
 			return (typeof(cordova) !== 'undefined' || typeof(phonegap) !== 'undefined');
+			helper.errorLog("isMobileApp");
 			/*return (window.cordova || window.PhoneGap || window.phonegap)
 			&& /^file:\/{3}[^\/]/i.test(window.location.href)
 			&& /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);*/
