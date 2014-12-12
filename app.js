@@ -87,6 +87,8 @@ var app={
 		// initially do not show password cleartext in settings
 		$("#settingsUserShowPass").prop("checked",false);
 		
+		app.page.setTitle("start");
+        app.page.setHelp("start");
 		//bind handler for menu items click functions
         app.bind();
 		
@@ -414,10 +416,7 @@ var app={
     screenChange:function(){         
         helper.screen.height = helper.check.screen.height();
         helper.screen.width = helper.check.screen.width();
-        	
-      
-           app.map.refresh();
-      
+        app.map.refresh();
     },
 	page: {
         show: function(pageName){
@@ -433,8 +432,9 @@ var app={
 			actPage.addClass("active");
             $(".btn-pg[rel=" + pageName + "]").addClass("active");
 			
-            // set page title to selected page´s pghead tag
+            // set page title to selected page´s pghead tag and footer to help text
             app.page.setTitle(pageTitle);
+            app.page.setHelp(pageName);
 			
 			//helper.screen.update($(".page[rel=" + pageName + "]"));
 						
@@ -447,8 +447,13 @@ var app={
             }  
         },
         setTitle: function(theTitle){
-            $("#top-title").text(theTitle);
-        }
+            $("#top-title").text(theTitle);			
+        },
+		setHelp: function(pageName){			
+			$("#helpArea").html("");
+			var helptext = $("#helptext span[rel=" + pageName + "]") 
+			$("#helpArea").html(helptext.html());
+		}
     },
     // common menu & slideup functions
 	menuKeyDown:function(){
@@ -711,7 +716,16 @@ var app={
         },
 		mypos: function(){
 			mePosMarker.setLatLng([parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)]).update();
-			map.setView(new L.LatLng(parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)), app.map.zoom);
+		},
+		findmypos:function(){
+			var actZoomLevel;
+			if (map.getZoom()){
+				actZoomLevel = map.getZoom()
+			}
+			else{
+				actZoomLevel = app.map.zoom;
+			}
+			map.setView(new L.LatLng(parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)),actZoomLevel);
 		},
 		findpos: function(coordLat, coordLon, zoom){
 			if(typeof(zoom) == "undefined"){
@@ -720,6 +734,68 @@ var app={
 			map.setView([coordLat, coordLon], zoom);
 			//map.panTo(new L.LatLng(coordLat, coordLon));
 		},
+		distance: function(lat1a,lon1a,lat2a,lon2a,type){
+			// type: car, public, bike, walk
+			var distFactor = 1.3;
+			switch(type) {
+				case 'walk':
+					distFactor = 1.35;
+					break;
+				case 'bike':
+					distFactor = 1.35;
+					break;
+				case 'public':
+					distFactor = 1.25;
+					break;
+				default:
+					// car ...
+					distFactor = 1.15;
+					break;
+			}
+			var lat1=parseFloat(lat1a);
+			var lat2=parseFloat(lat2a);
+			var lon1=parseFloat(lon1a);
+			var lon2=parseFloat(lon2a);
+			
+			var R = 6371; // Radius of the earth in km
+			var dLat = (lat2-lat1).toRad();  // Javascript functions in radians
+			var dLon = (lon2-lon1).toRad(); 
+			var a1 = Math.sin(dLat/2);
+			var a2 = Math.sin(dLat/2);
+			var a3 = Math.cos(lat1.toRad());
+			var a4 = Math.cos(lat2.toRad());
+			var a5 = Math.sin(dLon/2);
+			var a6 = Math.sin(dLon/2);
+			var a = a1 * a2 + a3 * a4 * a5 * a6; 
+			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+			var d = parseInt((R * c)*1000); // Distance in m	
+
+			var result = d * distFactor;			
+			return d;
+		},
+		duration: function(distance,type){
+			// type: car, public, bike, walk
+			var timeFactor = 1;
+			switch(type) {
+				case 'walk':
+					// 4km/h
+					timeFactor = 1;
+					break;
+				case 'bike':
+					//16km/h
+					timeFactor = 1;
+					break;
+				case 'public':
+					// 30km/h
+					timeFactor = 1;
+					break;
+				default:
+					// car ... 50 km/h
+					timeFactor = 1;
+					break;
+			}
+		
+		},
 		marker:{
 			// click on marker - show the details
 			click: function(locID){
@@ -727,20 +803,27 @@ var app={
 			}
 		},
 		markerMe:{
+			refresh:function(){
+				navigator.geolocation.getCurrentPosition(geoSuccess,geoErrors,{ enableHighAccuracy: true });
+			},
 			// click on marker - show the details
 			click: function(e){
 				app.map.markerMe.options();
 			},
 			options:function(){
 				var markup = "<p>Das ist Dein Standort<p>";
-				markup += "<div class='tippOptions table'>";
+				markup += "<div id='meOptions' class='tippOptions table'>";
 				markup += "  <div class='tr'>";
-				markup += "     <span class='td tippDetails vertical-middle'>Position neu bestimmen</span>";
-				markup += "     <span class='td tippDetails align-center vertical-middle btn-icon'><i class='btn fa fa-map-marker'></i></span>";
+				markup += "     <span class='td myPos vertical-middle'>Deinen Standort anzeigen</span>";
+				markup += "     <span class='td myPos align-center vertical-middle btn-icon'><i class='btn fa fa-male'></i></span>";
 				markup += "  </div>";
 				markup += "  <div class='tr'>";
-				markup += "     <span class='td tippDetails vertical-middle'>Was ist in der Nähe?</span>";
-				markup += "     <span class='td tippDetails align-center vertical-middle btn-icon'><i class='btn fa fa-flag-o'></i></span>";
+				markup += "     <span class='td refreshPos vertical-middle'>Position neu bestimmen</span>";
+				markup += "     <span class='td refreshPos align-center vertical-middle btn-icon'><i class='btn fa fa-crosshairs'></i></span>";
+				markup += "  </div>";
+				markup += "  <div class='tr'>";
+				markup += "     <span class='td nearPos vertical-middle'>Was ist in der Nähe?</span>";
+				markup += "     <span class='td nearPos align-center vertical-middle btn-icon'><i class='btn fa fa-bullseye'></i></span>";
 				markup += "  </div>";
 				markup += "</div>";
 				helper.popup.show(  "Dein Standort" ,                           // overlay title
@@ -752,6 +835,32 @@ var app={
 							helper.popup.hide();},                       
 						function(){helper.popup.hide();} ,"",""                   // callback function to bind to the CANCEL button
 					);
+				
+				app.map.markerMe.bind();
+			},
+			bind: function(){
+				// my position
+				var myPos = $("#meOptions .myPos");
+					myPos.off('click');
+					myPos.on("click",function(){
+						app.map.findmypos();
+						helper.popup.hide();
+					});
+				
+				//refresh position
+				var refreshPos = $("#meOptions .refreshPos");
+					refreshPos.off('click');
+					refreshPos.on("click",function(){
+					
+						helper.popup.hide();
+					});
+				// what´s near
+				var nearPos = $("#meOptions .nearPos");
+					nearPos.off('click');
+					nearPos.on("click",function(){
+					
+						helper.popup.hide();
+					});
 			}
 		}
     },
@@ -1417,7 +1526,8 @@ var helper = {
 	/** various status infos ------------------------------------ */
 	online:{
 		state: false,
-		type: ""
+		type: "",
+		interval: 10000
 	},
 	screen:{
 		width:100,
@@ -1433,11 +1543,60 @@ var helper = {
 	},
 	gps:{
 		on: false,
-		success: false,	// indicates if last gpsRequest was successful
+		supported:false, // navigator.geolocation supported by browser/device?	
+		successful: false,	// indicates if last gpsRequest was successful
 		failed: 0,		// counts failed number of gps requests
-		timeout: 5000, 	// timeout for trying to get GPS coordinates on gps check	
+		maxfails: 3,	// maximum fails before turning markerme to red
+		timeout: 3000, 	// timeout for trying to get GPS coordinates on gps check	
 		lat: "48.20857355", // latitude Stephansdom
 		lon: "16.37254714", // longitude Stephansdom
+		track: function(){ // needs working GPS which is switched on	
+			navigator.geolocation.watchPosition(helper.gps.success,helper.gps.error,{ enableHighAccuracy: true, maximumAge:( (helper.gps.timeout * 3) ), timeout:( (helper.settings.get("GPSinterval") * 1000) )}); 
+		},
+		update: function(){
+			navigator.geolocation.getCurrentPosition(helper.gps.success,helper.gps.error,{ enableHighAccuracy: true });
+		},
+		success: function(position){
+			if (helper.settings.get("GPS") == true){
+				helper.gps.lat = position.coords.latitude;
+				helper.gps.lon = position.coords.longitude;
+				//window.gpsAcc = position.coords.accuracy;
+				helper.gps.on = true;
+				helper.gps.successful = true;
+				helper.gps.failed = 0;
+				helper.errorLog("gps positioned ... lat:" + helper.gps.lat + " lon:" +helper.gps.lon);
+				//update user pos in map
+				app.map.mypos();
+			}
+			$("#state-gps").removeClass("red");
+			$("#state-gps").addClass("green");
+		},
+		error: function(err){
+			// error
+			// PERMISSION_DENIED (1) if the user clicks that “Don’t Share” button or otherwise denies you access to their location.
+			// POSITION_UNAVAILABLE (2) if the network is down or the positioning satellites can’t be contacted.
+			// TIMEOUT (3) ;
+			
+			helper.gps.failed++; 
+			
+			$("#state-gps").removeClass("green");
+			$("#state-gps").addClass("red");
+			
+			if (err.code == 1) {
+				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reasopn: PERMISSION_DENIED");
+			}
+			else if (err.code == 2) {
+				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reasopn: POSITION_UNAVAILABLE");
+			}
+			else if (err.code == 3) {
+				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reasopn: TIMEOUT " + (helper.gps.timeout / 1000) + " seconds" );
+			}
+			else {
+				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reasopn: UNKNOWN");
+			}
+			helper.gps.on = false;
+			helper.gps.successful = false;
+		}	
 	},
 	locale:{
 		de: {
@@ -1466,12 +1625,15 @@ var helper = {
 		$.support.cors = true;
 		
 		// check browser/app independent status infos
-		helper.online.state = helper.check.online();
-		helper.online.type = helper.check.network();
-		
+			helper.online.state = helper.check.online();
+			helper.online.type = helper.check.network();
+						
 		helper.screen.width = helper.check.screen.width();
 		helper.screen.height = helper.check.screen.height();
 		helper.screen.maxpixel = helper.check.screen.maxpixel();
+		
+		// initialize Tabs for settings screen
+		$('#settingsTabs').easyResponsiveTabs();
 		
 		if (helper.settings.get("GPS") == true){
 			helper.check.gps();
@@ -1502,6 +1664,11 @@ var helper = {
 			helper.settings.save($("#settingsWrap"));
 			app.page.show("start");
 		});
+		$("#settingsClose").on("click");
+		$("#settingsClose").on("click",function() {
+			app.page.show("start");
+		});
+		
 		
 		// now initialize the app and start over
 		app.initialize();
@@ -1535,15 +1702,19 @@ var helper = {
 				// Make sure the server is reachable
 				return ( s >= 200 && s < 300 || s === 304 );
 				// catch network & other problems
+				$("#state-online").addClass("green");
+				$("#state-online").removeClass("red");
 			} 
 			catch (e) {
+				$("#state-online").removeClass("green");
+				$("#state-online").addClass("red");
 				return false;
 			} 
 		},	
 		screen: {
 			// init screen diminsions for overlays
 			height: function(){
-				return $(window).height() - 50;
+				return $(window).height() - 75;
 			},
 			width: function(){
 				return $(window).width();
@@ -1592,40 +1763,16 @@ var helper = {
 			return 'Unknown connection';
 		},
 		gps:function(){
-			 // check if geolocation is available
+			// check if navigator.geolocation is available/suppported
 			if (navigator.geolocation) {
-				var timeoutVal = helper.gpsTimeout;
-				navigator.geolocation.getCurrentPosition(
-					function(position){
-						// success
-						helper.gps.lat = position.coords.latitude;
-						helper.gps.lon = position.coords.longitude;
-						//window.gpsAcc = position.coords.accuracy;
-						helper.gps.success = true;
-						helper.gps.failed = 0;
-						helper.errorLog("gps positioned ...");
-						//update user pos in map
-						app.map.mypos();
-					},
-					function(){
-						// error
-						helper.gps.success = false;
-						helper.gps.failed++; 
-						helper.errorLog("gps failed " + helper.gps.failed + " times ...");                
-					},
-					{
-						// gegolocation parameters
-						enableHighAccuracy: true,
-						timeout: timeoutVal,
-						maximumAge: 0
-					}
-				);           
-			} 
-			else {
-			   // ???
-				alert("GPS not enabled or allowed");
-				helper.gpsSuccess = false;
-				helper.gpsFailed = helper.gpsFailed + 1;
+				helper.gps.supported = true;
+				// set interval to update position 
+				var gpsUpdate = helper.settings.get("GPSinterval");
+				if ( gpsUpdate < 1 ){
+					gpsUpdate = 10;
+					helper.settings.set("GPSinterval","10");
+				}
+				helper.gps.track();						
 			}
 		}
 	},	
@@ -1978,7 +2125,7 @@ var helper = {
 			$('#mask').addClass("visible");
             
 			//Set height and width to mask to fill up the whole screen
-            $('#mask').css({ 'width': helper.screen.width, 'height': helper.screen.height + 50 });
+            $('#mask').css({ 'width': helper.screen.width, 'height': helper.screen.height + 75 });
 
             
             theOverlay.show();
@@ -2493,6 +2640,14 @@ var helper = {
 }
 /** base64 encode */
 var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f<e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n>>2;o=(n&3)<<4|r>>4;u=(r&15)<<2|i>>6;a=i&63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9\+\/\=]/g,"");while(f<e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s<<2|o>>4;r=(o&15)<<4|u>>2;i=(u&3)<<6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/\r\n/g,"\n");var t="";for(var n=0;n<e.length;n++){var r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r)}else if(r>127&&r<2048){t+=String.fromCharCode(r>>6|192);t+=String.fromCharCode(r&63|128)}else{t+=String.fromCharCode(r>>12|224);t+=String.fromCharCode(r>>6&63|128);t+=String.fromCharCode(r&63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n<e.length){r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r);n++}else if(r>191&&r<224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&31)<<6|c2&63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&15)<<12|(c2&63)<<6|c3&63);n+=3}}return t}}
+
+// Converts numeric degrees to radians //
+if (typeof(Number.prototype.toRad) === "undefined"){
+	Number.prototype.toRad = function() 
+	{
+		return this * Math.PI / 180;
+	}
+}
 
 /** jQuery plugins and extensions */
 /** browser-independent ellipsis ... 

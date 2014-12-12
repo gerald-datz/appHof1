@@ -609,7 +609,7 @@ a, a:active, a:link, a:visited {
 				min-width:100%;
 				max-width:100%;
 				
-				padding:50px 0px 0px 0px;
+				padding:50px 0px 25px 0px;
 				
 				margin:0px;
 			}
@@ -1234,7 +1234,51 @@ img.lazy{
 							display:block;
 						}
 					
-	
+	/* ------------ status bar ------------- */
+	#statusbar{
+		position:fixed;
+		bottom:0px;
+		left:0px;
+		
+		display:block;
+		overflow:hidden;
+		
+		height:25px;
+		min-height:25px;
+		max-height:25px;
+		width:100%;
+		min-width:100%;
+		max-width:100%;
+		
+		padding:0px;
+		margin:0px;
+		
+		font-size:12px;
+		
+		border-top:1px solid;
+		
+		z-index:9;
+	}
+		#statusbar .td{
+			padding:0px;
+			margin:0px;
+		}
+			#statusbar .td div.statusitem{
+				margin:-2px 0 0 0;
+				position:relative;
+			}
+			
+			#statusbar .td i, #statusbar .td em{	
+				position:absolute; 
+			}
+			#statusbar .td i.fa-compass,#statusbar .td i.fa-circle{   
+				font-size: 1.2em;
+			}
+			
+			#helpArea i{
+				display:inline-block;
+				position:relative!important;
+			}
 /* ###################################################
 					helper overrides
    ################################################### */
@@ -1266,7 +1310,7 @@ img.lazy{
 .black-bg-t99{
 	background-color:rgba(0,0,0,0.99)
 }
-.black-border{
+.black-border, .black-bd{
 	border-color:#000;
 }
 
