@@ -909,10 +909,10 @@ var app={
 							markup += "<td>&nbsp;";
 							/* fix for InAppBrowser Issue on PG Build */
 							if (helper.isMobileApp){
-								markup += "<a href='#' onclick='event.preventDefault();openDeviceBrowser(" + '"' + data.Web.replace(/\s+/g, '') + '"' + ");'>";
+								markup += "<a href='#' onclick='event.preventDefault();window.open(" + '"' + data.Web.replace(/\s+/g, '') + '","_system"' + " );'>";
 							}
 							else{
-								markup += "<a href='http://" + data.Web.replace(/\s+/g, '') + "' target='_system'>"
+								markup += "<a href='http://" + data.Web.replace(/\s+/g, '') + "' target='_blank'>"
 							}							
 							
 							markup += data.Web ;
