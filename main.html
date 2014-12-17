@@ -65,10 +65,7 @@
 
 	<!-- main app frame -->
 	<div id="app">
-		<!-- modal pages -->
-		
-		<!-- modal pages end -->		
-		
+
 		<!-- top bar -->
 		<div id="topbar" class="darkgray lightgray-bd white-bg">
 			<div class="table">
@@ -76,17 +73,17 @@
 					<li id="btn-menu" class="td btn logo align-left vertical-middle">
 						<img src="img/LogoSmall.png"/>
 					</li>
-					<!--<li class="td title vertical-middle align-center ">
-						<h1 id ="top-title" class="darkgray">Start</h1>
-					</li>-->
+					<li class="td title vertical-middle align-center hide-xs hide-sm">
+						<h1 id ="top-title" class="darkgray">Startseite</h1>
+					</li>
 					<li class="td btn btn-pg vertical-middle align-center active" rel="start">
 						<i class="et et-home"></i>
 					</li>
 					<li class="td btn btn-pg vertical-middle align-center" rel="map">
-						<i class="fa fa-map-marker"></i>
+						<i class="fa fa-fw fa-map-marker"></i>
 					</li>
 					<li class="td btn btn-pg vertical-middle align-center" rel="search">
-						<i class="fa fa-search"></i>
+						<i class="fa fa-fw fa-search"></i>
 					</li>
 					<li class="td btn btn-pg vertical-middle align-center" rel="fav">
 						<i class="et et-heart"></i>
@@ -94,12 +91,12 @@
 				</ul>
 			</div>
 		</div>
-		<!-- header bar end -->
+		<!-- top bar end -->
 		
 		<!-- pages area -->
 		<div id="content">
 			<ul class="pages">
-				<li class="page active" rel="start" pghead="Start">
+				<li class="page active" rel="start" pghead="Startseite">
 					<div class="page-inner">
 						<div class="jumbo blue-bg">
 							<img src="img/titleBG.jpg" width="100%"/>
@@ -114,10 +111,26 @@
 						<ul id="tippsList" class="tippsList"></ul>
 					</div>
 				</li>
-				<li class="page" rel="map" pghead="Karte">
+				<li class="page" rel="map" pghead="Kartenansicht">
 					<div id="map"></div>
+					<div id="mapinfo" class="white-bg-t7 black">
+						<div class="table">
+							<div class="tr">
+								<span id="mapinfo-text" class="td vertical-middle align-left">
+									name and distance<br>
+									opening info
+								</span>
+								<span id="mapinfo-detail" class="td vertical-middle align-center" onclick="app.location.details.show($(this).attr('rel'));">
+									<i class="et et-info btn-icon "></i>
+								</span>
+								<span id="mapinfo-hide" class="td  vertical-middle align-center" onclick='$("#mapinfo").hide();$("#mapinfo-detail").attr("rel","0");'>
+									<i class="et et-cross btn-icon"></i>
+								</span>
+							</div>
+						</div>
+					</div>
 				</li>
-				<li class="page" rel="search" pghead="Suche">
+				<li class="page" rel="search" pghead="Suchen">
 					<div class="page-inner">
 						<div class="page-content">
 							<h1>
@@ -127,7 +140,7 @@
 								<div class="tr">
 									<input id="searchMain" class="td searchField darkgray darkgray-bd" type="search" placeholder="Suchen ..."/>
 									<span id="searchNow" class="td searchButton white blue-bd blue-bg">
-										<i class="fa fa-search"></i>
+										<i class="fa fa-fw fa-search"></i>
 									</span>
 								</div>
 							</div>
@@ -137,48 +150,179 @@
 					</div>
 				</li>
 				<li class="page" rel="fav" pghead="Favoriten">
-					Favoriten
+					<div class="page-inner">
+						<div class="page-content">
+							<h1>
+								Favoriten
+							</h1>
+							<ul id="favlist" class="table">
+							</ul>
+						</div>
+					</div>
 				</li>
-				<li class="page" rel="help" pghead="Hilfe">
-					Hilfe
+				<li class="page" rel="help" pghead="Hilfe">					
+					<div class="page-inner">
+						<div class="page-content">
+							<h1>
+								Hilfethemen Übersicht
+							</h1>
+							<p class="small">Hier findest Du Beschreibungen aller Funktionen und den Möglichkeiten die Du mit dieser App nutzen kannst.</p>
+							<div id="helplist" class="table">
+								<div class="tr vertical-middle btn" onclick="app.page.showHelp('start');">
+									<span class="td blue btn-icon align-center"><i class="et et-home"></i></span>
+									<span class="td blue">Allgemeine Infos &amp; Startseite<br/><span class="small darkgray">Aufbau der App, Menü, Statuszeile ...</span></span>
+								</div>
+								<div class="tr vertical-middle btn" onclick="app.page.showHelp('map');">
+									<span class="td blue btn-icon align-center"><i class="fa fa-map-marker"></i></span>
+									<span class="td blue">Kartenansicht &amp; in der Nähe<br/><span class="small darkgray">Finde ab Hof Verkäufe in Deiner Nähe</span></span>
+								</div>
+								<div class="tr vertical-middle btn" onclick="app.page.showHelp('search');">
+									<span class="td blue btn-icon align-center"><i class="fa fa-search"></i></span>
+									<span class="td blue">Orts- &amp; Produktsuche<br/><span class="small darkgray">Allgemeine Suche nach Stichworten</span></span>
+								</div>
+								<div class="tr vertical-middle btn" onclick="app.page.showHelp('fav');">
+									<span class="td blue btn-icon align-center"><i class="et et-heart"></i></span>
+									<span class="td blue">Favoriten speichern &amp; abrufen<br/><span class="small darkgray">Speichere Deine Verkäufer und Artikel</span></span>
+								</div>
+							</div>
+						</div>
+					</div>
 				</li>
 				<li class="page" rel="about" pghead="Über AppHOF">
 					Über
 				</li>
-				<li class="page" rel="settings" pghead="Einstellungen">	
+				<li class="page" rel="settings" pghead="Einstellungen">
+					<div style="margin:20px;">
+						<span id="settingsSave" class="btn btn-text blue">&nbsp;&nbsp;&nbsp;SPEICHERN</span>
+						<span id="settingsClose" class="float-right btn btn-text red">ABBRECHEN&nbsp;&nbsp;&nbsp;</span>
+					</div>
 					<div class="page-inner">
-						<div id="settingsWrap">	
-							<div>
-								<small>&nbsp;</small><br>
-								<span id="settingsSave" class="btn btn-text blue">&nbsp;&nbsp;&nbsp;SPEICHERN</span>
-								<span id="settingsClose" class="float-right btn btn-text red">ABBRECHEN&nbsp;&nbsp;&nbsp;</span>
-							</div><br>
+						<div id="settingsWrap">
 							<div id="settingsTabs">          
 								<ul class="resp-tabs-list">
 									<li>Benutzername und Kennwort</li>
 									<li>Persönliche Einstellungen</li>
-									<li>Produkte und Kategorien</li>
+									<li>Themenauswahl</li>
 								</ul> 
 
 								<div class="resp-tabs-container">                                                        
 									<div>
 										<!-- Account & Login -->
-										<input type="text" class="setting" rel="UserName"/><br>
-										<input type="password" class="setting" rel="UserPass" id="settingsUserPass"/><br>
-										<input type="checkbox" id="settingsUserShowPass"/>&nbsp;Passwort anzeigen<br>
-										<input type="checkbox" class="setting" rel="AutoLogin" />&nbsp;Automatisch anmelden
+										<h3 class="blue">Benutzerkonto</h3>
+										<div class="table">
+											<div class="tr">
+												<div class="td align-left">
+													Benutzer
+												</div>
+												<div class="td200 align-center">
+													<input type="text" class="setting" rel="UserName"/><br>
+												</div>
+											</div>
+											<div class="tr">
+												<div class="td align-left">
+													Kennwort
+												</div>
+												<div class="td200 align-center">
+													<input type="password" class="setting" rel="UserPass" id="settingsUserPass"/>
+												</div>
+											</div>
+										</div>
+										<div class="table">
+											<div class="tr">
+												<div class="td align-left">
+													Kennwort anzeigen
+												</div>
+												<div class="td50 align-center">
+													<input type="checkbox" id="settingsUserShowPass"/>
+												</div>
+											</div>
+											<div class="tr">
+												<div class="td align-left">
+													Automatisch anmelden
+												</div>
+												<div class="td50 align-center">
+													<input type="checkbox" class="setting" rel="AutoLogin" />
+												</div>
+											</div>
+										</div>
 									</div>
 									<div>
 										<!-- General settings -->
-										<input type="text" class="setting" rel="TippsCount" />&nbsp;Anzahl Tipps bei Start
+										<h3 class="blue">Startseite</h3>										
+										<div class="table">
+											<div class="tr">
+												<div class="td align-left">
+													Anzahl Infos auf Start
+												</div>
+												<div class="td100 align-center">
+													<input type="text" class="setting" rel="TippsCount" default-value="20" />
+												</div>
+											</div>
+										</div>					
 										<hr>
-										<input type="checkbox" class="setting" rel="GPS" />&nbsp;GPS-Position erlauben
-										<br>
-										<input type="text" class="setting" rel="GPSinterval" />s Positionsaktualisierung
+										<h3 class="blue">Kartenansicht</h3>				
+										<div class="table">
+											<div class="tr">
+												<div class="td align-left">
+													Positionsbestimmung erlauben
+												</div>
+												<div class="td100 align-center">
+													<input type="checkbox" class="setting" rel="GPS" />
+												</div>
+											</div>
+											<div class="tr">
+												<div class="td align-left">
+													Positionsaktualisierung (sek)
+												</div>
+												<div class="td100 align-center">
+													<input type="text" class="setting" rel="GPSinterval" default-value="10" />
+												</div>
+											</div>
+											<div class="tr">
+												<div class="td align-left">
+													Orte im Umkreis von (km)
+												</div>
+												<div class="td100 align-center">
+													<input type="text" class="setting" rel="Radius" default-value="12" />
+												</div>
+											</div>
+											<div class="tr">
+												<div class="td align-left">
+													Postleitzahl Wohnort
+												</div>
+												<div class="td100 align-center">
+													<input type="text" class="setting" rel="HomeZip" default-value="1010" />
+												</div>
+											</div>
+											<div class="tr">
+												<div class="td align-left">
+													Postleitzahl Arbeitsort
+												</div>
+												<div class="td100 align-center">
+													<input type="text" class="setting" rel="WorkZip" default-value="1010" />
+												</div>
+											</div>
+										</div>
 									</div>
 									<div>
-										<!-- Products -->
-										
+										<!-- Products / Categories to show -->
+										<h3 class="blue">Schnellauswahl nach Ernährungsweise</h3>										
+										<div id="settingsNutrition">
+											<select  id="nutritionSelect" class="setting" rel="Nutrition" onchange="app.settings.products();" default-value="all">
+												<option value="all">Alles</option>
+												<option value="vg">Veganer</option>
+												<option value="vgto">Ovo-Vegetarier</option>
+												<option value="vgtl">Lacto-Vegetarier</option>
+												<option value="fru">Frutarier</option>
+												<option value="pes">Pescetarier</option>
+											</select><br>
+											<input type="checkbox" class="setting" rel="NutritionLAC" default-value="false" onclick="app.settings.products('selected',$(this));"/> Lactose-Unverträglichkeit<br>
+											<input type="checkbox" class="setting" rel="NutritionALC" checked default-value="true" onclick="app.settings.products('selected',$(this));"/> Alkohol anzeigen<br>
+										</div>	
+										<h3 class="blue">Themenauswahl</h3>
+										<div id="settingsCategorys">
+											
+										</div>
 									</div>
 								</div>
 							</div>
@@ -205,20 +349,6 @@
 			</ul>
 		</div>
 		<!-- pages area end -->
-		<div id="helptext" style="display:none;">
-			<span rel="start">
-					<small><i class="et et-docs"></i> Details anzeigen&nbsp;&nbsp;<i class="et et-trash"></i> Ausblenden</small>
-			</span>
-			<span rel="map"><small><i class="fa fa-male red"></i>&nbsp;Standort&nbsp;&nbsp;&nbsp;<i class="fa fa-map-marker blue"></i>&nbsp;Ab Hof&nbsp;&nbsp;&nbsp;<i class="fa fa-map-marker orange"></i>&nbsp;Markt&nbsp;&nbsp;&nbsp;<i class="fa fa-map-marker lightgray"></i>&nbsp;Sonstige</small></span>
-			<span rel="search"><small>Gib einen Suchbegriff ein</small></span>
-			<span rel="fav"><small>Favoriten</small></span>
-			<span rel="help"><small>Hilfe</small></span>
-			<span rel="about"><small>Über AppHOF</small></span>
-			<span rel="settings"><small>Einstellungen ändern und "Speichern" wählen</small></span>
-			<span rel="seller"><small>Verkäufer Funktionen</small></span>
-			<span rel="admin"><small>Administrative Funktionen</small></span>
-		</div>
-		
 		<!-- menu area --> 
 		<div id="menu">
 			<div class="menu-main white-bg darkgray-bd darkgray">
@@ -264,7 +394,7 @@
 							</div>
 							<div class="tr btn btn-pg menu-item" rel="map">
 								<span class="menu-item-icon td align-center vertical-middle">
-									<i class="fa fa-map-marker"></i>
+									<i class="fa fa-fw fa-map-marker"></i>
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Kartenansicht</span>
@@ -273,7 +403,7 @@
 							</div>
 							<div class="tr btn btn-pg menu-item" rel="search">
 								<span class="menu-item-icon td align-center vertical-middle">
-									<i class="fa fa-search"></i>
+									<i class="fa fa-fw fa-search"></i>
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Suche</span>
@@ -282,7 +412,7 @@
 							</div>
 							<div class="tr btn btn-pg menu-item" rel="fav">
 								<span class="menu-item-icon td align-center vertical-middle">
-									<i class="fa fa-heart"></i>
+									<i class="fa fa-fw fa-heart"></i>
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Favoriten</span>
@@ -369,34 +499,85 @@
 				</div>
 			</div>
 		</div>
-	<!-- menu area end --> 
-	<!-- status bar -->
+		<!-- menu area end --> 
+		
+		<!-- status bar -->
 		<div id="statusbar" class="white-bg darkgray-bd darkgray">
 			<div class="table">
 				<ul class="tr">
-					<li class="td btn vertical-middle align-left" style="padding-left:5px;">
-						<div id="helpArea" class="statusitem">
-										
+					<li class="td btn vertical-middle align-center" style="width:35px;border-right:1px solid #ddd;" title="Seitenhilfe">
+						<div class="statusitem">
+							<span class="fa-stack fa-lg fa-fw">
+							  <i id="help-button" class="fa fa-fw fa-question fa-stack-1x fa-fw blue"></i>
+							</span>					
 						</div>
 					</li>
-					<li class="td btn vertical-middle align-center" style="width:35px;border-left:1px solid #ddd;">
+					<li class="td btn vertical-middle align-center" style="padding:0px 5px;">
+						<div id="helpArea" class="statusitem">										
+						</div>
+					</li>
+					<li id="wwwstatus" class="td btn vertical-middle align-center" style="width:35px;border-left:1px solid #ddd;">
 						<div class="statusitem" title="Internetverbindung">
 							<span class="fa-stack fa-lg fa-fw">
-							  <i id="state-online" class="fa fa-globe fa-stack-1x fa-fw red"></i>
+							  <i id="state-online" class="fa fa-fw fa-globe fa-stack-1x fa-fw red"></i>
 							</span>
 						</div>
 					</li>
-					<li class="td btn vertical-middle align-center" style="width:35px;border-left:1px solid #ddd;" title="Positionierungsstatus">
+					<li id="gpsstatus" class="td btn vertical-middle align-center" style="width:35px;border-left:1px solid #ddd;" title="Positionierungsstatus">
 						<div class="statusitem">
 							<span class="fa-stack fa-lg fa-fw">
-							  <i id="state-gps" class="fa fa-crosshairs fa-stack-1x fa-fw red"></i>
+							  <i id="state-gps" class="fa fa-fw fa-crosshairs fa-stack-1x fa-fw red"></i>
 							</span>					
 						</div>
 					</li>
 				</ul>
 			</div>
 		</div>
+		
+		<div id="helptext" style="display:none;">
+			<span rel="start">
+					<small><i class="et et-docs"></i> Details anzeigen&nbsp;&nbsp;<i class="et et-trash"></i> Ausblenden&nbsp;&nbsp;<i class="et et-heart red"></i> Favorit</small>
+			</span>
+			<span rel="map"><small><i class="fa fa-fw fa-male red"></i>&nbsp;Standort&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker blue"></i>&nbsp;Ab Hof&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker orange"></i>&nbsp;Markt&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker lightgray"></i>&nbsp;Sonstige</small></span>
+			<span rel="search"><small>Gib einen Suchbegriff ein</small></span>
+			<span rel="fav"><small>Favoriten</small></span>
+			<span rel="help"><small>Hilfe</small></span>
+			<span rel="about"><small>Über AppHOF</small></span>
+			<span rel="settings"><small>Einstellungen ändern und "Speichern" wählen</small></span>
+			<span rel="seller"><small>Verkäufer Funktionen</small></span>
+			<span rel="admin"><small>Administrative Funktionen</small></span>
+		</div>
 		<!-- status bar end -->
+				
+		<div id="helptext-full" style="display:none;">
+			<span rel="start">
+				<h2 class="blue nomargin">Startseite</h2>
+				<p class="small">
+					Hier findest Du einen Überblick der Startseite und ihrer Funktionen. Über das kleine, weiße "x" ganz rechts oben kannst du die Hilfe wieder verlassen.</small><br> 
+					<img src="img/help/01_Start.jpg" width="90%" style="margin:auto;"/>
+					<h4 class="blue nomargin">Details zu den Funktionen</h4>
+					<ul class="align-justify" style="padding-left:10px;">
+						<li class="small">Wenn Du auf das AppHOF-Logo ganz links klickst, dann öffnet und schließt sich das Menü.</li>
+						<li class="small">Über die Schnellnavigation rechts oben gelangst Du schnell zu den wichtigsten Funktionen der App.</li>
+						<li class="small">Im oberen Teil des Menüs siehst Du Deinen aktuellen Anmeldestatus und hast die Möglichkeit Dich gleich anzumelden</li>
+						<li class="small">Im mittleren Menübereich findest Du die Hauptfunktionen der App.</li>
+						<li class="small">Unten im Menü findest Du die Hilfe, weitere Infos zu AppHOF und Deine persönlichen Einstellungen.</li>
+						<li class="small">Die Taste mit dem Fragezeichen ganz links unten ruft die Hilfe zur jeweils aktuellen Funktion auf.</li>
+						<li class="small">Die Schnellhilfe in der Mitte unten, zeigt wichtige Infos zur aktuellen Seite an.</li>
+						<li class="small">Der Statusbereich rechts unten zeigt an ob eine Verbindung mit dem Internet möglich ist und ob Deine Position von der App festgestellt werdenkann.</li>
+					</ul>					
+				</p>
+			</span>
+			<span rel="map"><small><i class="fa fa-fw fa-male red"></i>&nbsp;Standort&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker blue"></i>&nbsp;Ab Hof&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker orange"></i>&nbsp;Markt&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker lightgray"></i>&nbsp;Sonstige</small></span>
+			<span rel="search"><small>Gib einen Suchbegriff ein</small></span>
+			<span rel="fav"><small>Favoriten</small></span>
+			<span rel="help"><small>Hilfe</small></span>
+			<span rel="about"><small>Über AppHOF</small></span>
+			<span rel="settings"><small>Einstellungen ändern und "Speichern" wählen</small></span>
+			<span rel="seller"><small>Verkäufer Funktionen</small></span>
+			<span rel="admin"><small>Administrative Funktionen</small></span>
+		</div>
+		
 	</div>
 	<!-- main app frame end -->
 	

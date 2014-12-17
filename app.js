@@ -31,7 +31,6 @@ jQuery.extend({
       return undefined;
    },
 });
-
 var testuser ="host";
 var testpass="xkcuna9s";
 var testuserid = 2;
@@ -79,7 +78,8 @@ var app={
     obj: {
         user:{},
         categorys:{},
-        locations:{}
+        locations:{},
+		tipps:{}
     },
     initialize: function () {
         $("#pageTitle").text($(".page.active").attr("pghead"));
@@ -87,7 +87,7 @@ var app={
 		// initially do not show password cleartext in settings
 		$("#settingsUserShowPass").prop("checked",false);
 		
-		app.page.setTitle("start");
+		app.page.setTitle("Startseite");
         app.page.setHelp("start");
 		//bind handler for menu items click functions
         app.bind();
@@ -168,11 +168,11 @@ var app={
 				helper.errorLog("login not done - user wants to use anonymous");
 				app.logout();			
 			}
+			
 			app.appdata.online();
 			
 			// init the map screen and set markers if not present
-			
-				app.map.init();
+			app.map.init();
 		
 		}
 		else{
@@ -263,42 +263,82 @@ var app={
 		});
 		$("#searchNow").off("click");
 		$("#searchNow").on("click",function() {
-			app.search.result($("#searchMain").val());
+			if (helper.online.state == false){
+				helper.popup.show(  
+					"Onlinestatus:" , 	// overlay title
+					"<h2 class='blue'>Keine Internetverbindung!</h2>Bitte stellen Sie eine Internetverbindung her um alle Funktionen der App verwenden zu können!",     			// overlay textarea
+					'fa fa-globe',
+					false,
+					true,
+					function(){ 
+						// callback from OK button (hidden)	
+					},                       
+					function(){ // callback from CANCEL button 
+						app.exit();	
+					}  ,"","APP BEENDEN"                  
+				);
+			}
 		});	
+		
+		// bind statusbuttons
+		$("#wwwstatus").off("click");
+		$("#wwwstatus").on("click",function() {
+			app.search.result($("#searchMain").val());
+		});
+		
+		$("#gpsstatus").off("click");
+		$("#gpsstatus").on("click",function() {
+			var postext = "<h2 class='blue'>Aktuelle Positionsinfos</h2>";
+			postext += "<div class='table'>";
+			postext += "	<div class='tr'>";
+			postext += "		<span class='td'>Methode</span><span class='td'>" + helper.positioning.mode + "</span>";
+			postext += "	</div>";
+			postext += "	<div class='tr'>";
+				
+			var gpsON = helper.gps.on ? "ein" : "aus";
+			postext += "		<span class='td'>GPS ein/aus</span><span class='td'>" + gpsON + "</span>";
+			postext += "	</div>";
+			postext += "	<div class='tr'>";
+			var gpsSUPP = helper.gps.supported ? "ja" : "nein";
+			postext += "		<span class='td'>GPS unterstützt</span><span class='td'>" + gpsSUPP + "</span>";
+			postext += "	</div>";
+			postext += "	<div class='tr'>";
+			var gpsOK = helper.gps.successful ? "ja" : "nein"
+			postext += "		<span class='td'>GPS erfolgreich</span><span class='td'>" + gpsOK + "</span>";
+			postext += "	</div>";
+			postext += "	<div class='tr'>";
+			postext += "		<span class='td'>GPS Fehler</span><span class='td'>" + helper.gps.failed + "</span>";
+			postext += "	</div>";
+			postext += "</div>";
+			
+			helper.popup.show(  
+				"Positionierungsstatus:" , 	// overlay title
+				postext,     			// overlay textarea
+				'fa fa-crosshairs',
+				true,
+				false,
+				function(){ 
+					// callback from OK button
+					app.page.show("settings");	
+					helper.popup.hide();
+				},                       
+				function(){ // callback from CANCEL button (hidden)	
+				}  ,"EINSTELLUNGEN" ,""                 
+			);
+		});
 		
 	},    
 	appdata:{
-		vis: 0,
-		vistarget: 3,
-		bg: 0,
-		maxtrials: 10,  // 10 times maximum retrytimeouts
-		tried: 0,
-		checkvis: function(){
-			if (app.appdata.vis >= app.appdata.vistarget){
-				helper.splash.hide();
-				helper.spinner.hide();
-			}
-			else{	
-				app.appdata.tried++;
-				// ensure the splash disappears after at least 10 seconds
-				if (app.appdata.tried >= app.appdata.maxtrials){
-					helper.splash.hide();
-					helper.spinner.hide();
-					// end interval
-				}
-				else{					
-					setTimeout(function () {
-						// hide the splash screen after all visible data is loaded or failed?
-						app.appdata.checkvis();
-					}, helper.retryTimeOut);
-				}
-			}
-		},
+		splashload:0,
+		splashloaded:0,
+		bgload:0,
+		bgloaded:0,
+		maxfails: 10,  	// x times the timeout
+		failed: 0,		// already tried y times
 		online:function(initial){			
 			// load online data	-----------------------------------  TODO ###############################################################
 			// load visible data and hide splash afterwards
-			app.appdata.vis=0;
-			app.appdata.checkvis();
+			app.appdata.splashload++;
 			/** ------------------------------------------------------------------
 					load visible and necessary items for the app		
 			---------------------------------------------------------------------- */
@@ -307,49 +347,74 @@ var app={
 				if(!err){
 					app.obj.categorys = data;
 					app.appdata.vis++;
+					// update settings screen with categorys
+					$("#settingsCategorys").empty();
+					var markup="<div class='table'>";
+					$.each(data,function(){
+						var catInfo=this;
+						var catID = catInfo.ID;
+						markup += '<div class="tr">';
+							markup += '<div class="td">';	
+ 								markup += '<input type="checkbox" class="setting" rel="category' + catInfo.ID + '" vg="' + catInfo.vg + '" vgto="' + catInfo.vgto + '" vgtl="' + catInfo.vgtl + '" fru="' + catInfo.fru + '" pes="' + catInfo.pes + '" lac="' + catInfo.lac + '" alc="' + catInfo.alc + '" />';							
+							markup += '</div>';
+							markup += '<div class="td">';
+								markup += '<span class="catIcon" style="color:' + catInfo.Color + ';background:' + catInfo.Background + ';">';									
+									markup += "<i class='flaticon-" + catInfo.Icon + "'></i>";
+								markup += "</span>";									
+							markup += '</div>';
+							markup += '<div class="td">';
+								markup += "</span>&nbsp;&nbsp;" + catInfo.Name;								
+							markup += '</div>';	
+						markup += '</div>';
+					});
+					markup += "</div>";
+					$("#settingsCategorys").html(markup);
+					helper.settings.load();
+					app.settings.products();
+					app.appdata.splashload--;
 				}
 				else{
 					helper.errorLog(err);
 				}
-			});                
-			helper.dataAPI("getData","locations", {},function(err,data){
-				if(!err){
-					app.obj.locations = data;
-					app.appdata.vis++;
-				}
-				else{
-					helper.errorLog(err);
-				}
-			});     
-			
-			// load actual tipps
-			app.tipp.list("tippsList","box");
-			
+			});        
+		
+			// load actual tipps and add 1 to vis  ----------------  TODO ###############################################################
+			app.tipp.load();
 			
 			/** ------------------------------------------------------------------
 				load all other background items - app is now ready to be used		
 			---------------------------------------------------------------------- */
-			app.appdata.bg = 0;
 			//get the data for admin functions if applicable
+			app.appdata.bgload++;
 			helper.dataAPI("getData","adminpage", {},function(err,data){ 
 				if(!err){
 					$("#admin-page").empty();
 					$("#admin-page").append(data);
 					$("#menu-admin").removeClass("hidden");
-					app.appdata.bg++;
+					app.appdata.bgload--;
 				}
 			});
 			//get the data for seller functions if applicable
+			app.appdata.bgload++;
 			helper.dataAPI("getData","sellerpage", {},function(err,data){ 
 				if(!err){
 					$("#seller-page").empty();
 					$("#seller-page").append(data);
 					$("#menu-seller").removeClass("hidden");
-					app.appdata.bg++;
+					app.appdata.bgload--;
 				}
 			});
+					
+			// load fav-tipps which are not in radius -----------------  TODO ###############################################################
+			
 			
 			// aktualisiere offlinedata für nächste offline verwendung
+			
+			
+			setTimeout(function () {
+				helper.splash.hide();
+				helper.spinner.hide();		
+			}, helper.retryTimeOut * 2);
 			
 		},
 		offline:function(){
@@ -445,6 +510,12 @@ var app={
                     map.invalidateSize(false);
                 }
             }  
+			else if(pageName == "fav"){
+				app.fav.update();
+			}
+			else if(pageName == "settings"){
+				helper.settings.load();
+			}
         },
         setTitle: function(theTitle){
             $("#top-title").text(theTitle);			
@@ -453,7 +524,29 @@ var app={
 			$("#helpArea").html("");
 			var helptext = $("#helptext span[rel=" + pageName + "]") 
 			$("#helpArea").html(helptext.html());
-		}
+			
+			$("#help-button").off("click");
+			$("#help-button").on("click",function(){
+				app.page.showHelp(pageName);
+			});
+		},
+		showHelp:function(pageName){
+			var fullHelpText = $("#helptext-full span[rel='" + pageName + "']").html();
+			helper.popup.show(  
+				"Hilfe" ,                                        // overlay title
+				fullHelpText,     // overlay textarea
+				'fa fa-question',
+				false,
+				false,
+				function(){ 
+					// callback from OK button (hidden)									
+				},                       
+				function(){ // callback from CANCEL button
+					// hide the overlay                
+					//helper.popup.hide();
+				}                    
+			);
+		}		
     },
     // common menu & slideup functions
 	menuKeyDown:function(){
@@ -533,23 +626,46 @@ var app={
 		
 	},
 	exit: function(){
-		
-		/*
-		//helper.popup.show(title, content, iconname, ok, cancel,callbackOk,callbackCancel){
-		helper.popup.show(  "AppHOF beenden" ,                                        // overlay title
-						"<p>Sind Sie sicher, dass Sie die App beenden möchten ?<p>",     // overlay textarea
-						'',                                        				// image for title row (auto resized to 20x20 px)
-						true,                                                  	// show OK button?
-						false,                                                  // show CANCEL button?
-						function(){												// callback function to bind to the OK button
-							navigator.app.exitApp();
-						},                       
-						function(){helper.popup.hide();} ,"AppHOF beenden"                   // callback function to bind to the CANCEL button
-					);
-		*/
 		navigator.app.exitApp();
 	},
-    // search functions
+    // special settings page functions
+	settings:{
+		products:function(){
+			// nutrition = vg,vgto,vgtl,fru,pes,lac,alc
+			// sel = true -> selected, sel = false -> not selected
+			var nutrition = $("#nutritionSelect").val();
+			var selector = "#settingsCategorys input[type=checkbox]";
+		
+			// select all
+			$("#settingsCategorys input[type=checkbox]").prop("checked",true);
+			if( nutrition != "all"){
+				selector += "[" + nutrition + "='n']";
+				var theElements = $(selector);
+				//  unselect not appropriate items
+				$.each(theElements,function(){
+					var theElem = $(this);
+					theElem.prop("checked",false);
+				});
+			}
+			
+			// unselect lac and alc if they should not show up
+			var showALC = $("#settingsNutrition input[rel='NutritionALC']").prop("checked");
+			var hideLAC =$("#settingsNutrition input[rel='NutritionLAC']").prop("checked");
+			selector = $("#settingsCategorys input[type=checkbox]");
+			$.each(selector,function(){
+				var theElem = $(this);
+				if (theElem.prop("checked")){
+					if (theElem.attr("alc") == "y" && showALC == false){
+						theElem.prop("checked", false)
+					}
+					if (theElem.attr("lac") == "y" && hideLAC == true){
+						theElem.prop("checked", false)
+					}
+				}
+			});
+		}
+	},
+	// search functions
 	search:{
 		suggest: function(searchstring){
 			//get the data and handle callback
@@ -601,7 +717,7 @@ var app={
 							}
 							suggestions += "<div id='searchSuggestsList' class='tr' onclick='" + onclick + "' title='" + text + "'>";
 							suggestions += 	"<div class='td ellipsis align-center vertical-middle'>";	
-							suggestions +=		"<i class='et et-" + icon + " fa fa-" + icon + " btn-icon'></i>";	
+							suggestions +=		"<i class='et et-" + icon + " fa fa-fw fa-" + icon + " btn-icon'></i>";	
 							suggestions += 	"</div>";							
 							suggestions += 	"<div class='td ellipsis align-left vertical-middle'>";
 							suggestions += 		item.Name + ", " + item.InfoName;
@@ -630,58 +746,165 @@ var app={
     map: {
 		zoom: 9,
         init: function(){
-			
-			helper.errorLog("map init ...");
-            // init Map - workaround for map size bug
-            $('#map').height($(document).height());
-            $('#map').width($(document).width());
+			if (!map){
+				helper.errorLog("map init ...");
+				// init Map - workaround for map size bug
+				$('#map').height($(document).height());
+				$('#map').width($(document).width());
 
-            //initialize the map page
-            tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            }), latlng = new L.LatLng(parseFloat(helper.gps.lat), parseFloat(helper.gps.lon));
+				//initialize the map page
+				tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+					attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+				}), latlng = new L.LatLng(parseFloat(helper.gps.lat), parseFloat(helper.gps.lon));
 
-            map = L.map('map', {center: latlng, zoom: app.map.zoom, layers: [tiles]});
-            app.map.markersSet();
+				map = L.map('map', {center: latlng, zoom: app.map.zoom, layers: [tiles]});
+			}	
+				app.map.markers.update();
 
-			// define meMarker - this is a special "updateable" marker for the users positon hat will be updated by a interval and not set over and over again 
-			var meIcon = L.Icon.extend(
-			{
-				options: {
-					iconUrl: 	'img/userpos32.png',
-					iconSize: 	new L.Point(32, 32),
-					iconAnchor: new L.Point(14, 14),
-					shadowUrl: 	'img/blank16.png',
-					shadowSize: new L.Point(28, 28),
-					popupAnchor:new L.Point(0, -12)
-				}
-			});
-			meMarkerIcon = new meIcon(); 
-			mePosMarker = new  L.LatLng(parseFloat(helper.gps.lat), parseFloat(helper.gps.lon)), mePosMarker = new L.Marker(mePosMarker,{icon: meMarkerIcon});
-			mePosMarker.on('click',function(e){
-				app.map.markerMe.click(e);
-			});
-			map.addLayer(mePosMarker);  
-			
-			
-			// define click function on map
-			map.on('click', app.map.click);
-			
+				// define meMarker - this is a special "updateable" marker for the users positon hat will be updated by a interval and not set over and over again 
+				var meIcon = L.Icon.extend(
+				{
+					options: {
+						iconUrl: 	'img/userpos32.png',
+						iconSize: 	new L.Point(32, 32),
+						iconAnchor: new L.Point(14, 14),
+						shadowUrl: 	'img/blank16.png',
+						shadowSize: new L.Point(28, 28),
+						popupAnchor:new L.Point(0, -12)
+					}
+				});
+				meMarkerIcon = new meIcon(); 
+				mePosMarker = new  L.LatLng(parseFloat(helper.gps.lat), parseFloat(helper.gps.lon)), mePosMarker = new L.Marker(mePosMarker,{icon: meMarkerIcon});
+				mePosMarker.on('click',function(e){
+					app.map.position.mypos.click(e);
+				});
+				map.addLayer(mePosMarker);  
+				
+				
+				// define click function on map
+				map.on('click', app.map.click);
         },
 		click:function(e){
 			//helper.errorLog("You clicked the map at " + e.latlng);
+			var markup = "";
+				markup += "<div class='tippOptions table' id='mapOptions'>";
+				markup += "  <div class='tr'>";
+				markup += "    <span class='td mapSetPosition vertical-middle'>";
+				markup += "      In der Nähe der gewählten Position";
+				markup += "    </span>";
+				markup += "    <span class='td mapSetPosition align-center vertical-middle btn-icon'>";
+				markup += "      <i class='btn et et-hair-cross'></i>";
+				markup += "    </span>";
+				markup += "  </div>";
+				markup += "  <div class='tr'>";
+				markup += "    <span class='td tippMapMyPos vertical-middle'>";
+				markup += "      In der Nähe meines aktuellen Standorts";
+				markup += "    </span>";
+				markup += "    <span class='td tippMapMyPos align-center vertical-middle btn-icon'>";
+				markup += "      <i class='btn fa fa-male'></i>";
+				markup += "    </span>";
+				markup += "  </div>";
+				markup += "  <div class='tr'>";
+				markup += "    <span class='td tippMapMyHomePos vertical-middle'>";
+				markup += "      In der Nähe meiner Wohnung";
+				markup += "    </span>";
+				markup += "    <span class='td tippMapMyHomePos align-center vertical-middle btn-icon'>";
+				markup += "      <i class='btn et et-home'></i>";
+				markup += "    </span>";
+				markup += "  </div>";
+				markup += "  <div class='tr'>";
+				markup += "    <span class='td tippMapMyWorkPos vertical-middle'>";
+				markup += "      In der Nähe meines Arbeitsplatzes";
+				markup += "    </span>";
+				markup += "    <span class='td tippMapMyWorkPos align-center vertical-middle btn-icon'>";
+				markup += "      <i class='btn et et-briefcase'></i>";
+				markup += "    </span>";
+				markup += "  </div>";
+				markup += "</div>";
+				
+				helper.popup.show('Anbieter finden',                                      
+									markup,     
+									'et et-map',
+									false,
+									false,
+									function(){ 
+										// callback from OK button (hidden)									
+									},                       
+									function(){ // callback from CANCEL button
+										// hide the overlay                
+										//helper.popup.hide();
+									}                    
+				);
+				// BIND FUNCTIONS app.tipp.options.bind(tippID,tippTitle);
+			
+			
+			
+			// set positon to this coords ... calc offset... load locations and init map
+			
+			
 		},
         refresh: function(){
-            helper.errorLog("Refreshing Map");
-            map.invalidateSize(false);
+			if (map){
+				helper.errorLog("Refreshing Map");
+				map.invalidateSize(false);
+			}
         },
-        markersSet:function(){
-            var markers = new L.markerClusterGroup();    
-            //var markers = l.Marker();
-            if (typeof(app.obj.locations) !== "undefined" && typeof(app.obj.locations.length) !== "undefined" && app.obj.locations.length != 0 ){
-                helper.errorLog("Adding Markers");
-                $.each(app.obj.locations,function(){
-                    var item = this;
+		markers:{
+			click: function(locID){
+				if (locID == $("#mapinfo-detail").attr("rel") ){
+					// markerinfo already shown in footer
+					app.location.details.show(locID);
+				}
+				else{
+					app.map.info(locID);
+				}
+			},
+			clear:function(){
+				if (typeof(markers) != "undefined"){
+					map.removeLayer(markers);
+				}
+			},
+			update: function(){
+				// clear current markers
+				app.map.markers.clear();
+				// get current set position
+				
+				// get radius to show
+				var radiusToShow = helper.settings.get("Radius");
+				// load locations in radius
+				if (radiusToShow < 1){
+					radiusToShow = 1
+				}
+				var coordOffset = app.map.position.coords.calc.offset(radiusToShow);
+				var latMin = parseFloat(helper.gps.lat) - parseFloat(coordOffset);
+				var lonMin = parseFloat(helper.gps.lon) - parseFloat(coordOffset);
+				var latMax = parseFloat(helper.gps.lat) + parseFloat(coordOffset);
+				var lonMax = parseFloat(helper.gps.lon) + parseFloat(coordOffset);
+				helper.dataAPI("getData","locations", {latMin: latMin.toString(), lonMin: lonMin.toString(), latMax: latMax.toString(), lonMax: lonMax.toString()},function(err,data){
+					if(!err){
+						if (data.length < 1){
+							helper.info.add("warning", "<span class='btn' onclick='app.page.show(" + '"settings"' + ");'>Keine Anbieter in der Nähe gefunden!&nbsp;-&nbsp;<i class='et et-cog'></i>&nbsp;Einstellungen ändern</span>", true, false);						
+						}
+						else{						
+							app.obj.locations = data;
+							app.map.markers.set();
+							helper.info.add("success", "<span class='btn' onclick='app.page.show(" + '"map"' + ");'>" + data.length + " Anbieter in der Nähe gefunden!&nbsp;-&nbsp;<i class='fa fa-map-marker'></i>&nbsp;Karte anzeigen</span>", true, false);
+						}
+					}
+					else{
+						helper.errorLog(err);
+					}
+				});    
+				// if count = 0 -> info change radius or location
+				
+				// set markers in map
+			},
+			set: function(){
+				 var markers = new L.markerClusterGroup();    
+				//var markers = l.Marker();
+				helper.errorLog("Adding Markers");
+				$.each(app.obj.locations,function(){
+					var item = this;
 					
 					/*var defaultMarkerIcon = L.Icon.extend({
 						iconUrl: 'defaultmarker.png',
@@ -699,168 +922,228 @@ var app={
 					
 					
 					var theIcon = new defaultMarkerIcon();*/
-                    var marker = L.marker(new L.LatLng(item.CenterLat, item.CenterLon), {  title: item.Name, id: item.ID });
+					var marker = L.marker(new L.LatLng(item.CenterLat, item.CenterLon), {  title: item.Name, id: item.ID });
 					marker.on('click',function(e){
-						app.map.marker.click(e.target.options.id);
+						app.map.markers.click(e.target.options.id);
 						});
-                    //marker.bindPopup(title);	
-                    markers.addLayer(marker);					
-                });	
-                map.addLayer(markers);
-            } 
-            else {
-                 setTimeout(function () {
-                    app.map.markersSet();
-                 }, helper.retryTimeOut);
-            }
-        },
-		mypos: function(){
-			mePosMarker.setLatLng([parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)]).update();
+					//marker.bindPopup(title);	
+					markers.addLayer(marker);					
+				});	
+				map.addLayer(markers);
+			}
 		},
-		findmypos:function(){
-			var actZoomLevel;
-			if (map.getZoom()){
-				actZoomLevel = map.getZoom()
-			}
-			else{
-				actZoomLevel = app.map.zoom;
-			}
-			map.setView(new L.LatLng(parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)),actZoomLevel);
-		},
-		findpos: function(coordLat, coordLon, zoom){
-			if(typeof(zoom) == "undefined"){
-				zoom = app.map.zoom;
-			}
-			map.setView([coordLat, coordLon], zoom);
-			//map.panTo(new L.LatLng(coordLat, coordLon));
-		},
-		distance: function(lat1a,lon1a,lat2a,lon2a,type){
-			// type: car, public, bike, walk
-			var distFactor = 1.3;
-			switch(type) {
-				case 'walk':
-					distFactor = 1.35;
-					break;
-				case 'bike':
-					distFactor = 1.35;
-					break;
-				case 'public':
-					distFactor = 1.25;
-					break;
-				default:
-					// car ...
-					distFactor = 1.15;
-					break;
-			}
-			var lat1=parseFloat(lat1a);
-			var lat2=parseFloat(lat2a);
-			var lon1=parseFloat(lon1a);
-			var lon2=parseFloat(lon2a);
-			
-			var R = 6371; // Radius of the earth in km
-			var dLat = (lat2-lat1).toRad();  // Javascript functions in radians
-			var dLon = (lon2-lon1).toRad(); 
-			var a1 = Math.sin(dLat/2);
-			var a2 = Math.sin(dLat/2);
-			var a3 = Math.cos(lat1.toRad());
-			var a4 = Math.cos(lat2.toRad());
-			var a5 = Math.sin(dLon/2);
-			var a6 = Math.sin(dLon/2);
-			var a = a1 * a2 + a3 * a4 * a5 * a6; 
-			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-			var d = parseInt((R * c)*1000); // Distance in m	
+		position:{
+			mypos:{
+				click: function(e){
+					app.map.position.mypos.options();
+				},
+				update: function(){
+					mePosMarker.setLatLng([parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)]).update();
+				},
+				refresh:function(){
+					navigator.geolocation.getCurrentPosition(helper.gps.success,helper.gps.error,{ enableHighAccuracy: true });
+				},
+				find:function(){
+					var actZoomLevel;
+					if (map.getZoom()){
+						actZoomLevel = map.getZoom()
+					}
+					else{
+						actZoomLevel = app.map.zoom;
+					}
+					map.setView(new L.LatLng(parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)),actZoomLevel);
+				},
+				options:function(){
+					var markup = "<p>Das ist Dein Standort<p>";
+					markup += "<div id='meOptions' class='tippOptions table'>";
+					markup += "  <div class='tr'>";
+					markup += "     <span class='td myPos vertical-middle'>Deinen Standort anzeigen</span>";
+					markup += "     <span class='td myPos align-center vertical-middle btn-icon'><i class='btn fa fa-fw fa-male'></i></span>";
+					markup += "  </div>";
+					markup += "  <div class='tr'>";
+					markup += "     <span class='td refreshPos vertical-middle'>Position neu bestimmen</span>";
+					markup += "     <span class='td refreshPos align-center vertical-middle btn-icon'><i class='btn fa fa-fw fa-crosshairs'></i></span>";
+					markup += "  </div>";
+					markup += "  <div class='tr'>";
+					markup += "     <span class='td nearPos vertical-middle'>Was ist in der Nähe?</span>";
+					markup += "     <span class='td nearPos align-center vertical-middle btn-icon'><i class='btn fa fa-fw fa-bullseye'></i></span>";
+					markup += "  </div>";
+					markup += "</div>";
+					helper.popup.show(  "Dein Standort" ,                           // overlay title
+							markup,     											// overlay textarea
+							'fa fa-fw fa-male',                                     		// image for title row (auto resized to 20x20 px)
+							false,                                                  	// show OK button?
+							false,                                                  // show CANCEL button?
+							function(){												// callback function to bind to the OK button
+								helper.popup.hide();},                       
+							function(){helper.popup.hide();} ,"",""                   // callback function to bind to the CANCEL button
+						);
+					
+					app.map.position.mypos.bind();
+				},
+				bind: function(){
+					// my position
+					var myPos = $("#meOptions .myPos");
+						myPos.off('click');
+						myPos.on("click",function(){
+							app.map.position.mypos.find();
+							helper.popup.hide();
+						});
+					
+					//refresh position
+					var refreshPos = $("#meOptions .refreshPos");
+						refreshPos.off('click');
+						refreshPos.on("click",function(){
+							app.map.position.mypos.refresh();
+							helper.popup.hide();
+						});
+					// what´s near
+					var nearPos = $("#meOptions .nearPos");
+						nearPos.off('click');
+						nearPos.on("click",function(){
+							alert("what´s near or not what´s near, that´s the question");
+							helper.popup.hide();
+						});
+				}
+			},
+			coords:{
+				find:function(coordLat, coordLon, zoom){
+					if(typeof(zoom) == "undefined"){
+						zoom = app.map.zoom;
+					}
+					map.setView([coordLat, coordLon], zoom);
+					//map.panTo(new L.LatLng(coordLat, coordLon));
+				},
+				calc:{
+					distance: function(lat1a,lon1a,lat2a,lon2a,type){
+						// type: car, public, bike, walk
+						var distFactor = 1.3;
+						switch(type) {
+							case 'walk':
+								distFactor = 1.5;
+								break;
+							case 'bike':
+								distFactor = 1.5;
+								break;
+							case 'public':
+								distFactor = 1.5;
+								break;
+							default:
+								// car ...
+								distFactor = 1.2;
+								break;
+						}
+						var lat1=parseFloat(lat1a);
+						var lat2=parseFloat(lat2a);
+						var lon1=parseFloat(lon1a);
+						var lon2=parseFloat(lon2a);
+						
+						var R = 6371; // Radius of the earth in km
+						var dLat = (lat2-lat1).toRad();  // Javascript functions in radians
+						var dLon = (lon2-lon1).toRad(); 
+						var a1 = Math.sin(dLat/2);
+						var a2 = Math.sin(dLat/2);
+						var a3 = Math.cos(lat1.toRad());
+						var a4 = Math.cos(lat2.toRad());
+						var a5 = Math.sin(dLon/2);
+						var a6 = Math.sin(dLon/2);
+						var a = a1 * a2 + a3 * a4 * a5 * a6; 
+						var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+						var d = parseInt((R * c)); // Distance in km	
 
-			var result = d * distFactor;			
-			return d;
-		},
-		duration: function(distance,type){
-			// type: car, public, bike, walk
-			var timeFactor = 1;
-			switch(type) {
-				case 'walk':
-					// 4km/h
-					timeFactor = 1;
-					break;
-				case 'bike':
-					//16km/h
-					timeFactor = 1;
-					break;
-				case 'public':
-					// 30km/h
-					timeFactor = 1;
-					break;
-				default:
-					// car ... 50 km/h
-					timeFactor = 1;
-					break;
+						var result = d * distFactor;			
+						return result;
+					},
+					duration: function(distance,type){
+						// type: car, public, bike, walk
+						var timeFactor = 1;
+						switch(type) {
+							case 'walk':
+								// 4km/h
+								timeFactor = 3.2;
+								break;
+							case 'bike':
+								//15km/h
+								timeFactor = 15;
+								break;
+							case 'public':
+								// 30 - 40 km/h
+								if (distance < 5){
+									timeFactor = 30;					
+								}
+								else if (distance < 15){
+									timeFactor = 40;
+								}
+								else{
+									timeFactor = 50;
+								}					
+								break;
+							default:
+								// car ... 30 - 70 km/h
+								if (distance <= 5){
+									timeFactor = 35;
+								}
+								else if (distance <= 10){
+									timeFactor = 38;
+								}
+								else if (distance <= 15){
+									timeFactor = 45;
+								}
+								else{
+									timeFactor = 70;
+								}					
+								break;
+						}
+						var duration = distance / timeFactor //(= hours)
+						var durH = parseInt(duration);
+						var durM = duration - durH;
+						durM = parseInt(60 * durM);
+						var durText = " " + durH + ":" + helper.pad(durM,2); 
+						return durText;
+					
+					},
+					offset:function(km){
+						// 1km = 90/10001.965729 degrees = 0.0089982311916 degrees
+						var result = km * 0.0089982311916
+						return result
+					}
+				}
 			}
-		
 		},
-		marker:{
-			// click on marker - show the details
-			click: function(locID){
-				app.location.details.show(locID);
-			}
-		},
-		markerMe:{
-			refresh:function(){
-				navigator.geolocation.getCurrentPosition(geoSuccess,geoErrors,{ enableHighAccuracy: true });
-			},
-			// click on marker - show the details
-			click: function(e){
-				app.map.markerMe.options();
-			},
-			options:function(){
-				var markup = "<p>Das ist Dein Standort<p>";
-				markup += "<div id='meOptions' class='tippOptions table'>";
-				markup += "  <div class='tr'>";
-				markup += "     <span class='td myPos vertical-middle'>Deinen Standort anzeigen</span>";
-				markup += "     <span class='td myPos align-center vertical-middle btn-icon'><i class='btn fa fa-male'></i></span>";
-				markup += "  </div>";
-				markup += "  <div class='tr'>";
-				markup += "     <span class='td refreshPos vertical-middle'>Position neu bestimmen</span>";
-				markup += "     <span class='td refreshPos align-center vertical-middle btn-icon'><i class='btn fa fa-crosshairs'></i></span>";
-				markup += "  </div>";
-				markup += "  <div class='tr'>";
-				markup += "     <span class='td nearPos vertical-middle'>Was ist in der Nähe?</span>";
-				markup += "     <span class='td nearPos align-center vertical-middle btn-icon'><i class='btn fa fa-bullseye'></i></span>";
-				markup += "  </div>";
-				markup += "</div>";
-				helper.popup.show(  "Dein Standort" ,                           // overlay title
-						markup,     											// overlay textarea
-						'fa fa-child',                                     		// image for title row (auto resized to 20x20 px)
-						false,                                                  	// show OK button?
-						false,                                                  // show CANCEL button?
-						function(){												// callback function to bind to the OK button
-							helper.popup.hide();},                       
-						function(){helper.popup.hide();} ,"",""                   // callback function to bind to the CANCEL button
-					);
+		info: function(locID){
+			$("#mapinfo-text").empty();	
+			$("#mapinfo-detail").attr("rel","0");
+			$("#mapinfo").show();
+			if (typeof(app.obj.locations) !== "undefined" && typeof(app.obj.locations.length) !== "undefined" && app.obj.locations.length != 0 ){
+				// get info for this location offline
+				var theLocation = helper.getObjItem(app.obj.locations, "ID", locID);
+				var dist = app.map.position.coords.calc.distance(parseFloat(theLocation.CenterLat), parseFloat(theLocation.CenterLon), helper.gps.lat,helper.gps.lon,"car");
+				var durC = app.map.position.coords.calc.duration(dist,"car");
+				var durB = app.map.position.coords.calc.duration(dist,"bike");
+				var durW = app.map.position.coords.calc.duration(dist,"walk");
+				var theText = theLocation.Name + "<br>Etwa " + dist + "km | <i class='fa fa-car'></i>: " + durC + " | <i class='fa fa-bicycle'></i>: " + durB + " | <i class='fa fa-male'></i>: " + durW + " ";
+				//contact
 				
-				app.map.markerMe.bind();
-			},
-			bind: function(){
-				// my position
-				var myPos = $("#meOptions .myPos");
-					myPos.off('click');
-					myPos.on("click",function(){
-						app.map.findmypos();
-						helper.popup.hide();
+				// categorys
+				if(theLocation.Categorys != ""){
+					theText +="<hr class='blue'>";
+					var Cats = theLocation.Categorys.split(",");
+					$.each(Cats, function(){
+						var catID=this;
+						if (catID > 0 && catID < 9999){						
+						var catInfo = helper.getObjItem(app.obj.categorys,"ID",catID);
+							if (catInfo){
+								theText += "<span class='catIcon small' style='color:" + catInfo.Color + ";background:" + catInfo.Background;
+								theText += ";' title='" + catInfo.Name + "'>";
+								theText += "<i class='flaticon-" + catInfo.Icon + " small'></i>";
+								theText += "</span>";
+							}
+						}
 					});
-				
-				//refresh position
-				var refreshPos = $("#meOptions .refreshPos");
-					refreshPos.off('click');
-					refreshPos.on("click",function(){
-						app.map.markerMe.refresh();
-						helper.popup.hide();
-					});
-				// what´s near
-				var nearPos = $("#meOptions .nearPos");
-					nearPos.off('click');
-					nearPos.on("click",function(){
-						alert("what´s near or not what´s near, that´s the question");
-						helper.popup.hide();
-					});
+					theText += "&nbsp;";
+				}
+				$("#mapinfo-text").html(theText);
+				$("#mapinfo-detail").attr("rel",locID);
 			}
 		}
     },
@@ -884,41 +1167,41 @@ var app={
 						markup += "<table class='popupTable'>";
 						if(data.Phone && data.Phone != ""){                    
 							markup += "<tr><td>";
-							markup += "<i class='fa fa-phone'></i></td>"
+							markup += "<i class='fa fa-fw fa-phone'></i></td>"
 							markup += "<td>&nbsp;<a href='tel:" + data.Phone.replace(/\s+/g, '') + "'>";
 							markup += data.Phone + "</a>";
 							markup += "</td></tr>";
 						}
 						if(data.Cell && data.Cell != ""){                  
 							markup += "<tr><td>";
-							markup += "<i class='fa fa-mobile'></i></td>"
+							markup += "<i class='fa fa-fw fa-mobile'></i></td>"
 							markup += "<td>&nbsp;<a href='tel:" + data.Cell.replace(/\s+/g, '');
 							markup += "'>" + data.Cell + "</a>";
 							markup += "</td></tr>";
 						}                    
 						if(data.Mail && data.Mail != ""){                  
 							markup += "<tr><td>";
-							markup += "<i class='fa fa-envelope'></i></td>"
+							markup += "<i class='fa fa-fw fa-envelope'></i></td>"
 							markup += "<td>&nbsp;<a href='mailto:" + data.Mail.replace(/\s+/g, '');
 							markup += "'>" + data.Mail + "</a>";
 							markup += "</td></tr>";
 						}
 						if(data.Web && data.Web != ""){                  
 							markup += "<tr><td>";
-							markup += "<i class='fa fa-globe'></i></td>";
+							markup += "<i class='fa fa-fw fa-globe'></i></td>";
 							markup += "<td>&nbsp;";
 							/* fix for InAppBrowser Issue on PG Build */
 							
 							var webshort = data.Web.replace(/\s+/g, '');
-							if (  helper.left(webshort,4).toLowerCase() == "http"  ){
+							if (  helper.left(webshort,5).toLowerCase() == "http:"  ){
 								// nothing to change
 							}
 							else if ( helper.left(webshort,4).toLowerCase() == "www." ){
-								webshort = "http:\\\\" + webshort;   
+								webshort = "http://" + webshort;   
 							}
 							else {
-								// no valid URL prefix here ... so add http:\\
-								webshort = "http:\\\\" + webshort;   
+								// no valid URL prefix here ... so add http:
+								webshort = 'http://' + webshort;   
 							}
 							// change slashes to backslashes in url for bbimghandler
 							var webshort2 = webshort.replace(/\//g, "\\");   
@@ -932,7 +1215,7 @@ var app={
 								markup += "<a href='http://" + webshort + "' target='_blank'>"
 							}							
 							
-							// markup += data.Web ;
+							markup += data.Web ;
 							
 							markup += "<div>";
 							markup += "<img style='border: 1px solid #eee;' src='" + app.imageURL + "?Url=" + webshort + "&height=100&ratio=screen' />";
@@ -1006,87 +1289,128 @@ var app={
     },
     // tipp functions
     tipp:{
-        // get markup for most recent tipps - with lazy load - "wrapperID" is the id of the element that should hold the list
-		list: function(wrapperID, style){
+		load:function(tippID,returnData,buildList){
+			var itemID = 0;
+			if (typeof(tippID) != "undefined"){		
+				try {
+					itemID = parseInt(tippID);
+				} 
+				catch (e) {
+					itemID = 0;
+				} 
+			}
+			if (typeof(returnData) == "undefined"){
+				returnData = false;
+			}
+			if (typeof(buildList) == "undefined"){
+				buildList = true;
+			}
+			
 			// respect users preferences for tipps he/she wants to receive 
 			// and the specified area(s)
-			//get the data and handle callback
-				var itemID = 0;
-				var objecttypeID = 0;
-                helper.dataAPI("getData","tipps", {'i': itemID, 'o':objecttypeID},function(err,dataset){
-                   if(!err){
-                        var markup = "";
-						
-						$.each(dataset,function(){
-							var data = this;                  
-							markup += "<li id='tippElem" + data.ID + "' class='tipps'>"; 
-							markup += "	  <div class='tippsImage lazy height100' rel='" + data.ImageID + "'>";
-							markup += "	  </div>";
-							markup += "   <div class='tippsInner table'>";
-							markup += "     <span class='tipps row1 tr'>";      
-							markup += "       <span class='tipps table vertical-middle align-left'>";   
-							markup += "         <span class='td tippsTop vertical-middle'>" + data.DateCreated + "</span>&nbsp;";        
-							markup += "         <span class='td trashBtn btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-trash'></i></span>"; 
-							markup += "         <span class='td optionsBtn btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-docs'></i></span>";
-							markup += "       </span>";                                   
-							markup += "     </span>";       
-							markup += "     <span class='tipps row2 tr'>";      
-							markup += "       <span class='tipps td vertical-middle align-center'>";                 
-							markup += "			<span class='tippsHead'>" + data.Name + "</span>"; 
-							markup += "			<span class='tippsSubhead'>" + data.InfoName + "</span>";  
-							markup += "       </span>";       
-							markup += "     </span>";          
-							markup += "     <span class='tipps row3 tr'>";     
-							markup += "       <span class='tipps td vertical-middle align-left'>";    
-							markup += "       	<p class='tippsBottom'>";  								
-							markup += "				<span class='tippsBottom'>" + data.DateFrom + " - " + data.DateTo + "</span>";              
-							markup += "				<span class='tippsBottom small'>" + data.InfoDescShort + "</span>";              
-							markup += "				<span class='tippsBottom small'>" + data.InfoDescLong + "</span>"; 
-							markup += "       	</p>";  	
-							markup += "       </span>";
-							markup += "     </span>";                        
-							markup += "	 </div>";                      
-							markup += "</li>";  
-						});     
-					
-						markup = markup.replace(/null/g,'');
-                        $("#" + wrapperID ).html(markup);
-                        // change order to "newest on top"
-                        helper.reverseLi($("#" + wrapperID + " ul:first"));
-						setTimeout(function(){
-							// update default-images with the correct ones
-							var theWrapperID = wrapperID;
-							helper.image.update(theWrapperID);
-							// update optionbuttons click handler
-							var selector = $("#" + wrapperID + " span.optionsBtn");
-							$.each(selector, function(){
-								var sel = $(this);
-								sel.off('click');
-								sel.on("click",function(){
-									app.tipp.options.popUp(sel.attr("rel"));
-								});
-							});
-							
-							selector = $("#" + wrapperID + " span.trashBtn");
-							$.each(selector, function(){
-								var sel = $(this);
-								sel.off('click');
-								sel.on("click",function(){
-									var elemToHide = sel.closest("li.tipps");
-									app.tipp.trash(sel.attr("rel"),elemToHide);
-								});
-							});
-						},500);
-						// note down that the data was loaded (for appstart)
-						app.appdata.vis++;
-                    }
-                    else{
-                        helper.errorLog(err);
-                    }
-                });
+			//get the data and handle callback 
+			// respect "trashed" tipps -----------------------------  TODO ###############################################################
+			// respect location centric tipps (lat/lon) ------------  TODO ###############################################################
+			
+			var objecttypeID = 0;
+			app.appdata.splashload++;
+			helper.dataAPI("getData","tipps", {'i': itemID, 'o':objecttypeID},function(err,dataset){
+			   if(!err){
+					app.obj.tipps = dataset;
+					if(buildList){
+						app.tipp.list("tippsList","box");
+					}
+					if(returnData){
+						return dataset;
+					}
+			   }
+				else{
+					helper.errorLog(err);
+				}
+            });
+		},
+        // get markup for most recent tipps - with lazy load - "wrapperID" is the id of the element that should hold the list
+		list: function(wrapperID, style){
+			var dataset = app.obj.tipps;
+			var                  
+				markup = "";
+			$.each(dataset,function(){
+				var data = this;   
+				markup += "<li id='tippElem" + data.ID + "' class='tipps'>"; 
+				markup += "	  <div class='tippsImage lazy height100' rel='" + data.ImageID + "'>";
+				markup += "	  </div>";
+				markup += "   <div class='tippsInner table'>";
+				markup += "     <span class='tipps row1 tr'>";      
+				markup += "       <span class='tipps table vertical-middle align-left'>";   
+				markup += "         <span class='td tippsTop vertical-middle'>" + data.DateCreated + "</span>&nbsp;";        
+				markup += "         <span class='td trashBtn btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-trash'></i></span>";        
+				markup += "         <span class='td favBtn btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "' datatype='tipp' dataname='" + data.Name + "'><i class='et et-heart'></i></span>"; 
+				markup += "         <span class='td optionsBtn optionsFunc btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='et et-docs'></i></span>";
+				markup += "       </span>";                                   
+				markup += "     </span>";       
+				markup += "     <span class='tipps row2 tr' rel='" + data.ID + "' datatype='tipp' dataname='" + data.Name + "'>";
+				markup += "       <span class='tipps td optionsFunc vertical-middle align-center'>";                 
+				markup += "			<span class='tippsHead'>" + data.Name + "</span>"; 
+				markup += "			<span class='tippsSubhead'>" + data.InfoName + "</span>";  
+				markup += "       </span>";       
+				markup += "     </span>";          
+				markup += "     <span class='tipps row3 tr' rel='" + data.ID + "' datatype='tipp' dataname='" + data.Name + "'>";     
+				markup += "       <span class='tipps td optionsFunc vertical-middle align-left'>";    
+				markup += "       	<p class='tippsBottom'>";  								
+				markup += "				<span class='tippsBottom'>" + data.DateFrom + " - " + data.DateTo + "</span>";              
+				markup += "				<span class='tippsBottom small'>" + data.InfoDescShort + "</span>";              
+				markup += "				<span class='tippsBottom small'>" + data.InfoDescLong + "</span>"; 
+				markup += "       	</p>";  	
+				markup += "       </span>";
+				markup += "     </span>";                        
+				markup += "	 </div>";                      
+				markup += "</li>";  
+			});     
+		
+			markup = markup.replace(/null/g,'');
+			$("#" + wrapperID ).html(markup);
+			// change order to "newest on top"
+			helper.reverseLi($("#" + wrapperID + " ul:first"));
+			app.appdata.splashload--;
+			setTimeout(function(){
+				// update default-images with the correct ones
+				var theWrapperID = wrapperID;
+				helper.image.update(theWrapperID);
+				// update optionbuttons click handler
+				var selector = $("#" + wrapperID + " span.optionsFunc");
+				$.each(selector, function(){
+					var sel = $(this);
+					sel.off('click');
+					sel.on("click",function(){
+						app.tipp.options.popUp(sel.attr("rel"),sel.attr("dataname"));
+					});
+				});
+				
+				selector = $("#" + wrapperID + " span.favBtn");
+				$.each(selector, function(){
+					var sel = $(this);
+					sel.off('click');
+					sel.on("click",function(){
+						app.fav.toggle(sel, sel.attr("datatype"), sel.attr("rel"), sel.attr("dataname"));
+					});
+				});
+				
+				selector = $("#" + wrapperID + " span.trashBtn");
+				$.each(selector, function(){
+					var sel = $(this);
+					sel.off('click');
+					sel.on("click",function(){
+						var elemToHide = sel.closest("li.tipps");
+						app.tipp.trash(sel.attr("rel"),elemToHide);
+					});
+				});
+				
+				// update favs
+				app.fav.update();				
+			},500);						
         },
 		options:{
-			popUp: function(tippID){
+			popUp: function(tippID, tippTitle){
 				var markup = "";
 				markup += "<div class='tippOptions table' id='tippOptions'>";
 				markup += "  <div class='tr'>";
@@ -1106,35 +1430,12 @@ var app={
 				markup += "    </span>";
 				markup += "  </div>";
 				markup += "  <div class='tr'>";
-				markup += "    <span class='td tippFavourite vertical-middle'>";
-				markup += "      Zu den Favoriten hinzuf&uuml;gen";
+				markup += "    <span class='td tippShare vertical-middle'>";
+				markup += "      Diesen Tipp teilen";
 				markup += "    </span>";
-				markup += "    <span class='td tippFavourite align-center vertical-middle btn-icon'>";
-				markup += "      <i class='btn et et-heart'></i>";
+				markup += "    <span class='td tippShare align-center vertical-middle btn-icon'>";
+				markup += "      <i class='btn et et-share'></i>";
 				markup += "    </span>";
-				markup += "  </div>";
-				markup += "  <div class='tr'>";
-				if (appIsMobile){
-					markup += "    <span class='td tippShare vertical-middle'>";
-					markup += "      Diesen Tipp teilen";
-					markup += "    </span>";
-					markup += "    <span class='td tippShare align-center vertical-middle btn-icon'>";
-					markup += "      <i class='btn et et-share'></i>";
-					markup += "    </span>";
-				}
-				else{
-					markup += "    <span class='td tippShareBrowser vertical-middle'>";
-					markup += "       Tipp teilen";
-					markup += "    </span>";
-					markup += "    <span class='td tippShareBrowser align-center btn-icon'>";					
-					markup += "      <i id='tippShareTW' class='btn ets ets-twitter'></i><br>";					
-					markup += "      <i id='tippShareFB' class='btn ets ets-facebook'></i><br>";					
-					markup += "      <i id='tippShareGP' class='btn ets ets-googleplus'></i><br>";					
-					markup += "      <i id='tippSharePI' class='btn ets ets-pinterest'></i><br>";				
-					markup += "      <i id='tippShareXI' class='btn fa fa-xing'></i><br>";				
-					markup += "      <i id='tippShareLI' class='btn ets ets-linkedin'></i>";
-					markup += "    </span>";
-				}
 				markup += "  </div>";
 				markup += "</div>";
 				
@@ -1151,9 +1452,10 @@ var app={
 										//helper.popup.hide();
 									}                    
 				);
-				app.tipp.options.bind(tippID);
+				
+				app.tipp.options.bind(tippID,tippTitle);
 			},
-			bind:function(tippID){
+			bind:function(tippID,tippTitle){
 				// bind functions to the options-buttons
 				if( $("#tippOptions").length > 0 ){
 					// its already there - get data for the tipp
@@ -1169,26 +1471,23 @@ var app={
 					tippMap.on("click",function(){
 						app.tipp.map(tippID);
 					});
-					var tippFavourite = $("#tippOptions .tippFavourite");
-					tippFavourite.off('click');
-					tippFavourite.on("click",function(){
-						app.fav.add(tippID);
-					});
-					if( $("#tippOptions .tippShare").length > 0 ){
+					//if( $("#tippOptions .tippShare").length > 0 ){
 						var tippShare = $("#tippOptions .tippShare");
 						tippShare.off('click');
 						tippShare.on("click",function(){
 							helper.share("TestMessage", "TestSubject" ,"http://in-u.at/Portals/0/inuLogoWEB.png", "http://in-u.at");
 						});						
-					}
+					/*}
 					else{
 						// use browser-sharing - buttons/links
+						
 						$("#tippShareTW").unbind('click');
 						$("#tippShareFB").unbind('click');
 						$("#tippShareGP").unbind('click');
 						$("#tippSharePI").unbind('click');
 						$("#tippShareXI").unbind('click');
 						$("#tippShareLI").unbind('click');
+						
 						
 						$("#tippShareTW").off("click");
 						$("#tippShareTW").on("click",function(){
@@ -1214,7 +1513,7 @@ var app={
 						$("#tippShareLI").on("click",function(){
 							window.open("http://www.linkedin.com/shareArticle?mini=true&url=http://in-u.at&title=YOUR-TITLE&summary=YOUR-SUMMARY&source=http://in-u.at",'_system');
 						});
-					}
+					}*/
 				}
 				else{
 					var theTippID = tippID;
@@ -1232,16 +1531,16 @@ var app={
 					var data = dataset[0];					
 					switch(data.ObjectTypeID){
 						case 1: 
-							app.seller.show(data.ObjectID);
+							//app.seller.show(data.ObjectID);
 							break;        
 						case 2: 
-							app.product.show(data.ObjectID);
+							//app.product.show(data.ObjectID);
 							break;        
 						case 3: 
-							app.seller.product.show(data.ObjectID);
+							//app.seller.product.show(data.ObjectID);
 							break;        
 						case 4: 
-							app.category.show(data.ObjectID);
+							//app.category.show(data.ObjectID);
 							break;        
 						case 5: 
 							app.location.details.show(data.ObjectID);
@@ -1264,34 +1563,156 @@ var app={
 			helper.dataAPI("getData","tipps", {'i': tippID, 'o': 0},function(err,dataset){ 
 				if(!err){
 					var data = dataset[0];					
-					
+					switch(data.ObjectTypeID){
+						case 1: 
+							//app.seller.show(data.ObjectID);
+							break;        
+						case 2: 
+							//app.product.show(data.ObjectID);
+							break;        
+						case 3: 
+							//app.seller.product.show(data.ObjectID);
+							break;        
+						case 4: 
+							//app.category.show(data.ObjectID);
+							break;        
+						case 5: 
+							//data.ObjectID holds location data
+							helper.dataAPI("getData","locationdetails", {'i': data.ObjectID},function(err,dataObj){
+								if(!err){
+									// dataObj holds Locationinfo
+									app.page.show("map");
+									var coordLat = dataObj[0].CenterLat;
+									var coordLon = dataObj[0].CenterLon;
+									app.map.position.coords.find(coordLat, coordLon,16);
+									helper.popup.hide();
+								}
+								else{
+									helper.errorLog(err);
+								}
+							});
+							break;        
+						case 6: 
+							app.tipp.show(data.ObjectID);
+							break;        
+						default:
+							alert("undefined objectTypeID");
+							break;
+					}
 				}
 				else{
 					helper.errorLog(err);
 				}
 				
-			});
+			}); 
 		},
 		trash: function(tippID, jqElemToHide){
 			// fade out li and hide after the CSS3 transition has finished --- only >= ie10  
 			jqElemToHide.addClass("trashed");
 			var element = document.getElementById(jqElemToHide.attr("id"));
+			helper.info.add("undo", 
+								"Tipp gelöscht", 
+								true, // autohide
+								true, // cancelable
+								function(){ //callback cancel - dont remove
+									jqElemToHide.removeClass("trashed");
+								}, 
+								function(){ // callback do remove finally
+									jqElemToHide.remove();
+								}
+				);
 			element.addEventListener("transitionend", function () {
-			  jqElemToHide.remove();
+				// do something when transition is finished ?
 			}, true);
+			
 			//jqElemToHide.animate({ width: 'toggle', height: 'toggle', opacity: 'toggle' }, 'slow');
 			// add entry in db that this should not been shown anymore to this user
 		}
     },
 	fav:{
-		add:function(favObject){
-		
+		update: function(){
+			$("#favlist").empty();
+			var markup = "";
+			// get the favs from localstorage
+			var theFavs = JSON.parse(helper.settings.get("Favs"));	
+			
+			if ( theFavs != null && theFavs != {} && theFavs != ""  && theFavs != " "){
+				$.each(theFavs, function(key, value){
+					var favParams = key.split("_");
+					var favType = favParams[0];
+					var favID = favParams[1];
+					// select all favBtn which are e.g. from Type 'tipp' and have rel = ID
+					var jqElem = $(".favBtn[datatype='" + favType + "'][rel='" + favID + "']");
+					jqElem.addClass("red");
+					// add it to the fav page list
+					markup += "<li class='tr favitem'>";
+					markup += 	"<span class='td infobtn align-center' onclick='app.fav.details(" + '"' + favType + '"' + "," + favID + ");'>";
+					switch(favType){
+						case 'tipp':
+							markup += "<i class='et et-docs'></i>";
+							break;
+						case 'location':
+							markup += "<i class='et et-location'></i>";
+							break;
+						case 'category':
+							markup += "<i class='et et-archive'></i>";
+							break;
+						default: 
+							// ???
+							break;								
+					}
+					markup += 	"</span>";
+					markup += 	"<span class='td infobtn align-left' onclick='app.fav.details(" + '"' + favType + '"' + "," + favID + ");'>";
+					markup += 		value; // Text 
+					markup += 	"</span>";
+					// options
+					markup += 	"<span class='td deletebtn align-right' onclick='app.fav.remove(" + '$(this),"' + '"' + favType + '"' + '",' + favID + ");'>";
+					markup += 			"<i class='et et-trash'></i>";
+					markup += 	"</span>";
+					markup += "</li>";
+				});
+				$("#favlist").append(markup);
+				
+			}
 		},
-		remove:function(favID){
-		
+		remove: function(jqElem,favType,favID){
+			app.fav.toggle(jqElem,favType,favID,"");
+			var theLI = jqElem.closest("li");
+			theLI.remove();
 		},
-		details:function(favID){
-		
+		toggle: function(jqElem, dataType, dataID, dataTitle){
+			// get the favs from localstorage
+			var fav = dataType + "_" + dataID.toString();
+			var theFavs = JSON.parse(helper.settings.get("Favs"));	
+			
+			// check if already stored as a fav
+			var found = false;
+			if ( theFavs == null || theFavs == {} || theFavs == ""  || theFavs == " "){
+				theFavs = {};
+			}
+			else{				
+				$.each(theFavs, function(key, value){
+					if (key == fav){
+						found = true;
+						delete theFavs[key];
+						$("#app .favBtn[datatype='" + dataType + "'][rel='" + dataID + "']").removeClass("red");
+						// found it - just exit the loop
+						return false;
+					}				
+				});
+			}
+			
+			if (found == false){
+				theFavs[fav] = dataTitle; // add description title to it
+				jqElem.addClass("red");
+			}
+			// save back favs to localstorage
+			var newFavs = JSON.stringify(theFavs);
+			helper.settings.set("Favs", newFavs);
+		},
+		details:function(favType, favID){
+			// favTypeID = e.g. tipp_12  (Tipp with ID 12)
+			alert(favType + "  " + favID)
 		}
 	},
     // getvotings for a specific element as a list - with lazy load
@@ -1320,16 +1741,16 @@ var app={
                             var votingFull = Math.floor(voting);
                             var count = 0
                             for (var i = 0; i < votingFull; i++) {
-                                markup += "<i class='fa fa-star orange'></i>";
+                                markup += "<i class='fa fa-fw fa-star orange'></i>";
                                 count++;
                             }
                             var votingDecimal= (voting -votingFull) *100;
                             if (Math.floor(votingDecimal) >= 50){
-                                markup += "<i class='fa fa-star-half-o orange'></i>";
+                                markup += "<i class='fa fa-fw fa-star-half-o orange'></i>";
                                 count++
                             }
                             for (var i = count; i < 5; i++) {
-                                markup += "<i class='fa fa-star-o lightgray'></i>";
+                                markup += "<i class='fa fa-fw fa-star-o lightgray'></i>";
                             }
                             markup += "&nbsp;<span class='votingcount'> aus " + data.VotingCount + " Votings</span>";
                         }  
@@ -1458,16 +1879,16 @@ var app={
                                 var count = 0
                                 votingMarkup += "<span class='votingsum'>";
                                 for (var i = 0; i < votingFull; i++) {
-                                    votingMarkup += "<i class='fa fa-star orange'></i>";
+                                    votingMarkup += "<i class='fa fa-fw fa-star orange'></i>";
                                     count++;
                                 }
                                 var votingDecimal= (voting -votingFull) *100;
                                 if (Math.floor(votingDecimal) >= 50){
-                                    votingMarkup += "<i class='fa fa-star-half-o orange'></i>";
+                                    votingMarkup += "<i class='fa fa-fw fa-star-half-o orange'></i>";
                                     count++
                                 }
                                 for (var i = count; i < 5; i++) {
-                                    votingMarkup += "<i class='fa fa-star-o lightgray'></i>";
+                                    votingMarkup += "<i class='fa fa-fw fa-star-o lightgray'></i>";
                                 }
                                 votingMarkup += "</span>";								
                             }
@@ -1528,6 +1949,7 @@ var app={
 ###################################################### */
 var helper = {
 	/** various status infos ------------------------------------ */
+	firststart: true,
 	online:{
 		state: false,
 		type: "",
@@ -1545,12 +1967,17 @@ var helper = {
 			setTimeout(function(){n.parentNode.removeChild(n)}, 0);
 		}
 	},
+	positioning:{
+		mode:'gps', //zip, gps or man (manual per click on map)
+		lat:"48.20857355", // latitude Stephansdom
+		lon:"16.37254714" // longitude Stephansdom
+	},
 	gps:{
 		on: false,
 		supported:false, // navigator.geolocation supported by browser/device?	
 		successful: false,	// indicates if last gpsRequest was successful
 		failed: 0,		// counts failed number of gps requests
-		maxfails: 3,	// maximum fails before turning markerme to red
+		maxfails: 5,	// maximum fails before turning markerme to red
 		timeout: 3000, 	// timeout for trying to get GPS coordinates on gps check	
 		lat: "48.20857355", // latitude Stephansdom
 		lon: "16.37254714", // longitude Stephansdom
@@ -1570,7 +1997,7 @@ var helper = {
 				helper.gps.failed = 0;
 				helper.errorLog("gps positioned ... lat:" + helper.gps.lat + " lon:" +helper.gps.lon);
 				//update user pos in map
-				app.map.mypos();
+				app.map.position.mypos.update();
 			}
 			$("#state-gps").removeClass("red");
 			$("#state-gps").addClass("green");
@@ -1582,6 +2009,10 @@ var helper = {
 			// TIMEOUT (3) ;
 			
 			helper.gps.failed++; 
+			
+			if (helper.gps.failed == helper.gps.maxfails){
+			
+			}
 			
 			$("#state-gps").removeClass("green");
 			$("#state-gps").addClass("red");
@@ -1625,26 +2056,36 @@ var helper = {
 		helper.errorLog("helper initialize ...");
 		// document ready does not mean the device is ready and you can use phonegap functions
 		
+		helper.firststart = helper.check.firststart();
+		if (helper.firststart = true){
+			// do firststart things
+			// alert("first appstart");
+			// eventually show "dont show this again"
+			
+			// set firststart to false (if not user wants to show again)
+			helper.settings.set("FirstStart", "false");
+			helper.firststart = false;
+		}
+		
 		// Allow Cross domain requests per ajax!
 		$.support.cors = true;
 		
 		// check browser/app independent status infos
-			helper.online.state = helper.check.online();
-			helper.online.type = helper.check.network();
-						
+		helper.online.state = helper.check.online();
+		helper.online.type = helper.check.network();
+				
+		// check and set screen dimensions
 		helper.screen.width = helper.check.screen.width();
 		helper.screen.height = helper.check.screen.height();
 		helper.screen.maxpixel = helper.check.screen.maxpixel();
 		
 		// initialize Tabs for settings screen
 		$('#settingsTabs').easyResponsiveTabs();
-		
-		if (helper.settings.get("GPS") == true){
-			helper.check.gps();
-		}
-		
+				
 		// load settings
 		helper.settings.load();
+		
+		var posmode = helper.check.positioning.mode();
 		
 		/** bind buttons of common elements */
 		// overlay - close
@@ -1679,6 +2120,13 @@ var helper = {
     },
 	check:{
 		// check if this is the mobile app (true) or webapp (false)
+		firststart:function(){
+			var first = helper.settings.get("FirstStart");
+			if (first == 0 || first == "" || first == " " || first == null || typeof(first) == "undefined"){
+				first = true;
+			}
+			return first;
+		},
 		mobileapp: function(){
 			return (typeof(cordova) !== 'undefined' || typeof(phonegap) !== 'undefined');
 			helper.errorLog("isMobileApp");
@@ -1705,10 +2153,18 @@ var helper = {
 				x.send();
 				s = x.status;
 				// Make sure the server is reachable
-				return ( s >= 200 && s < 300 || s === 304 );
+				if ( s >= 200 && s < 300 || s === 304 ){					
+					$("#state-online").addClass("green");
+					$("#state-online").removeClass("red");
+					return true;
+				}
+				else{
+					$("#state-online").removeClass("green");
+					$("#state-online").addClass("red");
+					return false;
+				}
+				// return ( s >= 200 && s < 300 || s === 304 );
 				// catch network & other problems
-				$("#state-online").addClass("green");
-				$("#state-online").removeClass("red");
 			} 
 			catch (e) {
 				$("#state-online").removeClass("green");
@@ -1767,6 +2223,23 @@ var helper = {
 			*/
 			return 'Unknown connection';
 		},
+		positioning:{
+			mode:function(){
+				var posmode = "unknown"
+				if (helper.settings.get("GPS") == true){
+					if (helper.check.gps() == true){
+						posmode = "gps";
+					}
+					else{
+						
+					}
+				}
+				// check what kind of positioning we my/can use
+				//var posmode = "gps";
+				
+				return posmode;
+			}
+		},
 		gps:function(){
 			// check if navigator.geolocation is available/suppported
 			if (navigator.geolocation) {
@@ -1777,7 +2250,12 @@ var helper = {
 					gpsUpdate = 10;
 					helper.settings.set("GPSinterval","10");
 				}
-				helper.gps.track();						
+				helper.gps.track();	
+				return true;
+			}
+			else{
+				// #### TODO IF NO GPS ##################
+				return false;
 			}
 		}
 	},	
@@ -1792,7 +2270,7 @@ var helper = {
 				var settingValue = helper.data.get(settingName);
 				var settingControl = settingElem.get(0).tagName;
 				
-				if (settingValue != null && settingValue != "err" && settingValue != "" && settingValue != "undefined"){
+				if (settingValue != null && settingValue != "err" && settingValue != "" && settingValue != " " && settingValue != "undefined"){
 					if (settingControl == "INPUT"){
 						var settingType = settingElem.attr("type");
 						switch(settingType){
@@ -1800,7 +2278,7 @@ var helper = {
 							case 'password':
 								settingElem.val(settingValue);
 								break;
-							case 'checkbox':
+							case 'checkbox','radio':
 								settingElem.prop("checked",settingValue);
 								break;
 							default: 
@@ -1816,7 +2294,8 @@ var helper = {
 					}
 				}
 				else{
-					settingElem.val("");
+					var defaultVal = settingElem.attr("default-value");
+					settingElem.val(defaultVal);
 				}
 			});
 			helper.errorLog("settings loaded");
@@ -1838,7 +2317,7 @@ var helper = {
 						case 'password':
 							settingValue = settingElem.val();
 							break;
-						case 'checkbox':
+						case 'checkbox','radio':
 							settingValue = settingElem.prop("checked");
 							break;
 						default: 
@@ -1855,6 +2334,10 @@ var helper = {
 				helper.data.set(settingName,settingValue);
 			});
 			helper.errorLog("settings saved");
+			helper.info.add("success", "Die Einstellungen wurden gespeichert", true, false);
+			window.location='./main.html';
+			//helper.settings.load();
+			//app.initialize();
 			//helper.errorLog("...trying to log in");
 			//app.login();
 			//helper.initialize();
@@ -2019,7 +2502,7 @@ var helper = {
     ------------------------------------ */
     //  USAGE example:                                                              // Description of parameters
     /*  -----------------------------------------------------------------------------------------------------------------------------
-        helper.popup.show( 'Overlay Title',                                        // overlay title
+        helper.popup.show( 'Overlay Title',                                         // overlay title
                             'this is the content<br/>And this is another line',     // overlay textarea
                             'no_avatar.gif',                                        // image for title row (auto resized to 20x20 px)
                             true,                                                   // show OK button?
@@ -2185,10 +2668,12 @@ var helper = {
     },
     info:{
         lastID:0,
-        timeout: 5000,
-        add: function(infotype, infotext, autohide){
-            helper.info.lastID = helper.info.lastID + 1;
-            var markup = "<span rel='" + helper.info.lastID + "' class='infoelement ";
+        timeout: 8000,
+        add: function(infotype, infotext, autohide, cancelable, callbackCancel, callbackFinal){
+			if(typeof(cancelable) == "undefined"){cancelable = false;}
+            helper.info.lastID++;
+			var lastID = helper.info.lastID;
+            var markup = "<span rel='" + lastID + "' class='infoelement ";
             var classTmp = "";
             var iconTmp = "";
             switch(infotype){
@@ -2207,6 +2692,10 @@ var helper = {
                 case 'error': 
                     classTmp= "red-bg-t7 white";
                     iconTmp = "<i class='et et-new'></i>&nbsp;&nbsp;";
+                    break;       
+                case 'undo': 
+                    classTmp= "darkgray-bg-t7 white";
+                    iconTmp = "<i class='et et-docs'></i>&nbsp;&nbsp;";
                     break;                
                 default: 
                     classTmp= "lightgray-bg-t7 darkgray";
@@ -2214,19 +2703,57 @@ var helper = {
                     break;
             }
             markup += classTmp + "'>";
-            markup += "<span class='infoclose' onclick='$(this).parent().remove();'><i class='et et-cross'></i></span>";
-            markup += iconTmp + infotext + "</span>";
+			markup += 	"<span class='table'>";
+			markup += 		"<span class='tr'>";
+			markup += 			"<span class='td'>" + iconTmp + "</span>";
+			markup += 			"<span class='td'>" + infotext + "</span>";
+			
+			if (cancelable == true && typeof(callbackCancel) != "undefined"){
+				markup += 		"<span class='td infocancel' rel='" + lastID + "'><i class='et et-back'></i> RÜCKGÄNGIG</span>";				
+			}
+            markup += 			"<span class='td infoclose' rel='" + lastID + "'><i class='et et-cross'></i></span>";
+            markup +=  		"</span>";
+            markup +=  	"</span>";
+            markup += "</span>";
             
             if( typeof(autohide) != "undefined" && autohide == true){                
                 setTimeout(function(){
-                    var theID = helper.info.lastID;
-                    helper.info.hide(theID);
+                    var theID = lastID;		
+					if(typeof(callbackFinal) != "undefined"){
+						var isCancelable = cancelable;
+						var theCallback = callbackFinal;
+						if (isCancelable == true && typeof(theCallback) != "undefined"){
+							theCallback();
+						}
+					}
+                    helper.info.hide(theID);			
                 },helper.info.timeout);
             }
-            $("#info").prepend(markup);            
+			// add it to the dom 
+            $("#info").prepend(markup);
+			
+			// bind callbacks
+				$("span.infoclose[rel='" + lastID + "']").off("click");
+				$("span.infoclose[rel='" + lastID + "']").on("click",function(){ 
+					$("span.infoelement[rel='" + lastID + "']").remove();
+					if(typeof(callbackFinal) != "undefined"){
+						callbackFinal();
+					}
+				});
+					
+				if (cancelable == true && typeof(callbackCancel) != "undefined"){
+					$("span.infocancel[rel='" + lastID + "']").off("click");
+					$("span.infocancel[rel='" + lastID + "']").on("click",function(){ 
+						$("span.infoelement[rel='" + lastID + "']").remove();
+						if(typeof(callbackCancel) != "undefined"){
+							callbackCancel();
+						}
+					});
+				}			
+            
         },
         hide: function(id){
-            $("span.infoelement[rel=" + id + "]").remove();
+            $("span.infoelement[rel='" + id + "']").remove();
         }
     },
     form: {
@@ -2396,19 +2923,115 @@ var helper = {
 			var theSubject = null;
 			var theImage = null;
 			var theLink = null;
-			if (typeof(message) != "undefined"){ 
-                theMessage = message;
-            }
-			if (typeof(subject) != "undefined"){ 
-                theSubject = subject;
-            }
-			if (typeof(image) != "undefined"){ 
-                theImage = image;
-            }
-			if (typeof(link) != "undefined"){ 
-                theLink = link;
-            }
-			window.plugins.socialsharing.share(theMessage, theSubject, theImage, theLink);
+			if (appIsMobile){
+				if (typeof(message) != "undefined"){ 
+					theMessage = message;
+				}
+				if (typeof(subject) != "undefined"){ 
+					theSubject = subject;
+				}
+				if (typeof(image) != "undefined"){ 
+					theImage = image;
+				}
+				if (typeof(link) != "undefined"){ 
+					theLink = link;
+				}
+			}
+			else{
+				// for the sharing links prevent null values - replace by ""
+				if (typeof(message) == "undefined"){ 
+					theMessage = "";
+				}else{theMessage = message;}
+				if (typeof(subject) == "undefined"){ 
+					theSubject = "";
+				}else{theSubject = subject;}
+				if (typeof(image) == "undefined"){ 
+					theImage = "";
+				}else{theImage = image;}
+				if (typeof(link) == "undefined"){ 
+					theLink = "";
+				}else{theLink = link;}
+			}
+			// popup sharing options if not inApp mode, else call pg sharing plugin
+			if (appIsMobile){
+				window.plugins.socialsharing.share(theMessage, theSubject, theImage, theLink);
+			}
+			else{
+				var markup = "";
+				// for email URL encode the parts of the mailto link  ------- TODO ###############################
+				markup += "<div class='tippOptions table' id='shareOptions'>";
+				markup += "  <a class='tr btn darkgray' href='mailto:?subject=" + encodeURIComponent(theSubject) + "&amp;body=" + encodeURIComponent(theMessage) + "%20%20" + encodeURIComponent(theLink) + "' target='_blank'>";
+				markup += "    <span class='td tippShareBrowser vertical-middle'>";
+				markup += "       Email";
+				markup += "    </span>";
+				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";					
+				markup += "      <i id='shareEM' class='btn fa fa-envelope'></i><br>";	
+				markup += "    </span>";				
+				markup += "  </a>";
+				markup += "  <a class='tr btn darkgray' href='https://twitter.com/intent/tweet?text=" + encodeURIComponent(theSubject) +"&amp;url=" + encodeURIComponent(theLink) + "&amp;via=AppHOF' target='_blank'>";
+				markup += "    <span class='td tippShareBrowser vertical-middle'>";
+				markup += "       twitter";
+				markup += "    </span>";
+				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";
+				markup += "      <i id='shareTW' class='btn ets ets-twitter'></i><br>";	
+				markup += "    </span>";				
+				markup += "  </a>";
+				markup += "  <a class='tr btn darkgray' href='http://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(theLink) + "' target='_blank'>";
+				markup += "    <span class='td tippShareBrowser vertical-middle'>";
+				markup += "       facebook";
+				markup += "    </span>";
+				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";				
+				markup += "      <i id='shareFB' class='btn ets ets-facebook'></i><br>";
+				markup += "    </span>";				
+				markup += "  </a>";
+				markup += "  <a class='tr btn darkgray' href='https://plus.google.com/share?url=" + encodeURIComponent(theLink) + "' target='_blank'>";
+				markup += "    <span class='td tippShareBrowser vertical-middle'>";
+				markup += "       Google+";
+				markup += "    </span>";
+				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";					
+				markup += "      <i id='shareGP' class='btn ets ets-googleplus'></i><br>";	
+				markup += "    </span>";				
+				markup += "  </a>";
+				markup += "  <a class='tr btn darkgray' href='http://pinterest.com/pin/create/button/?url=" + encodeURIComponent(theLink) + "&amp;description=" + encodeURIComponent(theSubject) + "&amp;media=" + encodeURIComponent(theImage) + "' target='_blank'>";
+				markup += "    <span class='td tippShareBrowser vertical-middle'>";
+				markup += "       pinterest";
+				markup += "    </span>";
+				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";				
+				markup += "      <i id='sharePI' class='btn ets ets-pinterest'></i><br>";
+				markup += "    </span>";				
+				markup += "  </a>";
+				markup += "  <a class='tr btn darkgray' href='https://www.xing-share.com/app/user?op=share;sc_p=xing-share;url=" + encodeURIComponent(theLink) + "' target='_blank'>";
+				markup += "    <span class='td tippShareBrowser vertical-middle'>";
+				markup += "       XING";
+				markup += "    </span>";
+				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";				
+				markup += "      <i id='shareXI' class='btn fa fa-fw fa-xing'></i><br>";
+				markup += "    </span>";				
+				markup += "  </a>";
+				markup += "  <a class='tr btn darkgray' href='http://www.linkedin.com/shareArticle?mini=true&amp;url=" + encodeURIComponent(theLink) +"&amp;title=" + encodeURIComponent(theSubject) +"&amp;summary=" + encodeURIComponent(theMessage) + "&amp;source=AppHOF' target='_blank'>";
+				markup += "    <span class='td tippShareBrowser vertical-middle'>";
+				markup += "       linkedin";
+				markup += "    </span>";
+				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";				
+				markup += "      <i id='shareLI' class='btn ets ets-linkedin'></i>";
+				markup += "    </span>";			
+				markup += "  </a>";
+				markup += "</div>";
+				
+				helper.popup.show('Teilen über',                                      
+									markup,     
+									' et et-share',
+									false,
+									false,
+									function(){ 
+										// callback from OK button (hidden)									
+									},                       
+									function(){ // callback from CANCEL button
+										// hide the overlay                
+										//helper.popup.hide();
+									}                    
+				);
+			}
 	},
 	/** GUI & Controls ------------------------------------ */    
     /** select an option by Text or Value 
@@ -2434,7 +3057,24 @@ var helper = {
     },
     /** date and time helpers (depends on "helper.pad")
     ------------------------------------ */
-    datetimeActual:function() {
+    //dayname expects date in format yyyy-mm-dd
+	dayname:function(datevalue,shortDay){
+		var dayNames = new Array(
+		  'Sonntag',
+		  'Montag',
+		  'Dienstag',
+		  'Mittwoch',
+		  'Donnerstag',
+		  'Freitag',
+		  'Samstag'
+		);
+		var dayName = dayNames[datevalue.getDay()];
+		if(typeof(shortDay) != "undefined" && shortDay == true){
+			dayName = helper.left(dayName,2);
+		}
+		return dayName;
+	},
+	datetimeActual:function() {
         return helper.dateActual() + " " + helper.timeActual();
     },
     datetimeDB: function() {
@@ -2474,7 +3114,7 @@ var helper = {
                         "-" + helper.pad(second, 2);
         return dateString;
     },
-    dateActual: function() {
+	dateActual: function() {
         var months = new Array(13);
         months[0] = "January";
         months[1] = "February";

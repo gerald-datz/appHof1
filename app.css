@@ -98,8 +98,12 @@ h6, h6 a{
 a, a:active, a:link, a:visited {
 	color:#2998e7;
 }
-
-
+ul {
+	list-style-type:square;
+}
+li {
+	margin-bottom:8px;
+}
 /* ###################################################
 					helper styles
    ################################################### */
@@ -110,6 +114,9 @@ a, a:active, a:link, a:visited {
     color: #A8A8A8 !important;
     opacity: 1;
 }
+.small{
+	font-size:70%;
+}
 .align-right{
 	text-align:right;
 }
@@ -118,6 +125,9 @@ a, a:active, a:link, a:visited {
 }
 .align-left{
 	text-align:left;
+}	
+.align-justify{
+	text-align:justify;
 }	
 
 .float-right{
@@ -145,7 +155,26 @@ a, a:active, a:link, a:visited {
 .td{
 	display:table-cell;
 }
-
+.td50{
+	display:table-cell;
+	width:50px;
+	max-width:50px;
+}
+.td100{
+	display:table-cell;
+	width:100px;
+	max-width:100px;
+}
+.td150{
+	display:table-cell;
+	width:150px;
+	max-width:150px;
+}
+.td200{
+	display:table-cell;
+	width:200px;
+	max-width:200px;
+}
 .vertical-top{
 	vertical-align:top;
 }
@@ -154,6 +183,13 @@ a, a:active, a:link, a:visited {
 }
 .vertical-bottom{
 	vertical-align:bottom;
+}
+
+.nomargin{
+	margin:0!important;
+}
+.nopadding{
+	padding:0!important;
 }
 
 .height100{
@@ -186,7 +222,7 @@ a, a:active, a:link, a:visited {
 /* ###################################################
 					controls
    ################################################### */
-.btn{
+.btn, .infobtn, .deletebtn, .optionbtn{
 	cursor:pointer;
 	cursor:hand;
 	text-transform:uppercase;
@@ -394,7 +430,7 @@ a, a:active, a:link, a:visited {
 /* ------------ info popup ------------- */
 	#info{
 		position:absolute;
-		bottom:5px;
+		bottom:35px;
 		left:0px;
 		display:block;
 		
@@ -419,7 +455,7 @@ a, a:active, a:link, a:visited {
             margin:1px auto;
             width:90%;            
         }
-            .infoclose{
+            .infoclose, .infocancel{
                 position:absolute;
                 right:5px;
                 top:5px;
@@ -431,6 +467,9 @@ a, a:active, a:link, a:visited {
                 color:#fff;
                 cursor:pointer;
                 cursor:hand;
+            }
+			.infocancel{
+                right:45px;
             }
 		
 #spinnermask{
@@ -738,8 +777,32 @@ a, a:active, a:link, a:visited {
 						background:#FFF;
 						color:#111;
 					}
-		
-				
+
+								
+	/* 	---------------------------------------------------
+						mapinfo
+		--------------------------------------------------- */
+#mapinfo{
+	display:none;
+	position:absolute;
+	bottom:25px;
+	left:0;
+	width:100%;
+	font-size:12px;
+}
+	#mapinfo i.btn-icon{
+		font-size:2.5em;
+		padding-top:8px;
+		height:30px;
+		width:30px;
+	}
+	
+	#mapinfo-text{
+		padding:0 10px;
+	}
+		#mapinfo-text i.fa{
+			vertical-align:text-bottom;
+		}
 	/* 	---------------------------------------------------
 						search & resultlist
 		--------------------------------------------------- */
@@ -978,7 +1041,7 @@ a, a:active, a:link, a:visited {
 				letter-spacing:0.05em;
 			}
 			
-		/* Tipp Options */
+		/* Tipp Options - also for map popup and other option popups*/
 		
 		.tippOptions{
 		
@@ -1080,7 +1143,13 @@ ul.comments{
     text-align: center;
     width: 30px;
 }
-
+.catIcon.small{
+    height: 22px;
+    width: 22px;
+}
+	.catIcon.small [class^="flaticon-"]:before, .catIcon.small [class*=" flaticon-"]:before, .catIcon.small [class^="flaticon-"]:after, .catIcon.small [class*=" flaticon-"]:after{
+		font-size:15px;
+	}
 
 /* ----------- lazy load images - updated after inserted in DOM ----------- */
 img.lazy{
