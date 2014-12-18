@@ -29,7 +29,7 @@
 		<div id="popup" class="popup-modal darkgray">
 			<div class="popup-head table white">
 				<span class="tr">
-					<span class="td align-center vertical-middle popup-icon"></span>
+					<span class="td50 align-center vertical-middle popup-icon"></span>
 					<span class="td align-left vertical-middle popup-title"></span>
 					<span class="td align-center vertical-middle popup-close btn" onclick="helper.popup.hide();">
 						<i class="btn et et-cross"></i>
@@ -117,8 +117,6 @@
 						<div class="table">
 							<div class="tr">
 								<span id="mapinfo-text" class="td vertical-middle align-left">
-									name and distance<br>
-									opening info
 								</span>
 								<span id="mapinfo-detail" class="td vertical-middle align-center" onclick="app.location.details.show($(this).attr('rel'));">
 									<i class="et et-info btn-icon "></i>
@@ -183,6 +181,10 @@
 								<div class="tr vertical-middle btn" onclick="app.page.showHelp('fav');">
 									<span class="td blue btn-icon align-center"><i class="et et-heart"></i></span>
 									<span class="td blue">Favoriten speichern &amp; abrufen<br/><span class="small darkgray">Speichere Deine Verkäufer und Artikel</span></span>
+								</div>
+								<div class="tr vertical-middle btn" onclick="app.page.showHelp('faq');">
+									<span class="td blue btn-icon align-center"><i class="et et-light-bulb"></i></span>
+									<span class="td blue">FAQ&apos;s &amp; Problembehebung<br/><span class="small darkgray">Infos &amp; Lösungen zu Problemen</span></span>
 								</div>
 							</div>
 						</div>
@@ -323,6 +325,7 @@
 										<div id="settingsCategorys">
 											
 										</div>
+										<br>&nbsp;<br>&nbsp;
 									</div>
 								</div>
 							</div>
@@ -550,11 +553,13 @@
 		<!-- status bar end -->
 				
 		<div id="helptext-full" style="display:none;">
-			<span rel="start">
-				<h2 class="blue nomargin">Startseite</h2>
+			<span rel="firststart">
+				<h2 class="blue nomargin">Willkommen in der AppHOF Community!<i class="et et-home float-right"></i></h2>
 				<p class="small">
-					Hier findest Du einen Überblick der Startseite und ihrer Funktionen. Über das kleine, weiße "x" ganz rechts oben kannst du die Hilfe wieder verlassen.</small><br> 
-					<img src="img/help/01_Start.jpg" width="90%" style="margin:auto;"/>
+					Wir freuen uns, dass Du AppHOF nutzen möchtest und wollen Dir den Einstieg so einfach als möglich machen. Weiter unten findest Du einen Überblick der Startseite und ihrer Funktionen. Über das kleine, weiße "x" ganz rechts oben kannst du die Hilfe wieder verlassen.<br><br>Diese Seite wird nur beim ersten Start nach der Installation der App angezeigt. Die Hilfe mit allen wichtigen Infos zu AppHOF kannst Du jederzeit über den Menüpunkt <strong>"&nbsp;SO FUNKTIONIERT&apos;S"</strong> aufrufen.<br>
+					<p class="align-center">
+						<img src="img/help/01_Start.jpg" width="70%" style="margin:auto;"/>
+					</p>
 					<h4 class="blue nomargin">Details zu den Funktionen</h4>
 					<ul class="align-justify" style="padding-left:10px;">
 						<li class="small">Wenn Du auf das AppHOF-Logo ganz links klickst, dann öffnet und schließt sich das Menü.</li>
@@ -564,18 +569,115 @@
 						<li class="small">Unten im Menü findest Du die Hilfe, weitere Infos zu AppHOF und Deine persönlichen Einstellungen.</li>
 						<li class="small">Die Taste mit dem Fragezeichen ganz links unten ruft die Hilfe zur jeweils aktuellen Funktion auf.</li>
 						<li class="small">Die Schnellhilfe in der Mitte unten, zeigt wichtige Infos zur aktuellen Seite an.</li>
-						<li class="small">Der Statusbereich rechts unten zeigt an ob eine Verbindung mit dem Internet möglich ist und ob Deine Position von der App festgestellt werdenkann.</li>
+						<li class="small">Der Statusbereich rechts unten zeigt an ob eine Verbindung mit dem Internet möglich ist und ob Deine Position von der App festgestellt werden kann.</li>
+					</ul>					
+				</p>				
+			</span>
+			<span rel="start">
+				<h2 class="blue nomargin">Startseite<i class="et et-home float-right"></i></h2>
+				<p class="small">
+					Hier findest Du einen Überblick der Startseite und ihrer Funktionen. Über das kleine, weiße "x" ganz rechts oben kannst du die Hilfe wieder verlassen.<br> 
+					<p class="align-center">
+						<img src="img/help/01_Start.jpg" width="90%" style="margin:auto;"/>
+					</p>
+					<h4 class="blue nomargin">Details zu den Funktionen</h4>
+					<ul class="align-justify" style="padding-left:10px;">
+						<li class="small">Wenn Du auf das AppHOF-Logo ganz links klickst, dann öffnet und schließt sich das Menü.</li>
+						<li class="small">Über die Schnellnavigation rechts oben gelangst Du schnell zu den wichtigsten Funktionen der App.</li>
+						<li class="small">Im oberen Teil des Menüs siehst Du Deinen aktuellen Anmeldestatus und hast die Möglichkeit Dich gleich anzumelden</li>
+						<li class="small">Im mittleren Menübereich findest Du die Hauptfunktionen der App.</li>
+						<li class="small">Unten im Menü findest Du die Hilfe, weitere Infos zu AppHOF und Deine persönlichen Einstellungen.</li>
+						<li class="small">Die Taste mit dem Fragezeichen ganz links unten ruft die Hilfe zur jeweils aktuellen Funktion auf.</li>
+						<li class="small">Die Schnellhilfe in der Mitte unten, zeigt wichtige Infos zur aktuellen Seite an.</li>
+						<li class="small">Der Statusbereich rechts unten zeigt an ob eine Verbindung mit dem Internet möglich ist und ob Deine Position von der App festgestellt werden kann.</li>
 					</ul>					
 				</p>
 			</span>
-			<span rel="map"><small><i class="fa fa-fw fa-male red"></i>&nbsp;Standort&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker blue"></i>&nbsp;Ab Hof&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker orange"></i>&nbsp;Markt&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker lightgray"></i>&nbsp;Sonstige</small></span>
-			<span rel="search"><small>Gib einen Suchbegriff ein</small></span>
-			<span rel="fav"><small>Favoriten</small></span>
-			<span rel="help"><small>Hilfe</small></span>
-			<span rel="about"><small>Über AppHOF</small></span>
-			<span rel="settings"><small>Einstellungen ändern und "Speichern" wählen</small></span>
-			<span rel="seller"><small>Verkäufer Funktionen</small></span>
-			<span rel="admin"><small>Administrative Funktionen</small></span>
+			<span rel="map">
+				<h2 class="blue nomargin">Landkarte<i class="fa fa-map-marker float-right"></i></h2>
+				<p class="small">
+					Hier findest Du einen Überblick der Landkarte und ihrer Funktionen. Über das kleine, weiße "x" ganz rechts oben kannst du die Hilfe wieder verlassen.<br><br> 
+					Auf der Karte siehst Du ab Hof Verkäufe und Märkte, die sich in Deiner Nähe befinden.
+					<p class="align-center">
+						<img src="img/help/02_Map.jpg" width="90%" style="margin:auto;"/>
+					</p>
+					<h4 class="blue nomargin">Details zu den Markierungen</h4>
+					<ul class="align-justify" style="padding-left:10px;">
+						<li class="small">Das rote Männchen <i class="fa fa-fw fa-male red"></i> auf der Landkarte zeigt Deinen aktuellen oder ausgewählten Standort an.</li>
+						<li class="small">Die blauen Markierungen <i class="fa fa-fw fa-map-marker blue"></i> zeigen an, wo in Deiner Nähe sich ab Hof Verkäufe befinden.</li>
+						<li class="small">Orange Markierungen <i class="fa fa-fw fa-map-marker orange"></i> zeigen an, wo in Deiner Nähe Märkte stattfinden.</li>
+						<li class="small">Andere interessante Orte in Deiner Nähe werden durch graue Markierungen <i class="fa fa-fw fa-map-marker lightgray"></i> angezeigt.</li>
+						<li class="small">
+							Wenn Du auf eine Markierung tippst, wird Dir am unteren Bildschirmrand eine Kurzinfo zum gewählten Standort angezeigt. 
+							<p class="align-center">
+								<img src="img/help/02_Map2.jpg" width="90%" style="margin:auto;"/>
+							</p>
+							Durch nochmaliges tippen auf die Markierung öffnest Du die Details des gewählten Standortes. Alternativ kannst Du auch auf die "i" Taste in der Kurzinfo tippen um die Details anzusehen.
+						</li>
+					</ul>
+					<h4 class="blue nomargin">Details einer Markierung</h4>
+					<p class="small">
+						In der Detailansicht findest Du die genaue Adresse und die Kontaktdaten sowie die Webseitenadresse und weiterführende Informationen des jeweiligen Anbieters.
+					</p>
+					<p class="align-center">
+						<img src="img/help/03_Details.jpg" width="90%" style="margin:auto;"/>
+					</p>
+				</p>
+			
+				<small><i class="fa fa-fw fa-male red"></i>&nbsp;Standort&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker blue"></i>&nbsp;Ab Hof&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker orange"></i>&nbsp;Markt&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker lightgray"></i>&nbsp;Sonstige</small>
+			</span>
+			<span rel="search">
+			</span>
+			<span rel="fav">
+			</span>
+			<span rel="faq">
+				<h2 class="blue nomargin">FAQ&apos;&amp Problembehebung<i class="et et-light-bulb float-right"></i></h2>
+					<p class="small">Hier findest Du Lösungsvorschläge zu möglichen Problemen und Antworten auf häufig gestellte Fragen.</p>
+				<hr>
+				<h4 class="blue nomargin">Ich kenne ab Hof Verkäufer die nicht in der App vertreten sind:</h4>
+				<p class="small">
+					Wir freuen uns über Deinen Input: Sende uns einfach eine Email an <a class="blue" href="mailto:office@in-u.at?subject=appHOF%20Vorschlag%20&amp;Name%20Adresse%20Internetadresse%20sonstigeInfos%20zu%20Deinem%20Vorschlag%20bitte%20hier%20angeben">office@in-u.at</a> mit den Angaben zu Name,Adresse und allem was Du sonst noch darüber weisst, wir prüfen Deinen Vorschlag schnellstmöglich und fügen neue Anbieter gerne hinzu.
+				</p>
+				<hr>
+				<h4 class="blue nomargin">Ich bin ab Hof Verkäufer - Die Angaben zu meinem Eintrag sind falsch:</h4>
+				<p class="small">
+					Sende uns bitte einfach eine Email an <a class="blue" href="mailto:office@in-u.at?subject=appHOF%20Datenkorrektur%20&amp;Name%20Adresse%20Internetadresse%20sonstigeInfos%20zu%20Deinem%20Eintrag%20bitte%20hier%20angeben">office@in-u.at</a> mit den gewünschten Änderungen und einer Kontakt-Telefonnummer über die wir Dich bei Rückfragen erreichen können, wir prüfen Deine Daten schnellstmöglich und korrigieren sie gegebenenfalls.
+				</p>
+				<hr>
+				<h4 class="blue nomargin">Auf der Karte werden keine Markierungen angezeigt:</h4>
+				<p class="small">
+					Wenn keine Standorte in Deiner Nähe gefunden werden, dann liegt das meist an zu restriktiven Einstellungen:<br>
+					Versuche einen größeren Radius für die Umkreissuche (z.B.: 40km) einzustellen oder in der Auswahl der anzuzeigenden Produkte "Alles" auszuwählen.<br><br>
+					Hier kommst Du direkt zu den <span class="btn blue" onclick="app.page.show('settings');">EINSTELLUNGEN</span>.
+				</p>
+				<hr>
+				<h4 class="blue nomargin">Meine Position wird falsch auf der Karte angezeigt:</h4>
+				<p class="small">
+					Wenn Deine Position nicht richtig angezeigt wird, kann das verschiedene Gründe haben:<br>
+					<ul class="align-justify" style="padding-left:10px;margin-left:10px;">
+						<li class="small">Möglicherweise unterstützt Dein Gerät keine GPS- oder andere Positionierungsfunktionen</li>
+						<li class="small">Eventuell hast Du die Positionierungsfunktionen Deines Gerätes in den Geräteeinstellungen deaktiviert?</li>
+						<li class="small">
+							Hast Du die Position in der Karte manuell durch antippen der Karte verändert?<br>
+							Tippe einfach auf einen leeren Bereich der Karte und wähle dann aus der erscheinenden Liste die Methode aus, nach der Dein Standort gesetzt werden soll.
+						</li>
+						<li class="small">
+							Überprüfe die Einstellungen für die Positionsbestimmung in den <span class="btn blue" onclick="app.page.show('settings');">EINSTELLUNGEN</span>.<br>
+							Ist das Häkchen "Positionierung erlauben" gesetzt?<br>
+							Stelle bei "Positionsaktualisierung (sek)" einen kleineren Wert (z.B. 30 Sekunden) ein um häufiger Deinen Standort zu aktualisieren.
+						</li>
+					</ul>
+				</p>
+				<hr>
+			</span>
+			<span rel="about">
+			</span>
+			<span rel="settings">
+			</span>
+			<span rel="seller">
+			</span>
+			<span rel="admin">
+			</span>
 		</div>
 		
 	</div>

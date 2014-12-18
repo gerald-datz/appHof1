@@ -42,6 +42,18 @@ var tiles;
 var meMarkerIcon;
 var mePosMarker;
 
+var layerSeller;
+var markerSeller;
+
+var layerMarket;
+var markerMarket;
+
+var layerActivity;
+var markerActivity;
+
+var layerOther;
+var markerOther;
+
 window.onresize = function(event) {
 	//resizeDivs("automatic");
     app.screenChange();
@@ -756,9 +768,23 @@ var app={
 				tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 					attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 				}), latlng = new L.LatLng(parseFloat(helper.gps.lat), parseFloat(helper.gps.lon));
-
-				map = L.map('map', {center: latlng, zoom: app.map.zoom, layers: [tiles]});
-		
+				
+				/*
+				layerSeller = L.layerGroup();
+				layerMarket = L.layerGroup();
+				layerActivity = L.layerGroup();
+				layerOther = L.layerGroup();
+				
+				map = L.map('map', {center: latlng, zoom: app.map.zoom, layers: [tiles, layerSeller, layerMarket, layerActivity, layerOther]});		
+				
+				
+				var layerselectorInfo ={"Auswahl":{}};
+				var markerLayers = {"Ab Hof Verkäufer": layerSeller, "Märkte": layerMarket, "Aktivitäten": layerActivity, "Andere": layerOther };
+				// add layers to the map control   
+				L.control.layers(layerselectorInfo,markerLayers).addTo(map);
+				*/
+				
+				map = L.map('map', {center: latlng, zoom: app.map.zoom, layers: [tiles]});		
 				app.map.markers.update();
 
 				// define meMarker - this is a special "updateable" marker for the users positon hat will be updated by a interval and not set over and over again 
@@ -900,7 +926,7 @@ var app={
 				// set markers in map
 			},
 			set: function(){
-				 var markers = new L.markerClusterGroup();    
+				 var markersGroup = new L.markerClusterGroup();    
 				//var markers = l.Marker();
 				helper.errorLog("Adding Markers");
 				$.each(app.obj.locations,function(){
@@ -920,16 +946,65 @@ var app={
 						iconAnchor: new L.Point(2, 24)
 					});
 					
-					
 					var theIcon = new defaultMarkerIcon();*/
+					var markerIcon = "";
+					var theLayer;
+					switch(item.LocationType){
+						case 1:
+							// seller
+							markerIcon="img/markerSeller.png";
+							theLayer = layerSeller;
+							break;
+						case 2:
+							// market
+							markerIcon="img/markerMarket.png";
+							theLayer = layerMarket;
+							break;
+						case 3:
+							// activity
+							markerIcon="img/markerActivity.png";
+							theLayer = layerActivity;
+							break;
+						default:
+							// other
+							markerIcon="img/markerOther.png";
+							theLayer = layerOther;
+							break;							
+					}
+					
+					var theIcon = L.Icon.Default.extend({
+						options: {
+							iconUrl: markerIcon
+						}
+					});
+					theMarkerIcon = new theIcon(); 
+					marker = new  L.LatLng(parseFloat(item.CenterLat), parseFloat(item.CenterLon)), 
+					marker = new L.Marker(marker,{icon: theMarkerIcon, title: item.Name, id: item.ID });
+					marker.on('click',function(e){
+						app.map.markers.click(e.target.options.id);
+					});
+					
+					/*	
+						... clustering broken initially when trying this
+						theLayer.addLayer(marker);
+					*/
+					markersGroup.addLayer(marker);  
+				
+				/*
 					var marker = L.marker(new L.LatLng(item.CenterLat, item.CenterLon), {  title: item.Name, id: item.ID });
 					marker.on('click',function(e){
 						app.map.markers.click(e.target.options.id);
 						});
 					//marker.bindPopup(title);	
-					markers.addLayer(marker);					
+					markers.addLayer(marker);		
+				*/
 				});	
-				map.addLayer(markers);
+				/*markersGroup.addLayer(layerSeller);
+				markersGroup.addLayer(layerMarket);
+				markersGroup.addLayer(layerActivity);
+				markersGroup.addLayer(layerOther);*/
+					
+				map.addLayer(markersGroup);
 			}
 		},
 		position:{
@@ -2057,11 +2132,11 @@ var helper = {
 		// document ready does not mean the device is ready and you can use phonegap functions
 		
 		helper.firststart = helper.check.firststart();
-		if (helper.firststart = true){
+		if (helper.firststart == true){
 			// do firststart things
 			// alert("first appstart");
 			// eventually show "dont show this again"
-			
+			app.page.showHelp('firststart');
 			// set firststart to false (if not user wants to show again)
 			helper.settings.set("FirstStart", "false");
 			helper.firststart = false;
@@ -2122,7 +2197,7 @@ var helper = {
 		// check if this is the mobile app (true) or webapp (false)
 		firststart:function(){
 			var first = helper.settings.get("FirstStart");
-			if (first == 0 || first == "" || first == " " || first == null || typeof(first) == "undefined"){
+			if (first === 0 || first === "" || first === " " || first === null || typeof(first) == "undefined"){
 				first = true;
 			}
 			return first;
