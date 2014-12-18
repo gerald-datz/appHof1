@@ -736,7 +736,7 @@ var app={
                 });
 		},
 		result: function(searchstring){
-		
+			alert("search now");
 		},
 		select: function(resultID){
 		
@@ -746,7 +746,7 @@ var app={
     map: {
 		zoom: 9,
         init: function(){
-			if (!map){
+			
 				helper.errorLog("map init ...");
 				// init Map - workaround for map size bug
 				$('#map').height($(document).height());
@@ -758,7 +758,7 @@ var app={
 				}), latlng = new L.LatLng(parseFloat(helper.gps.lat), parseFloat(helper.gps.lon));
 
 				map = L.map('map', {center: latlng, zoom: app.map.zoom, layers: [tiles]});
-			}	
+		
 				app.map.markers.update();
 
 				// define meMarker - this is a special "updateable" marker for the users positon hat will be updated by a interval and not set over and over again 
@@ -2335,7 +2335,7 @@ var helper = {
 			});
 			helper.errorLog("settings saved");
 			helper.info.add("success", "Die Einstellungen wurden gespeichert", true, false);
-			window.location='./main.html';
+			window.location='./index.html';
 			//helper.settings.load();
 			//app.initialize();
 			//helper.errorLog("...trying to log in");
