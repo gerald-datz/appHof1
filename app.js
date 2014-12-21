@@ -757,7 +757,7 @@ var app={
     // map page functions
     map: {
 		zoom: 9,
-        init: function(){
+        init: function(){	
 			
 				helper.errorLog("map init ...");
 				// init Map - workaround for map size bug
@@ -2057,13 +2057,15 @@ var helper = {
 		lat: "48.20857355", // latitude Stephansdom
 		lon: "16.37254714", // longitude Stephansdom
 		track: function(){ // needs working GPS which is switched on	
+			helper.errorLog("gps logging started");
 			navigator.geolocation.watchPosition(helper.gps.success,helper.gps.error,{ enableHighAccuracy: true, maximumAge:( (helper.gps.timeout * 3) ), timeout:( (helper.settings.get("GPSinterval") * 1000) )}); 
 		},
 		update: function(){
+			helper.errorLog("gps single update");
 			navigator.geolocation.getCurrentPosition(helper.gps.success,helper.gps.error,{ enableHighAccuracy: true });
 		},
 		success: function(position){
-			if (helper.settings.get("GPS") == true){
+			if (helper.settings.get("GPS") == true || helper.settings.get("GPS") == "undefined"){
 				helper.gps.lat = position.coords.latitude;
 				helper.gps.lon = position.coords.longitude;
 				//window.gpsAcc = position.coords.accuracy;
@@ -2093,19 +2095,20 @@ var helper = {
 			$("#state-gps").addClass("red");
 			
 			if (err.code == 1) {
-				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reasopn: PERMISSION_DENIED");
+				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reason: PERMISSION_DENIED");
 			}
 			else if (err.code == 2) {
-				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reasopn: POSITION_UNAVAILABLE");
+				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reason: POSITION_UNAVAILABLE");
 			}
 			else if (err.code == 3) {
-				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reasopn: TIMEOUT " + (helper.gps.timeout / 1000) + " seconds" );
+				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reason: TIMEOUT " + (helper.gps.timeout / 1000) + " seconds" );
 			}
 			else {
-				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reasopn: UNKNOWN");
+				helper.errorLog("gps failed " + helper.gps.failed + " times ... last reason: UNKNOWN");
 			}
 			helper.gps.on = false;
 			helper.gps.successful = false;
+			
 		}	
 	},
 	locale:{
@@ -2301,7 +2304,8 @@ var helper = {
 		positioning:{
 			mode:function(){
 				var posmode = "unknown"
-				if (helper.settings.get("GPS") == true){
+				
+				if (helper.settings.get("GPS") == "true" || helper.settings.get("GPS") == "undefined"){
 					if (helper.check.gps() == true){
 						posmode = "gps";
 					}
@@ -2309,6 +2313,7 @@ var helper = {
 						
 					}
 				}
+				
 				// check what kind of positioning we my/can use
 				//var posmode = "gps";
 				
