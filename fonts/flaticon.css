@@ -11,177 +11,74 @@
 [class^="flaticon-"]:before, [class*=" flaticon-"]:before,
 [class^="flaticon-"]:after, [class*=" flaticon-"]:after {   
 	font-family: Flaticon;
-	font-size: 20px;
-	font-style: normal;
-}
-.flaticon-apple12:before {
+        font-size: 20px;
+font-style: normal;
+}.flaticon-apple54:before {
 	content: "\e000";
 }
-.flaticon-aries4:before {
+.flaticon-bottle42:before {
 	content: "\e001";
 }
-.flaticon-bio1:before {
+.flaticon-bread14:before {
 	content: "\e002";
 }
-.flaticon-bird47:before {
+.flaticon-carrot3:before {
 	content: "\e003";
 }
-.flaticon-bird53:before {
+.flaticon-chicken1:before {
 	content: "\e004";
 }
-.flaticon-blackberry3:before {
+.flaticon-cow11:before {
 	content: "\e005";
 }
-.flaticon-bottle24:before {
+.flaticon-deer2:before {
 	content: "\e006";
 }
-.flaticon-bottle26:before {
+.flaticon-delivery29:before {
 	content: "\e007";
 }
-.flaticon-bread14:before {
+.flaticon-eggs:before {
 	content: "\e008";
 }
-.flaticon-buffalo1:before {
+.flaticon-fish2:before {
 	content: "\e009";
 }
-.flaticon-bull8:before {
+.flaticon-glass4:before {
 	content: "\e00a";
 }
-.flaticon-capricorn2:before {
+.flaticon-happy50:before {
 	content: "\e00b";
 }
-.flaticon-cheese7:before {
+.flaticon-head8:before {
 	content: "\e00c";
 }
-.flaticon-chef19:before {
+.flaticon-herbal1:before {
 	content: "\e00d";
 }
-.flaticon-chef20:before {
+.flaticon-honey:before {
 	content: "\e00e";
 }
-.flaticon-chicken1:before {
+.flaticon-house112:before {
 	content: "\e00f";
 }
-.flaticon-commercial36:before {
+.flaticon-piggy11:before {
 	content: "\e010";
 }
-.flaticon-cow9:before {
+.flaticon-sheep1:before {
 	content: "\e011";
 }
-.flaticon-deer2:before {
+.flaticon-sheep3:before {
 	content: "\e012";
 }
-.flaticon-deer4:before {
+.flaticon-shopping6:before {
 	content: "\e013";
 }
-.flaticon-deer5:before {
+.flaticon-softdrinks1:before {
 	content: "\e014";
 }
-.flaticon-dove1:before {
+.flaticon-special:before {
 	content: "\e015";
 }
-.flaticon-drink24:before {
-	content: "\e016";
-}
-.flaticon-duckling:before {
-	content: "\e017";
-}
-.flaticon-eggs:before {
-	content: "\e018";
-}
-.flaticon-entertaining3:before {
-	content: "\e019";
-}
-.flaticon-fish21:before {
-	content: "\e01a";
-}
-.flaticon-flying14:before {
-	content: "\e01b";
-}
-.flaticon-food28:before {
-	content: "\e01c";
-}
-.flaticon-fox1:before {
-	content: "\e01d";
-}
-.flaticon-gardening:before {
-	content: "\e01e";
-}
-.flaticon-head4:before {
-	content: "\e01f";
-}
-.flaticon-heart258:before {
-	content: "\e020";
-}
-.flaticon-horse125:before {
-	content: "\e021";
-}
-.flaticon-japanese3:before {
-	content: "\e022";
-}
-.flaticon-map43:before {
-	content: "\e023";
-}
-.flaticon-map52:before {
-	content: "\e024";
-}
-.flaticon-medal4:before {
-	content: "\e025";
-}
-.flaticon-menu20:before {
-	content: "\e026";
-}
-.flaticon-milk2:before {
-	content: "\e027";
-}
-.flaticon-milk9:before {
-	content: "\e028";
-}
-.flaticon-picnic5:before {
-	content: "\e029";
-}
-.flaticon-pig4:before {
-	content: "\e02a";
-}
-.flaticon-rabbit5:before {
-	content: "\e02b";
-}
-.flaticon-sheep3:before {
-	content: "\e02c";
-}
-.flaticon-shopping156:before {
-	content: "\e02d";
-}
-.flaticon-shovel1:before {
-	content: "\e02e";
-}
-.flaticon-snail:before {
-	content: "\e02f";
-}
-.flaticon-store5:before {
-	content: "\e030";
-}
-.flaticon-turkey6:before {
-	content: "\e031";
-}
-.flaticon-waiter:before {
-	content: "\e032";
-}
-.flaticon-walking3:before {
-	content: "\e033";
-}
-.flaticon-wheat13:before {
-	content: "\e034";
-}
 .flaticon-wheat6:before {
-	content: "\e035";
-}
-.flaticon-wheelbarrow1:before {
-	content: "\e036";
-}
-.flaticon-wild4:before {
-	content: "\e037";
-}
-.flaticon-wine23:before {
-	content: "\e038";
+	content: "\e016";
 }
