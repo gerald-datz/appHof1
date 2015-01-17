@@ -1134,12 +1134,11 @@ li {
 			color:#FFF;
 			font-size:20px;
 		}
-	#searchSuggests{
+	#searchList{
 		position:relative;
 		width:100%;
-		max-width:600px;
 		height:auto;
-		max-height:80%;
+		min-height:50%;
 	}
 	#searchSuggestsList{
 		display:table-row;						

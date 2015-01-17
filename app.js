@@ -52,6 +52,9 @@ var minimeMarkerIcon;
 var mePosMarker;
 var minimePosMarker;
 
+var layerNotNear;
+var markerNotNear;
+
 var layerPoly;
 
 var layerSeller;
@@ -65,9 +68,6 @@ var markerActivity;
 
 var layerOther;
 var markerOther;
-
-var layerNotNear;
-var markerNotNear;
 
 window.onresize = function(event) {
 	//resizeDivs("automatic");
@@ -438,6 +438,43 @@ var app={
 				}
 			});        
 		
+			// get statisticshelper.dataAPI("getData","categorys",{},function(err,data){
+			helper.dataAPI("getData","statistics",{},function(err,data){
+				if(!err){
+					var actLocs = data[0].ActiveLocationsCount;
+					var verLocs = data[0].VerifiedLocationsCount;
+					var percentVal = parseInt(actLocs / 30);
+					var percentColor = "";
+					if (percentVal > 80){
+						 percentColor = "green";
+					}
+					else if(percentVal > 50){
+						 percentColor = "yellow";					
+					}
+					else{
+						 percentColor = "orange";
+					}
+					$("img#imgActiveLocations").attr("src",app.imageURL + "?Percentage=" + percentVal + "&backcolor=" + percentColor);
+					
+					percentVal = parseInt(verLocs/(actLocs/100));
+					if (percentVal > 80){
+						 percentColor = "green";
+					}
+					else if(percentVal > 50){
+						 percentColor = "yellow";					
+					}
+					else{
+						 percentColor = "orange";
+					}
+					$("img#imgVerifiedLocations").attr("src",app.imageURL + "?Percentage=" + percentVal + "&backcolor=" + percentColor);
+					$("#countActiveLocations").html(actLocs);
+					$("#countVerifiedLocations").html(verLocs);
+				}
+				else{
+					helper.errorLog(err);
+				}
+			});
+			
 			// load actual tipps and add 1 to vis  ----------------  TODO ###############################################################
 			app.tipp.load();
 			
@@ -827,77 +864,121 @@ var app={
 	// search functions
 	search:{
 		suggest: function(searchstring){
-			//get the data and handle callback
+				// respect nearme radius depending on users position
+				
+				var radiusToShow = helper.settings.get("Radius");
+				// load locations in radius
+				if (radiusToShow < 1){
+					var defaultRadius = $('input[rel="Radius"]').attr("default-value");
+					radiusToShow = parseInt(defaultRadius); // always shows 50% more distance ???
+				}
+				var uLat = (helper.gps.lat);
+				var uLon = (helper.gps.lon);
+				//get the data and handle callback				
 				helper.spinner.show();
-                helper.dataAPI("getSuggest","no", {'n': 10, 's': searchstring},function(err,data){ 
+                helper.dataAPI("getSuggest","no", {'n': 20, 's': searchstring, 'lat': uLat, 'lon': uLon, 'dist':radiusToShow.toString()},function(err,data){ 
                     if(!err){
-						$("#searchSuggests").empty();
+						$("#searchList").empty();
 						var suggestions = "";		
 						$.each(data, function(){
 							var item = this;
 							var icon = "";
+							var icontext = "";
 							var text="";
 							var onclick="";
 							switch(item.ObjectTypeID){
 								case '1': 
 									icon = 		"user";
+									icontext = "<div class='small lightgray'>User</div>";
 									text = 		"Seller";
 									onclick = 	"app.seller.show(" + item.ObjectID + ");";
 									break;        
 								case '2': 
 									icon = 		"landscape-doc";
+									icontext = "<div class='small lightgray'>Produkt</div>";
 									text = 		"Product";
 									onclick = 	"app.product.show(" + item.ObjectID + ");";
 									break;        
 								case '3': 
 									icon = 		"vcard";
+									icontext = "<div class='small lightgray'>Produkt</div>";
 									text = 		"SellerProduct";
 									onclick = 	"app.seller.product.show(" + item.ObjectID + ");";
 									break;        
 								case '4': 
 									icon = 		"text-doc";
+									icontext = "<div class='small lightgray'>Produkt</div>";
 									text = 		"Category";
 									onclick = 	"app.category.show(" + item.ObjectID + ");";
 									break;        
 								case '5': 
-									icon = 		"location";
-									text = 		"Location";
+									if (item.LocationType == 1){
+										icon = 		" location-icon flaticon-home82 blue ";
+										icontext =  "<div class='small blue'>AB HOF</div>";
+										var dist = app.map.position.coords.calc.distance(parseFloat(item.CenterLat), parseFloat(item.CenterLon), helper.gps.lat,helper.gps.lon,"car");
+										icontext += "<div class='small'>~ " + dist + "km</div>";
+										text = 		item.InfoExtra;
+									}
+									else if (item.LocationType == 2){
+										icon = 		" location-icon flaticon-entertaining3 orange ";
+										icontext =  "<div class='small orange'>MARKT</div>"; 
+										var dist = app.map.position.coords.calc.distance(parseFloat(item.CenterLat), parseFloat(item.CenterLon), helper.gps.lat,helper.gps.lon,"car");
+										icontext += "<div class='small'>~ " + dist + "km</div>";
+										text = 		item.InfoExtra;
+									}
+									else if (item.LocationType == 3){
+										icon = 		" location-icon flaticon-person92 darkgray ";
+										icontext =  "<div class='small green'>AKTIVITÄT</div>";
+										var dist = app.map.position.coords.calc.distance(parseFloat(item.CenterLat), parseFloat(item.CenterLon), helper.gps.lat,helper.gps.lon,"car");
+										icontext += "<div class='small'>~ " + dist + "km</div>";
+										text = 		item.InfoExtra;
+									}
+									else{
+										icon = " fa fa-question "
+										icontext = "<div class='small lightgray'>SONSTIGE</div>";
+										var dist = app.map.position.coords.calc.distance(parseFloat(item.CenterLat), parseFloat(item.CenterLon), helper.gps.lat,helper.gps.lon,"car");
+										icontext += "<div class='xsmall'>~ " + dist + "km</div>";
+									}
 									onclick = 	"app.location.details.show(" + item.ObjectID + ");";
 									break;        
 								case '6': 
-									if (item.Type == "TIPP"){
-										icon = 		"docs";
-										text = 		"Tipp";
-									}
-									else if (item.Type == "BLOG"){
-										icon = 		"attach";
-										text = 		"Blog";									
-									}
-									else {
-										icon = 		"help";
-										text = 		"Unbekannter Typ";		
-									}									
+									icon = 		" fa fa-thumb-tack ";
+									icontext = "<div class='small lightgray'>Tipp</div>";
+									text = 		item.InfoDescShort;		
 									onclick = 	"app.tipp.show(" + item.ObjectID + ");";
 									break;        
+									
+								case '62': 
+									icon = 		"fa fa-paperclip";
+									icontext = "<div class='small lightgray'>Artikel</div>";
+									text = 		item.InfoDescShort;		
+									onclick = 	"app.tipp.showBlog(" + item.ObjectID + ");";
+									break;        
 								default:
-									icon = 		"help";
-									text = 		"Unbekanntes Objekt";
+									icon = 		"";
+									icontext = "";
+									text = 		item.InfoDescShort;		
 									onclick = 	"";
 									break;
 							}
-							suggestions += "<div id='searchSuggestsList' class='tr' onclick='" + onclick + "' title='" + text + "'>";
-							suggestions += 	"<div class='td ellipsis align-center vertical-middle'>";	
-							suggestions +=		"<i class='et et-" + icon + " fa fa-fw fa-" + icon + " btn-icon'></i>";	
-							suggestions += 	"</div>";							
-							suggestions += 	"<div class='td ellipsis align-left vertical-middle'>";
-							suggestions += 		item.Name + ", " + item.InfoName;
-							suggestions += 	"</div>";
-							suggestions += 	"<div class='td align-center vertical-middle'>";
-							suggestions += 		"<i class='fa fa-chevron-right btn btn-icon'></i>";
-							suggestions += 	"</div>";
-							suggestions += "</div>";
+							suggestions += "<li class='searchItem white-bg extralightgray-bd bd1 nopadding nomargin' onclick='" + onclick + "'>";
+							suggestions += 	"	<div class='table'>";							
+							suggestions += 	"		<div class='tr vertical-middle'>";
+							suggestions += 	"			<div class='td60 align-center vertical-middle'>";	
+							suggestions +=	"				<i class='" + icon + " align-center vertical-middle'></i>" + icontext;	
+							suggestions += 	"			</div>";			
+							suggestions += 	"			<div class='td align-left vertical-middle'>";
+							suggestions += 	"				<h4 class='blue nomargin'>" + item.Name + "</h4>";
+							suggestions +=  "				<p class='align-justify darkgray small ellipsis'>" + text + "</p>";
+							suggestions += 	"			</div><div class='td10'></div>";	
+							suggestions += 	"			<div class='td40 align-center vertical-middle blue-bg white'>";
+							suggestions += 	"				<i class='fa fa-chevron-right white'></i>";
+							suggestions += 	"			</div><div class='td5'></div>";						
+							suggestions += 	"		</div>";						
+							suggestions += 	"	</div>";		
+							suggestions += "</li>";
 						});
-						$("#searchSuggests").append(suggestions);
+						$("#searchList").append(suggestions);
 						$(".ellipsis").ellipsis();
 						helper.spinner.hide();
 					}
@@ -2012,7 +2093,7 @@ var app={
 							markup += "			<div class='td80 vertical-top align-center'>";
 							markup += "				<div class='table h40p vertical-middle align-center '>";
 							markup += "					<div class='tr vertical-middle'>";
-							markup += "						<div class='td40  vertical-middle align-center favBtn blue-bg white' rel='" + data.ID + "' datatype='location' dataname='" + data.Name + "'>";
+							markup += "						<div class='td40  vertical-middle align-center favBtn blue-bg white' rel='" + data.ID + "' datatype='location' dataname='" + data.Name + "' datatext='" + data.Zip + " " + data.City + ", " + data.Address + "' subtype='" + data.LocationType + "'>";
 							markup += "							<i class='fa fa-heart'></i>";	
 							markup += "						</div>";		
 							markup += "						<div class='td4'>";		
@@ -2079,10 +2160,12 @@ var app={
 						// show on map and center map
 						app.location.details.showMap(theID);
 					});
+					
+					
 					theFavBtn.off("click");
 					theFavBtn.on("click",function(){
 						// toggle favstatus on/off
-						app.fav.toggle(theFavBtn, "location", theID, theTitle);
+						app.fav.toggle(theFavBtn, "location", theID, theFavBtn.attr("dataname"), theFavBtn.attr("datatext"), theFavBtn.attr("subtype"));
 					});
 					theDetailBtn.off("click");
 					theDetailBtn.on("click",function(){
@@ -2277,7 +2360,7 @@ var app={
 					var sel = $(this);
 					sel.off('click');
 					sel.on("click",function(){
-						app.fav.toggle(sel, sel.attr("datatype"), sel.attr("rel"), sel.attr("dataname"));
+						app.fav.toggle(sel, sel.attr("datatype"), sel.attr("rel"), sel.attr("dataname"),sel.attr("datatext"), sel.attr("subtype") );
 					});
 				});
 				
@@ -2314,7 +2397,8 @@ var app={
 						app.tipp.swipe(theWrapper, tipptype, event, direction, distance, duration, fingerCount, fingerData);
 					},
 					//Default is 75px, set to 0 for any distance triggers swipe
-					 threshold:75
+					 threshold:75,
+					 allowPageScroll:"vertical"
 				  });
 								
 				// update favs
@@ -2354,7 +2438,8 @@ var app={
 				markup += "        <span class='tr vertical-middle'>";   
 				markup += "         <span class='td tippsTop vertical-middle'>" + helper.datetimeShow( data.DateCreated ) + "</span>&nbsp;";        
 				//markup += "         <span class='td trashBtn btn btn-icon float-right vertical-middle align-center' rel='" + data.ID + "'><i class='vertical-middle fa fa-trash'></i></span>";        
-				markup += "         <span class='favBtn td40 h40p vertical-middle align-center blue-bg white' rel='" + data.ID + "' datatype='tipp' dataname='" + data.Name + "'><i class='vertical-middle w40p fa fa-heart'></i></span>";  
+				
+				markup += "         <span class='favBtn td40 h40p vertical-middle align-center blue-bg white' rel='" + data.ID + "' datatype='tipp' dataname='" + data.Name + "' datatext='" + data.InfoDescShort + "' subtype='" + data.Type + "'><i class='vertical-middle w40p fa fa-heart'></i></span>";  
 				markup += "         <span class='td4 small'>&nbsp;</span>"; 
 				markup += "         <span class='shareBtn td40 h40p vertical-middle align-center blue-bg white' rel='" + data.ID + "' tippType='" + data.Type + "'><i class='vertical-middle w40p fa fa-share-alt'></i></span>";
 				markup += "		 </span>";
@@ -2701,11 +2786,104 @@ var app={
 				$.each(theFavs, function(key, value){
 					var favParams = key.split("_");
 					var favType = favParams[0];
-					var favID = favParams[1];
+					var favID = favParams[1];	
+					var favData = value.split("|");
+					var headline = favData[0];
+					var text = favData[1];
+					var subType = favData[2];
+					
 					// select all favBtn which are e.g. from Type 'tipp' and have rel = ID
 					var jqElem = $(".favBtn[datatype='" + favType + "'][rel='" + favID + "']");
 					jqElem.addClass("red");
-					// add it to the fav page list
+					// add it to the fav page list	var item = this;
+							var icon = "";
+							var icontext = "";
+							var onclick="";
+							switch(favType){
+								case 'user': 
+									icon = 		"user";
+									icontext = "<div class='small lightgray'>User</div>";
+									onclick = 	"app.seller.show(" + favID + ");";
+									break;        
+								case 'product': 
+									icon = 		"landscape-doc";
+									icontext = "<div class='small lightgray'>Produkt</div>";
+									onclick = 	"app.product.show(" + favID + ");";
+									break;        
+								case 'sellerproduct': 
+									icon = 		"vcard";
+									icontext = "<div class='small lightgray'>Produkt</div>";
+									onclick = 	"app.seller.product.show(" + favID + ");";
+									break;        
+								case 'category': 
+									icon = 		"text-doc";
+									icontext = "<div class='small lightgray'>Produkt</div>";
+									onclick = 	"app.category.show(" + favID + ");";
+									break;        
+								case 'location': 
+									if (subType == 1){
+										icon = 		" location-icon flaticon-home82 blue ";
+										icontext =  "<div class='small blue'>AB HOF</div>";
+										onclick = 	"app.location.details.show(" + favID + ")";
+									}
+									else if (subType == 2){
+										icon = 		" location-icon flaticon-entertaining3 orange ";
+										icontext =  "<div class='small orange'>MARKT</div>"; 
+									}
+									else if (subType == 3){
+										icon = 		" location-icon flaticon-person92 darkgray ";
+										icontext =  "<div class='small green'>AKTIVITÄT</div>";
+									}
+									else{
+										icon = " fa fa-question "
+										icontext = "<div class='small lightgray'>SONSTIGE</div>";
+									}
+									onclick = 	"app.location.details.show(" + favID + ");";
+									break;        
+								case 'tipp': 
+									if (subType == "TIPP"){
+										icon = 		" fa fa-thumb-tack ";
+										icontext =  "<div class='small lightgray'>TIPP</div>";
+									}
+									else if (subType == "BLOG"){
+										icon = 		" fa fa-paperclip ";
+										icontext =  "<div class='small lightgray'>ARTIKEL</div>"; 
+									}
+									else{
+										icon = " fa fa-info "
+										icontext = "<div class='small lightgray'>INFO</div>";
+									}
+									onclick = 	"app.tipp.show(" + favID + ");";
+									break;        	
+								default:
+									icon = 		"";
+									icontext = "";
+									onclick = 	"";
+									break;
+							}
+							if(text == "undefined"){
+								text = ""
+							}
+							markup += "<li class='searchItem favitem white-bg extralightgray-bd bd1 nopadding nomargin' >";
+							markup += 	"	<div class='table'>";							
+							markup += 	"		<div class='tr vertical-middle'>";
+							markup += 	"			<div class='td60 align-center vertical-middle' onclick='" + onclick + "'>";	
+							markup +=	"				<i class='" + icon + " align-center vertical-middle'></i>" + icontext;	
+							markup += 	"			</div><div class='td5'></div>";			
+							markup += 	"			<div class='td align-left vertical-middle' onclick='" + onclick + "'>";
+							markup += 	"				<h4 class='blue nomargin'>" + headline + "</h4>";
+							markup +=  "				<p class='align-justify darkgray small ellipsis'>" + text + "</p>";
+							markup += 	"			</div><div class='td10'></div>";	
+							markup += 	"			<div id='delfav_" + favType + "_" + favID +"' class='td40 align-center vertical-middle blue-bg white' onclick='app.fav.remove($(this));'>";
+							markup += 	"				<i class='fa fa-trash white' ></i>";
+							markup += 	"			</div><div class='td10'></div>";	
+							markup += 	"			<div class='td40 align-center vertical-middle blue-bg white' onclick='" + onclick + "'>";
+							markup += 	"				<i class='fa fa-chevron-right white'></i>";
+							markup += 	"			</div><div class='td5'></div>";						
+							markup += 	"		</div>";						
+							markup += 	"	</div>";		
+							markup += "</li>";
+					/*		
 					markup += "<li class='tr favitem'>";
 					markup += 	"<span class='td40 h50p infobtn align-center vertical-middle' onclick='app.fav.details(" + '"' + favType + '"' + "," + favID + ");'>";
 					switch(favType){
@@ -2731,9 +2909,10 @@ var app={
 					markup += 			"<i class='fa fa-trash'></i>";
 					markup += 	"</span>";
 					markup += "</li>";
+					*/
+						
 				});
 				$("#favlist").append(markup);
-				
 			}
 		},
 		remove: function(jqElem){
@@ -2741,12 +2920,20 @@ var app={
 			var theSplitted= theID.split("_");
 			var favType = theSplitted[1];
 			var favID = theSplitted[2];
-			app.fav.toggle(jqElem.find("i:first"),favType,favID,"");
+			app.fav.toggle(jqElem.find("i:first"),favType,favID,"","","");
 			jqElem.closest("li").remove();
 		},
-		toggle: function(jqElem, dataType, dataID, dataTitle){
+		toggle: function(jqElem, dataType, dataID, dataTitle, dataText, subType){
+			if(typeof(dataText) == "undefined"){
+				dataText = "";
+			}
+			if(typeof(subType) == "undefined"){
+				subType = "0";
+			}
 			// get the favs from localstorage
+			
 			var fav = dataType + "_" + dataID.toString();
+			var favData = dataTitle + "|" + dataText + "|" + subType;
 			var theFavs = JSON.parse(helper.settings.get("Favs"));	
 			
 			// check if already stored as a fav
@@ -2768,30 +2955,12 @@ var app={
 			}
 			
 			if (found == false){
-				theFavs[fav] = dataTitle; // add description title to it
+				theFavs[fav] = favData; // add description title ... to it
 				jqElem.addClass("red");
 			}
 			// save back favs to localstorage
 			var newFavs = JSON.stringify(theFavs);
 			helper.settings.set("Favs", newFavs);
-		},
-		details:function(favType, favID){
-			// favTypeID = e.g. tipp_12  (Tipp with ID 12)
-			// alert(favType + "  " + favID)
-			switch(favType){
-						case 'tipp':
-							
-							break;
-						case 'location':
-							app.location.details.show(favID);
-							break;
-						case 'category':
-							
-							break;
-						default: 
-							// ???
-							break;								
-					}
 		}
 	},
     // getvotings for a specific element as a list - with lazy load

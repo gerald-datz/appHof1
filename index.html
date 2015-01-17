@@ -114,11 +114,32 @@
 										</span>										
 										<span class="darkgray small">&nbsp;M&auml;rkte)</span>
 										-->
-									</h4>									
+									</h4>	
+									<h4 class="td vertical-middle align-center blue h40p pad-5">	
+										Status
+									</h4>
 								</div>
 								<div class="tr">
-									<div class="home-area home-map nopadding" style="margin:0 0 5px 0;">
-										<div id="minimap"></div>
+									<div class="td vertical-middle align-center">
+										<div class="home-area home-map nopadding" style="margin:0 0 5px 0;">
+											<div id="minimap"></div>
+										</div>
+									</div>
+									<div class="td100 vertical-middle align-center">
+							<div class="table">
+								<div class="tr">
+									<div class="td vertical-middle align-center">
+										<div class="xsmall darkgray">Erfasst: <span id="countActiveLocations"></span></div>
+										<img src="" id="imgActiveLocations" height="50"/>
+									</div>
+								</div>
+								<div class="tr">
+									<div class="td vertical-middle align-center">
+										<div class="xsmall darkgray">Verifiziert: <span id="countVerifiedLocations"></span></div>
+										<img src="" id="imgVerifiedLocations" height="50" />
+									</div>
+								</div>
+							</div>
 									</div>
 								</div>
 							</div>
@@ -228,9 +249,9 @@
 								</span>
 							</div>
 						</div>						
-						<div class="page-content nomargin" style="padding-top:40px;"	>		
-							<div id="searchSuggests" class="table">
-							</div>
+						<div class="page-content nomargin" style="padding-top:50px;"	>		
+							<ul id="searchList" class="nopadding">
+							</ul>
 						</div>
 					</div>
 				</li>
@@ -241,11 +262,8 @@
 				</li>
 				<li class="page" rel="fav" pghead="Favoriten">
 					<div class="page-inner">
-						<div class="page-content">
-							<h1>
-								Favoriten
-							</h1>
-							<ul id="favlist" class="table nopadding">
+						<div class="page-content nomargin">
+							<ul id="favlist" class="nopadding">
 							</ul>
 						</div>
 					</div>
@@ -611,6 +629,15 @@
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Administration</span>
 									<span class="menu-item-text">Standorte und Produkte pflegen ...</span>
+								</span>
+							</div>
+							<div id="searchindexrefresh" class="tr btn btn-pg menu-item" >
+								<span class="menu-item-icon td align-center vertical-middle">
+									<i class="fa fa-refresh"></i>
+								</span>
+								<span class="td align-left vertical-middle">
+									<span class="menu-item-head">Suchindex</span>
+									<span class="menu-item-text">Suchindex aktualisieren</span>
 								</span>
 							</div>
 						</li>
