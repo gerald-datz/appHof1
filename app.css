@@ -105,6 +105,8 @@ ul {
 li {
 	margin-bottom:8px;
 }
+
+
 /* ###################################################
 					helper styles
    ################################################### */
@@ -257,16 +259,9 @@ li {
 	padding:0!important;
 }
 
-.pad-5{
-		padding:5px;
+.pad-7030{
+	padding:7px 0 3px 0;
 }
-.pad-10{
-		padding:10px;
-}
-.pad-15{
-		padding:15px;
-}
-
 .mrg-5{
 		margin:5px;
 }
@@ -462,7 +457,8 @@ li {
 	}
 	
 	input[type="checkbox"] {
-			
+		transform: scale(1.5);
+		-webkit-transform: scale(1.5);
 	}
 	
 	input[type="text"] {
@@ -620,8 +616,8 @@ li {
 			padding:10px;
 		}
 		.popup-buttons{
-			padding:10px;    
-			text-align: right;
+			/*padding:10px;    
+			text-align: right;*/
 		}
 		
 		.popup-buttons.fixedTop{
@@ -636,20 +632,22 @@ li {
 		}
 			.popup-buttons .btn{    
 				border: 0 solid #000;
-				display: inline-block;
-				height: 40px;
+				/*display: inline-block;*/
+				height: 50px;
 				margin: 5px 10px;
-				min-height: 40px;
+				min-height: 50px;
 				min-width: 120px;
 				padding: 10px 5px 5px;
 				position: relative;
-				width: 120px;
+				width: auto;
 			}
-
+		#wrapDoNotShow{
+			margin:15px 25px 10px 0px;
+		}
 /* ------------ info popup ------------- */
 	#info{
 		position:absolute;
-		bottom:35px;
+		bottom:40px;
 		left:0px;
 		display:block;
 		
@@ -807,7 +805,7 @@ li {
 				height:30px;
 				width:auto;
 				
-				margin:9px 4px 9px -4px;
+				margin:5px 4px 0px -1px;
 			}
 		#topbar .title{
 			width:100%;
@@ -867,7 +865,7 @@ li {
 				min-width:100%;
 				max-width:100%;
 				
-				padding:50px 0px 25px 0px;
+				padding:50px 0px 40px 0px;
 				
 				margin:0px;
 			}
@@ -875,7 +873,7 @@ li {
 				display:block;
 			}
 			.page[rel="map"]{
-				padding:80px 0px 0px 0px;
+				padding:90px 0px 40px 0px;
 			}
 			
 			#detailmap {
@@ -1051,12 +1049,13 @@ li {
 #mapswitch{
 	position:fixed;
 	top:50px;
-	z-index:5;
+	z-index:14;
+	border-bottom:1px solid #ccc;
 }
 #mapinfo{
 	display:none;
 	position:fixed;
-	bottom:25px;
+	bottom:40px;
 	left:0;
 	width:100%;
 	/*font-size:12px;*/
@@ -1098,12 +1097,17 @@ li {
 		--------------------------------------------------- */
 #search-panel{
 	width:100%;
-	max-width:600px;
+	max-width:100%;
 	position:fixed;
 	top:50px;
 	left:0;
 	z-index:7;
+	border-bottom:1px solid #ccc;
 }
+	#search-panel .table{
+		margin:5px;	
+	}
+	
 	.searchField{
 		display:table-cell;
 		height:100%;
@@ -1170,6 +1174,18 @@ li {
 	.flaticon-black331:before {
 		font-size: 28px;
 	}
+	
+	
+	/* 	---------------------------------------------------
+						locationdetails
+		--------------------------------------------------- */
+	.detailMax80 {
+		display: block;
+		height: auto;
+		max-height: 85px;
+		overflow: hidden;
+	}
+
 
 	/* 	---------------------------------------------------
 						tipps list
@@ -1637,8 +1653,7 @@ img.lazy{
 					.menu-item{
 						
 					}
-					.menu-item.active{
-						font-weight:bold;
+					.menu-item.active span{
 						color:#18A1A8;
 					}
 					.menu-item-icon{
@@ -1649,10 +1664,13 @@ img.lazy{
 							text-transform:uppercase;
 							font-size:14px;
 							display:block;
+							font-weight:bold;
 						}
 						.menu-item-text{
-							font-size:9px;
+							font-size: 12px;
+							letter-spacing: 0.05em;
 							display:block;
+							color:#a8a8a8;
 						}
 					
 	/* ------------ status bar ------------- */
@@ -1664,9 +1682,9 @@ img.lazy{
 		display:block;
 		overflow:hidden;
 		
-		height:25px;
-		min-height:25px;
-		max-height:25px;
+		height:40px;
+		min-height:40px;
+		max-height:40px;
 		width:100%;
 		min-width:100%;
 		max-width:100%;
@@ -1674,7 +1692,7 @@ img.lazy{
 		padding:0px;
 		margin:0px;
 		
-		font-size:12px;
+		font-size:14px;
 		
 		border-top:1px solid;
 		
@@ -1707,7 +1725,7 @@ img.lazy{
 .hidden, span.hidden{
 	display:none;
 }
-	
+
 /* ###################################################
 					  main colors
    ################################################### */
@@ -2066,3 +2084,4 @@ h2.resp-tab-active span.resp-arrow {
 	font-size:0.8em;
     padding: 0px;
 }
+

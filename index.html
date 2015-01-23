@@ -39,15 +39,22 @@
 				<div class="popup-inner">
 				
 				</div>
-				<div class="popup-buttons">
-					<span class="btn btn-ok blue" >
-						<!--<i class="fa fa-check"></i>-->
-						<span class="btn-text">Speichern</span>
-					</span>
-					<span class="btn btn-cancel red" >
-						<!--<i class="fa fa-times"></i>-->
-						<span class="btn-text">Abbrechen</span>
-					</span>
+				<div class="popup-buttons align-right">
+					<div class="table">
+						<div class="tr">
+							<span class="td vertical-middle align-center btn btn-ok blue" >
+								<!--<i class="fa fa-check"></i>-->
+								<span class="btn-text">Speichern</span>
+							</span>
+							<span class="td vertical-middle align-center btn btn-cancel red" >
+								<!--<i class="fa fa-times"></i>-->
+								<span class="btn-text">Abbrechen</span>
+							</span>
+						</div>
+					</div>
+					<div id="wrapDoNotShow" class="btn-dontshow lightgray">
+						<span class="small lightgray">Diese Information zukünftig nicht mehr anzeigen&nbsp;&nbsp;</span><input type="checkbox" id="chkDoNotShow">
+					</div>
 				</div>
 			</div>
 		</div>
@@ -65,22 +72,22 @@
 		<div id="topbar" class="darkgray lightgray-bd white-bg">
 			<div class="table">
 				<ul class="tr">
-					<li id="btn-menu" class="td btn logo align-left vertical-middle">
+					<li id="btn-menu" class="td h50p btn logo align-left vertical-middle">
 						<img src="img/LogoSmall.png"/>
 					</li>
-					<li class="td title vertical-middle align-center hide-xs hide-sm">
+					<li class="td h50p title vertical-middle align-center hide-xs hide-sm">
 						<h1 id ="top-title" class="darkgray">Startseite</h1>
 					</li>
-					<li class="td btn btn-pg vertical-middle align-center active" rel="start">
+					<li class="td h50p btn btn-pg vertical-middle align-center active" rel="start">
 						<i class="fa fa-home"></i>
 					</li>
-					<li class="td btn btn-pg vertical-middle align-center" rel="map">
+					<li class="td h50p btn btn-pg vertical-middle align-center" rel="map">
 						<i class="fa fa-fw fa-map-marker"></i>
 					</li>
-					<li class="td btn btn-pg vertical-middle align-center" rel="search">
+					<li class="td h50p btn btn-pg vertical-middle align-center" rel="search">
 						<i class="fa fa-fw fa-search"></i>
 					</li>
-					<li class="td btn btn-pg vertical-middle align-center" rel="fav">
+					<li class="td h50p btn btn-pg vertical-middle align-center" rel="fav">
 						<i class="fa fa-heart"></i>
 					</li>
 				</ul>
@@ -126,20 +133,20 @@
 										</div>
 									</div>
 									<div class="td100 vertical-middle align-center">
-							<div class="table">
-								<div class="tr">
-									<div class="td vertical-middle align-center">
-										<div class="xsmall darkgray">Erfasst: <span id="countActiveLocations"></span></div>
-										<img src="" id="imgActiveLocations" height="50"/>
-									</div>
-								</div>
-								<div class="tr">
-									<div class="td vertical-middle align-center">
-										<div class="xsmall darkgray">Verifiziert: <span id="countVerifiedLocations"></span></div>
-										<img src="" id="imgVerifiedLocations" height="50" />
-									</div>
-								</div>
-							</div>
+										<div class="table">
+											<div class="tr">
+												<div class="td vertical-middle align-center">
+													<div class="xsmall darkgray">Erfasst: <span id="countActiveLocations"></span></div>
+													<img src="" id="imgActiveLocations" height="50"/>
+												</div>
+											</div>
+											<div class="tr">
+												<div class="td vertical-middle align-center">
+													<div class="xsmall darkgray">Verifiziert: <span id="countVerifiedLocations"></span></div>
+													<img src="" id="imgVerifiedLocations" height="50" />
+												</div>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -182,25 +189,64 @@
 								</div>
 							</div>
 						</div>
-						&nbsp;
-						
-						<!--
-						<div class="jumbo blue-bg">
-							<img src="img/titleBG.jpg" width="100%"/>
-							<span class="top white align-center">
-								<h1 class="white">AppHOF</h1>
-								<p class="white">... Nachhaltigkeit darf kein Luxus sein!</p>
-							</span>
-							<span class="bottom white-bg-t7">
-								<h1>Tipps & aktuelle Themen</h1>
-							</span>
+						<!-- SM -->
+						<div class="home-box bd1 lightgray-bd">							
+							<div class="table"">
+								<div class="tr">
+									<h4 class="td vertical-middle nomargin blue h40p pad-5">
+										<i class="fa fa-fw fa-globe"></i>
+										&nbsp;AppHOF im Internet:&nbsp;
+									</h4>		
+								</div>	
+							</div>					
+							<div class="table" style="font-size:180%;margin-bottom:2px;">
+								<div class="tr">
+									<div class="td pad-7030 h40p align-center vertical-middle blue-bg white" onclick='event.preventDefault();window.open(&quot;http://www.apphof.at&quot;,&quot;_system&quot;);'>
+										<i class="fa fa-fw fa-globe"></i>
+									</div>
+									<div class="td pad-7030 h40p align-center vertical-middle blue-bg white" >
+										<a class="white inline h40p w40p" href="mailto://office@apphof.at" title="Wir freuen uns auf Dein Feedback"><i class=" white fa fa-fw fa-at"></i></a>
+									</div>
+									<div class="td pad-7030 h40p align-center vertical-middle blue-bg white" onclick='event.preventDefault();window.open(&quot;https://www.facebook.com/apphof&quot;,&quot;_system&quot;);'>
+										<i class="fa fa-fw fa-facebook"></i>
+									</div>
+									<div class="td pad-7030 h40p align-center vertical-middle blue-bg white" onclick='event.preventDefault();window.open(&quot;https://plus.google.com/103220114702872906165&quot;,&quot;_system&quot;);'>
+										<i class="fa fa-fw fa-google-plus"></i>
+									</div>
+									<div class="td pad-7030 h40p align-center vertical-middle blue-bg white" onclick='event.preventDefault();window.open(&quot;https://twitter.com/AppHof&quot;,&quot;_system&quot;);'>
+										<i class="fa fa-fw fa-twitter"></i>
+									</div>
+									<div class="td pad-7030 h40p align-center vertical-middle blue-bg white" onclick='event.preventDefault();window.open(&quot;https://www.youtube.com/channel/UCk9b3mE_FnAC5n3vobVy2Jg&quot;,&quot;_system&quot;);'>
+										<i class="fa fa-fw fa-youtube-square"></i>
+									</div>
+								</div>
+								<div class="tr">
+									<div class="td xsmall align-center vertical-middle blue" onclick='event.preventDefault();window.open(&quot;http://www.apphof.at&quot;,&quot;_system&quot;);'>
+										<span class="small">WEBSITE</span>
+									</div>
+									<div class="td xsmall align-center vertical-middle blue" >
+										<a class="blue inline h40p w40p" href="mailto://office@apphof.at" title="Wir freuen uns auf Dein Feedback"><span class="small">EMAIL</span></a>
+									</div>
+									<div class="td xsmall align-center vertical-middle blue" onclick='event.preventDefault();window.open(&quot;https://www.facebook.com/apphof&quot;,&quot;_system&quot;);'>
+										<span class="small">FACEBOOK</span>
+									</div>
+									<div class="td xsmall align-center vertical-middle blue" onclick='event.preventDefault();window.open(&quot;https://plus.google.com/103220114702872906165&quot;,&quot;_system&quot;);'>
+										<span class="small">GOOGLE+</span>
+									</div>
+									<div class="td xsmall align-center vertical-middle blue" onclick='event.preventDefault();window.open(&quot;https://twitter.com/AppHof&quot;,&quot;_system&quot;);'>
+										<span class="small">TWITTER</span>
+									</div>
+									<div class="td xsmall align-center vertical-middle blue" onclick='event.preventDefault();window.open(&quot;https://www.youtube.com/channel/UCk9b3mE_FnAC5n3vobVy2Jg&quot;,&quot;_system&quot;);'>
+										<span class="small">YOUTUBE</span>
+									</div>
+								</div>
+							</div>
 						</div>
-						-->
 					</div>
 				</li>
 				<li class="page" rel="map" pghead="Kartenansicht">
-					<div id="mapswitch" class="table white-bg" style="border-bottom:1px solid #ccc;">
-						<div class="tr h30p">
+					<div id="mapswitch" class="table white-bg">
+						<div class="tr h40p">
 							<div class="btn small td td50perc align-center vertical-middle" style="border-right:1px solid #eee;" onclick="$('#listPanel').removeClass('active');$('#mapPanel').addClass('active');app.map.refresh();">
 								Kartenansicht
 							</div>
@@ -219,37 +265,27 @@
 								</span>
 							</span>
 							<div class="innerMapInfo">
-							<!--<div class="table">
-								<div class="tr">
-									<span id="mapinfo-text" class="td vertical-middle align-left">
-									</span>
-									<span id="mapinfo-detail" class="td vertical-middle align-center" onclick="app.location.details.show($(this).attr('rel'));">
-										<i class="fa fa-info btn-icon "></i>
-									</span>
-									<span id="mapinfo-hide" class="td  vertical-middle align-center" onclick='$("#mapinfo").hide();$("#mapinfo-detail").attr("rel","0");'>
-										<i class="fa fa-times btn-icon"></i>
-									</span>
-								</div>
-							</div>-->
 							</div>
 						</div>
 					</div>
-					<div id="listPanel" class="a">
-						
+					<div id="listPanel" class="a">						
 						<ul id="locList"></ul>
 					</div>
 				</li>
 				<li class="page" rel="search" pghead="Suchen">
 					<div class="page-inner">
-						<div id="search-panel" class="table">	
-							<div class="tr">
-								<input id="searchMain" class="td searchField darkgray darkgray-bd" type="search" placeholder="Suchen ..."/>
-								<span id="searchNow" class="td searchButton white blue-bd blue-bg">
-									<i class="fa fa-fw fa-search"></i>
-								</span>
+						<div id="search-panel" class="white-bg ">
+							<div class="table">	
+								<div class="tr">
+									<input id="searchMain" class="td searchField darkgray lightgray-bd" style="border-radius:3px;" type="search" placeholder="Suchbegriff eingeben"/>
+									<div class="td">
+										<span class="small vertical-middle">&nbsp;nur in der Nähe&nbsp;&nbsp;</span>
+										<input id="chkSearchNear" class="darkgray darkgray-bd vertical-middle" type="checkbox" />
+									</div>
+								</div>
 							</div>
 						</div>						
-						<div class="page-content nomargin" style="padding-top:50px;"	>		
+						<div class="page-content nomargin" style="padding-top:45px;">		
 							<ul id="searchList" class="nopadding">
 							</ul>
 						</div>
@@ -262,8 +298,11 @@
 				</li>
 				<li class="page" rel="fav" pghead="Favoriten">
 					<div class="page-inner">
-						<div class="page-content nomargin">
-							<ul id="favlist" class="nopadding">
+						<div class="page-content nomargin">							
+							<h2 class="pad-10 nomargin white-bg" style="border-bottom:1px solid #ccc;position:fixed;top:50px;left:0;z-index:7;width:100%;">
+								Gespeicherte Favoriten
+							</h2>
+							<ul id="favlist" class="nopadding" style="margin-top:60px;">
 							</ul>
 						</div>
 					</div>
@@ -311,8 +350,385 @@
 					</div>
 				</li>
 				<li class="page" rel="about" pghead="Über AppHOF">
+					<div class="page-inner">
+						<div class="page-content">
+							<div class="align-center" style="width:310px;">
+								<h1 class="align-left">Über die AppHOF App</h1>
+								<br>
+								<img height="50" src="img/LogoLarge.png" onclick='event.preventDefault();window.open(&quot;http://www.apphof.at&quot;,&quot;_system&quot;);'/>
+								<br>								
+								AppHOF App für <span id="aboutAppOS">Smartphones & Tablets</span><br>Version <span id="aboutAppVersion">0.0.1</span>
+								<br>
+								<span class="small" onclick='event.preventDefault();window.open(&quot;http://www.in-u.at&quot;,&quot;_system&quot;);'><br>&copy; 2014-2015 by in-u! websolutions</span>
+								<br>
+								<img height="40" src="img/inuLogoWEB.png" onclick='event.preventDefault();window.open(&quot;http://www.in-u.at&quot;,&quot;_system&quot;);'/>
+								<br>
+							</div>
+							<p class="small hidden">
+								Geräte-Info:&nbsp;&nbsp;
+								Modell <span id="aboutDeviceModel"></span> / Betriebssystem: <span id="aboutDeviceOS"></span> / Version: <span id="aboutDeviceVersion"></span>
+							</p>
+							<h2>Weitere Informationen</h2>
+							<div id="aboutlist" class="table">
+								<div class="tr vertical-middle btn" onclick="app.page.show('imprint');">
+									<span class="td50 h50p darkgray align-center vertical-middle" style="font-size:150%;"><strong>§</strong></span>
+									<span class="td darkgray vertical-middle">Impressum</span>
+								</div>
+								<div class="tr vertical-middle btn" onclick="app.page.show('copy');">
+									<span class="td50 h50p darkgray align-center vertical-middle" style="font-size:150%;"><strong>&copy;</strong></span>
+									<span class="td darkgray vertical-middle">Copyright und Credits</span>
+								</div>
+								<div class="tr vertical-middle btn" onclick="app.page.show('terms');">
+									<span class="td50 h50p darkgray align-center vertical-middle" style="font-size:120%;"><i class="fa fw fa-exclamation-circle"></i></span>
+									<span class="td darkgray vertical-middle">Nutzungsbedingungen</span>
+								</div>
+							</div>
+						</div>
+					</div>
 					Über
 						<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a>, <a href="http://www.unocha.org" title="OCHA">OCHA</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>         is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
+				</li>
+				<li class="page" rel="copy" pghead="Copyright & Credits">					
+					<div class="page-inner">
+						<div class="page-content small">
+							<div class="table">
+								<div class="tr">
+									<div class="td align-left vertical-middle" onclick="app.page.show('about')">
+										<span class="btn btn-text blue nomargin" ><i class="fa fa-chevron-left"></i><strong>&nbsp;&nbsp;ZURÜCK</strong></span>
+									</div>
+								</div>
+							</div>
+							<h1>
+								Copyright &amp; Credits
+							</h1>
+							<p class="h4">
+								Special thanks to all the providers of free (design)stuff out there ... Your affords are highly appreciated, they helped a lot on making this App more "stylish"...
+							</p>
+							<div class="table">
+								<div class="tr">
+									<div class="td80 align-center vertical-top">
+										<hr class="lightgray">
+									</div>
+									<div class="td align-left vertical-top">
+										<hr class="lightgray">
+									</div>
+								</div>
+								<div class="tr">
+									<div class="td80 align-center vertical-top">
+										<img src="img/marker-lightgray.png" height="20"/>&nbsp;<img src="img/marker-orange.png" height="20"/>&nbsp;<img src="img/marker-lightgreen.png" height="20"/>
+										<br>
+										<img src="img/marker-pink.png" height="20"/>&nbsp;<img src="img/marker-lightblue.png" height="20"/>&nbsp;<img src="img/marker-red.png" height="20"/>
+									</div>
+									<div class="td align-left vertical-top">
+										<strong class="blue">Free Map Marker Icons:</strong>
+										<br>
+										&copy; by Tidy Design:
+										<br>
+										http://www.tidydesign.com/free-stuff.html
+									</div>
+								</div>
+								<div class="tr">
+									<div class="td80 align-center vertical-top">
+										<hr class="lightgray">
+									</div>
+									<div class="td align-left vertical-top">
+										<hr class="lightgray">
+									</div>
+								</div>
+								<div class="tr">
+									<div class="td80 align-center vertical-top lightgray">
+										<span class="flaticon-home82 blue"></span>&nbsp;<span class="flaticon-entertaining3 orange"></span>
+										<br>
+										<span class="flaticon-eggs lightgray"></span>&nbsp;<span class="flaticon-steak lightgray"></span>
+										<br>
+										<span class="flaticon-black331 green"></span> &nbsp;<span class="flaticon-shopping82 green"></span> 
+										<br>
+										<span class="flaticon-carrot3 lightgray"></span>&nbsp;<span class="flaticon-fish52 lightgray"></span> 
+										<br>etc.
+									</div>
+									<div class="td align-left vertical-top">
+										<strong class="blue">FlatIcons</strong>
+										<br>
+										(Category Icons, Classification Icons, inner Marker Icons)
+										<br>generated by http://www.flaticon.com
+										<br>under CC BY License http://creativecommons.org/licenses/by/3.0/ .
+										<br>The authors are:
+										<br>Freepik: http://www.freepik.com,
+										<br>Icons8: http://www.icons8.com,
+										<br>Daniel Bruce: http://www.danielbruce.se,
+										<br>SimpleIcon: http://www.simpleicon.com,
+										<br>Stephen Hutchings: http://www.typicons.com,
+										<br>Catalin Fertu: http://catalinfertu.com.
+									</div>
+								</div>
+								<div class="tr">
+									<div class="td80 align-center vertical-top">
+										<hr class="lightgray">
+									</div>
+									<div class="td align-left vertical-top">
+										<hr class="lightgray">
+									</div>
+								</div>
+								<div class="tr">
+									<div class="td80 align-center vertical-top lightgray">
+										<i class="fa fa-star-half-o lightgray"></i>&nbsp;<i class="fa fa-thumb-tack lightgray"></i>&nbsp;<i class="fa fa-home lightgray"></i>&nbsp;<i class="fa fa-heart lightgray"></i>
+										<br>
+										<i class="fa fa-cog lightgray"></i>&nbsp;<i class="fa fa-share-alt lightgray"></i>&nbsp;<i class="fa fa-comments lightgray"></i>&nbsp;<i class="fa fa-globe lightgray"></i>
+										<br>
+										<i class="fa fa-search lightgray"></i>&nbsp;<i class="fa fa-map-marker lightgray"></i>&nbsp;&nbsp;etc.
+									</div>
+									<div class="td align-left vertical-top">
+										<strong class="blue">Font Awesome Icons</strong>
+										<br>(Menu, Buttons etc.)
+										<br>by Dave Gandy - http://fontawesome.io
+									</div>
+								</div>
+								<div class="tr">
+									<div class="td80 align-center vertical-top">
+										<hr class="lightgray">
+									</div>
+									<div class="td align-left vertical-top">
+										<hr class="lightgray">
+									</div>
+								</div>
+								
+							<div>
+						</div>
+					</div>
+				</li>
+				<li class="page" rel="terms" pghead="Nutzungsbedingungen">				
+					<div class="page-inner">
+						<div class="page-content small">
+							<div class="table">
+								<div class="tr">
+									<div class="td align-left vertical-middle" onclick="app.page.show('about')">
+										<span class="btn btn-text blue nomargin" ><i class="fa fa-chevron-left"></i><strong>&nbsp;&nbsp;ZURÜCK</strong></span>
+									</div>
+								</div>
+							</div>
+							<h2 class="blue">
+							Nutzungsbedingungen f&uuml;r die AppHOF Webseite (www.apphof.at) und die AppHOF Smartphone-Apps (iPhone,Android, WindowsPhone)
+							<br><span class="darkgray">Stand Januar 2015</span>
+							</h2>
+							<h3 class="blue">
+							Allgemeines, Grundregeln und Zweck
+							</h3>
+							<hr class="lightgray" />
+							<p>
+							Sinn und Zweck der AppHOF Dienste und Funktionen ist die Auffindbarkeit und der Informationsaustausch &uuml;ber M&ouml;glichkeiten und Anbieter zur nachhaltigen und regionalen Versorgung mit Lebensmitteln und Artikeln des t&auml;glichen Bedarfes. Jeder ist herzlich eingeladen, seine Meinung zu &auml;u&szlig;ern.
+							</p>
+							<p>
+							Die passive Nutzung (Lesen von Beitr&auml;gen, suchen von Anbietern, etc.) der Grundfunktionen der AppHOF Webseite und der AppHOF Smartphone-App ist f&uuml;r alle Benutzer kostenlos und ohne Registrierung m&ouml;glich. Einige Dienste und Funktionen, wie zum Beispiel das Posten von Kommentaren oder die Bewertung von Anbietern, erfordern jedoch die Erstellung eines kostenlosen Benutzerkontos (Registrierung).
+							</p>
+							<p>
+							Mehrfachanmeldungen von Benutzern mit verschiedenen Benutzernamen und/oder Emailadressen sind nicht erlaubt.
+							</p>
+							<h3 class="blue">
+							Kommentare, Bewertungen und sonstige Nutzer-Beitr&auml;ge
+							</h3>
+							<hr class="lightgray" />
+							<p>
+							Registrierte Benutzer haben die M&ouml;glichkeit Beitr&auml;ge zu verfassen. Das Recht auf freie Meinungs&auml;u&szlig;erung gilt, wie im richtigen Leben, auch bei AppHOF. Genauso gelten hier auch geltende gesetzliche Regelungen.
+							</p>
+							<p>
+							Abseits der rechtlichen Regelungen, erwarten wir von unseren Nutzern auch einen repektvollen Umgang miteinander und gegen&uuml;ber den vertretenen Anbietern. Grunds&auml;tzlich gilt: Seien Sie h&ouml;flich und behandeln Sie andere respektvoll.
+							</p>
+							<p>
+							Nicht erlaubt sind deshalb:
+							<ul>
+								<li>
+								obsz&ouml;ne, vulg&auml;re, unsittliche (z.B.pornographische),
+								</li>
+								<li>
+								gewaltverherrlichende (z.B. NS-Propaganda) , </li>
+								<li>verhetzende (z.B. gegen Minderheiten),
+								</li>
+								<li>
+								beleidigende, diffamierende,
+								</li>
+								<li>
+								fremdes Urheberrecht verletzende,
+								</li>
+								<li>
+								thematisch irrelevante (z.B. Spam), </li>
+								<li>alleine der Werbung dienende,
+								</li>
+								<li>
+								oder sonstige gegen geltendes Recht versto&szlig;ende
+								</li>
+							</ul>
+							Inhalte und Links. (Aufz&auml;hlung nicht taxativ)
+							</p>
+							<p>
+							Die Betreiber der AppHOF Dienste behalten sich vor, im Interesse der Gesamtheit der Benutzer regulierend einzugreifen, wenn sie der Meinung sind, dass durch Aktionen eines oder mehrerer User die Grundregeln nicht eingehalten werden.
+							</p>
+							<p>
+							Solche und &auml;hnliche Beitr&auml;ge k&ouml;nnen ohne Angabe von Gr&uuml;nden gel&ouml;scht werden. Einzelbeitr&auml;ge und darin vorkommende externe Verweise (Links) d&uuml;rfen auch von den AppHOF-Moderatoren bearbeitet. Diese werden dann als "von AppHOF editiert" markiert.
+							</p>
+							<p>
+							Die Betreiber von AppHOF behalten sich weitere Konsequenzen (L&ouml;schung des Benutzerkontos, Sperrung von IP- oder Email-Adressen, etc.) gegen&uuml;ber Benutzern vor, die wiederholt gegen die Nutzungsbestimmungen oder auch einmalig gegen gesetzliche Vorschriften versto&szlig;en.
+							</p>
+							<p>
+							Erstellte Beitr&auml;ge (Kommentare etc.) sind gleichzeitig auf der AppHOF Webseite und in den AppHOF Smartphone-Apps f&uuml;r alle Benutzer sichtbar.
+							</p>
+							<p>
+							Durch das Schreiben von Beitr&auml;gen r&auml;umt der Verfasser den Betreibern von AppHOF ein zeitlich und r&auml;umlich unbegrenztes Nutzungsrecht f&uuml;r die Nutzung der Inhalte ein.
+							</p>
+							<h3 class="blue">
+							Haftung
+							</h3>
+							<hr class="lightgray" />
+							<p>
+							Die Betreiber der AppHOF Webseite und der AppHOF Smartphone Apps haften ausdr&uuml;cklich nicht f&uuml;r  die von Benutzern verfassten Beitr&auml;ge. F&uuml;r rechtliche Konsequenzen der Beitr&auml;ge (etwa wegen Beleidigung, Urheberrechtsverletzung, etc.) ist alleine der jeweilige Verfasser verantwortlich und haftbar.
+							</p>
+							<p>
+							Bei positiver Kenntnis von rechtswidrigem Inhalt in einem Forumsbeitrag wird dieser Beitrag von den Moderatoren unverz&uuml;glich gel&ouml;scht oder editiert. Benutzer die rechtswidrige Inhalte entdecken, sind aufgefordert diese Inhalte umgehend an die AppHOF Betreiber zu melden (z.B. per Email an office@apphof.at), damit die geeigneten Ma&szlig;nahmen umgehend ergriffen werden k&ouml;nnen.<br />
+							<br />
+							&nbsp;
+							</p>
+						</div>
+					</div>
+				</li>
+				<li class="page" rel="imprint" pghead="Impressum">				
+					<div class="page-inner">
+						<div class="page-content small">
+							<div class="table">
+								<div class="tr">
+									<div class="td align-left vertical-middle" onclick="app.page.show('about')">
+										<span class="btn btn-text blue nomargin" ><i class="fa fa-chevron-left"></i><strong>&nbsp;&nbsp;ZURÜCK</strong></span>
+									</div>
+								</div>
+							</div>
+							<h1 class="blue">Impressum und Informationen nach Ecommerce Gesetz und Mediengesetz</h1>
+							<h2 class="blue">Impressum
+							<a class="pull-right" target="_blank" href="http://www.wkoecg.at/Web/Ecg.aspx?FirmaID=9439d1f6-b4c2-46e7-b590-029ffc3b3f64">
+							<img width="173" height="23" alt="Informationen zu E-Commerce und Mediengesetz" style="border: 0px none;" src="http://www.wkoecg.at/Web/Library/img/ecg.gif" />
+							</a>
+							</h2>
+							<table width="100%" class="table">
+								<thead>
+									<tr>
+										<th colspan="2'">
+										<h2 class="align-left marginBtm0">Daten zum Unternehmen</h2>
+										<hr class="lightgray">
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td style="width: 40%;">
+										Unternehmensbezeichnung
+										</td>
+										<td>
+										in-u! OG
+										</td>
+									</tr>
+									<tr>
+										<td>Adresse</td>
+										<td>1030 Wien<br />
+										Hofmannsthalgasse 8/Stg.3/Top 19</td>
+									</tr>
+									<tr>
+										<td>Kontakt</td>
+										<td>+43 1 726 1 789 - 0<br />
+										office@in-u.at<br />
+										www.in-u.at</td>
+									</tr>
+									<tr>
+										<td colspan="2">&nbsp;</td>
+									</tr>
+									<tr>
+										<td>Beh&ouml;rde gem. ECG (E-Commerce Gesetz)</td>
+										<td>Magistrat der Stadt Wien (www.wien.gv.at)</td>
+									</tr>
+									<tr>
+										<td>Weitere Aufsichtsbeh&ouml;rde gem. ECG</td>
+										<td>Wirtschaftskammer Wien (www.wko.at)</td>
+									</tr>
+									<tr>
+										<td>Firmenbuchnummer</td>
+										<td>332355h</td>
+									</tr>
+									<tr>
+										<td>Firmengericht</td>
+										<td>Handelsgericht Wien</td>
+									</tr>
+									<tr>
+										<td>Firmensitz
+										</td>
+										<td>Wien</td>
+									</tr>
+									<tr>
+										<td>UID-Nummer</td>
+										<td>ATU66133944</td>
+									</tr>
+								</tbody>
+							</table>
+							<h2 class="blue">Offenlegung nach Mediengesetz</h2>
+							<table width="100%" class="table">
+								<thead>
+									<tr>
+										<th colspan="2'">
+										<h2 class="align-left marginBtm0">Medieninhaber</h2>
+										<hr class="lightgray">
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td style="width: 40%;">
+										Firmenname
+										</td>
+										<td>
+										in-u! OG
+										</td>
+									</tr>
+									<tr>
+										<td>Firmensitz</td>
+										<td>1030 Wien, Hofmannsthalgasse 8/Stg.3/Top19</td>
+									</tr>
+									<tr>
+										<td>Blattlinie & Unternehmensgegenstand</td>
+										<td>Informationen zu Produkten und Dienstleistungen der in-u! OG</td>
+									</tr>
+								</tbody>
+							</table>
+							<table width="100%" class="table">
+								<thead>
+									<tr>
+										<th colspan="2'">
+										<h2 class="align-left marginBtm0">Mitglied der Wirtschaftskammer Wien</h2>
+										<hr class="lightgray">
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td style="width: 40%;">
+										Fachgruppen / Berufsgruppen
+										</td>
+										<td>
+										Werbung und Marktkommunikation / Werbeagentur
+										<br />
+										Unternehmensberatung und Informationstechnologie / IT-Dienstleistungen
+										<br />
+										Handel / Handelsagent
+										</td>
+									</tr>
+									<tr>
+										<td>Aufrechte Gewerbeberechtigungen</td>
+										<td>
+										Werbeagentur seit 1.9.2009
+										<br />
+										EDV Dienstleister seit 1.9.2009
+										<br />
+										Handelsgewerbe seit 1.9.2009
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
 				</li>
 				<li class="page" rel="settings" pghead="Einstellungen">
 					<div class="page-inner">
@@ -366,7 +782,7 @@
 													Automatisch anmelden
 												</div>
 												<div class="td50 align-center">
-													<input type="checkbox" checked class="setting" rel="AutoLogin"  default-value="true" />
+													<input type="checkbox" checked class="setting" rel="AutoLogin" default-value="true" />
 												</div>
 											</div>
 										</div>
@@ -467,6 +883,9 @@
 							<h1>
 								Werde Teil der AppHOF Community! 
 							</h1>
+							<h4>
+								Die Benutzerregistrierung ist kostenlos.
+							</h4>
 							<p class="blue small">
 								Als registrierter Benutzer kannst Du Anbieter bewerten, kommentieren und weitere Zusatzfunktionen der App nutzen. Infos zu den Vorteilen für registrierte Benutzer findest Du in der Hilfe&apos;s im Menüpunkt FAQ&apos;s
 							</p>
@@ -495,7 +914,7 @@
 								</div>
 								<div class="inputrow">
 									<div class="inputcontrol">
-										<br><input type="checkbox" rel="Accept"><span class="small">Ich akzeptiere die <span class="blue">Nutzungsbedingungen von AppHOF</span> und möchte mich als Benutzer registrieren.</span><span id="valAccept" class="validation red small"><br>Bitte stimme den Nutzungsbedingungen zu um Dich zu registrieren!</span>
+										<br><input type="checkbox" rel="Accept"><span class="small">&nbsp;&nbsp;Ich akzeptiere die <span class="blue" onclick="app.page.show('terms')">Nutzungsbedingungen von AppHOF</span> und möchte mich als Benutzer registrieren.</span><span id="valAccept" class="validation red small"><br>Bitte stimme den Nutzungsbedingungen zu um Dich zu registrieren!</span>
 									</div>								
 								</div>
 							</div>
@@ -550,7 +969,7 @@
 				</div>
 				<div class="menu-bottom">
 					<ul class="table menu-block">
-						<li class="tc menu-block-head lightgray align-left">
+						<li class="tc menu-block-head darkgray align-left">
 							Hauptfunktionen
 						</li>
 						<li class="tg">
@@ -568,8 +987,8 @@
 									<i class="fa fa-fw fa-map-marker"></i>
 								</span>
 								<span class="td align-left vertical-middle">
-									<span class="menu-item-head">Kartenansicht</span>
-									<span class="menu-item-text">Standorte auf der Karte anzeigen</span>
+									<span class="menu-item-head">In der Nähe</span>
+									<span class="menu-item-text">Ab Hof Verkauf in der Nähe</span>
 								</span>
 							</div>
 							<div class="tr btn btn-pg menu-item" rel="search">
@@ -578,7 +997,7 @@
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Suche</span>
-									<span class="menu-item-text">Suche nach Produkten ...</span>
+									<span class="menu-item-text">Ab Hof Verkäufer suchen</span>
 								</span>
 							</div>
 							<div class="tr btn btn-pg menu-item" rel="fav">
@@ -587,7 +1006,7 @@
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Favoriten</span>
-									<span class="menu-item-text">Gespeicherte Favoriten ...</span>
+									<span class="menu-item-text">Gespeicherte Themen</span>
 								</span>
 							</div>
 							<div id="exitBtn" class="tr btn menu-item">
@@ -596,14 +1015,14 @@
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Beenden</span>
-									<span class="menu-item-text">AppHOF beenden und schließen</span>
+									<span class="menu-item-text">App schließen</span>
 								</span>
 							</div>
 						</li>
 					</ul>
 					<ul id="menu-seller" class="table menu-block hidden">
-						<li class="tc menu-block-head lightgray align-left">
-							Seller Menü
+						<li class="tc menu-block-head darkgray align-left">
+							Verkäufer Menü
 						</li>
 						<li class="tg">
 							<div class="tr btn btn-pg menu-item" rel="seller">
@@ -612,13 +1031,13 @@
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Verkäufer Admin</span>
-									<span class="menu-item-text">Daten und Produkte pflegen ...</span>
+									<span class="menu-item-text">Daten pflegen</span>
 								</span>
 							</div>
 						</li>
 					</ul>
 					<ul id="menu-admin" class="table menu-block hidden">
-						<li class="tc menu-block-head lightgray align-left">
+						<li class="tc menu-block-head darkgray align-left">
 							Admin Menü
 						</li>
 						<li class="tg">
@@ -628,7 +1047,7 @@
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Administration</span>
-									<span class="menu-item-text">Standorte und Produkte pflegen ...</span>
+									<span class="menu-item-text">Daten pflegen ...</span>
 								</span>
 							</div>
 							<div id="searchindexrefresh" class="tr btn btn-pg menu-item" >
@@ -643,7 +1062,7 @@
 						</li>
 					</ul>
 					<ul class="table menu-block">
-						<li class="tc menu-block-head lightgray align-left">
+						<li class="tc menu-block-head darkgray align-left">
 							Hilfe & Einstellungen
 						</li>
 						<li class="tg">
@@ -653,7 +1072,7 @@
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">So funktioniert&apos;s</span>
-									<span class="menu-item-text">App-Hilfe & Bedienungshinweise</span>
+									<span class="menu-item-text">Hilfe & Bedienungstipps</span>
 								</span>
 							</div>
 							<div class="tr btn btn-pg menu-item" rel="about">
@@ -662,7 +1081,7 @@
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Über AppHOF</span>
-									<span class="menu-item-text">Info, Copyright & Impressum</span>
+									<span class="menu-item-text">Info, Copyright, Impressum</span>
 								</span>
 							</div>
 							<div class="tr btn btn-pg menu-item" rel="settings">
@@ -671,7 +1090,7 @@
 								</span>
 								<span class="td align-left vertical-middle">
 									<span class="menu-item-head">Einstellungen</span>
-									<span class="menu-item-text">Persönliche Einstellungen</span>
+									<span class="menu-item-text">App anpassen</span>
 								</span>
 							</div>
 						</li>
@@ -682,19 +1101,16 @@
 		<!-- menu area end --> 		
 		<!-- status bar -->
 		<div id="statusbar" class="white-bg darkgray-bd darkgray">
-			<div class="table">
+			<div class="table" style="padding:1px 0;">
 				<ul class="tr">
-					<li class="td btn vertical-middle align-center" style="width:35px;border-right:1px solid #ddd;" title="Seitenhilfe">
-						<div class="statusitem">
-							<span class="fa-stack fa-lg fa-fw">
-							  <i id="help-button" class="fa fa-fw fa-question fa-stack-1x fa-fw blue"></i>
-							</span>					
-						</div>
-					</li>
-					<li class="td btn vertical-middle align-center" style="padding:0px 5px;">
+					<li class="td vertical-middle align-center">
 						<div id="helpArea" class="statusitem">										
 						</div>
 					</li>
+					<li class="td40 vertical-middle align-center blue-bg" title="Seitenhilfe" style="font-size:180%;">
+						<i id="help-button" class="fa fa-fw fa-question white"></i>
+					</li>
+					<!--
 					<li id="wwwstatus" class="td btn vertical-middle align-center" style="width:35px;border-left:1px solid #ddd;">
 						<div class="statusitem" title="Internetverbindung">
 							<span class="fa-stack fa-lg fa-fw">
@@ -709,14 +1125,14 @@
 							</span>					
 						</div>
 					</li>
+					-->
 				</ul>
 			</div>
 		</div>
 		<!-- status bar end -->
 		<!-- help area -->
 		<div id="helptext" style="display:none;">
-			<span rel="start">
-					<small><i class="fa fa-align-justify"></i> Details anzeigen&nbsp;&nbsp;<i class="fa fa-heart red"></i> Favorit</small>
+			<span rel="start">	
 			</span>
 			<span rel="map"><small><i class="fa fa-fw fa-male red"></i>&nbsp;Standort&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker blue"></i>&nbsp;Ab Hof&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker orange"></i>&nbsp;Markt&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker lightgray"></i>&nbsp;Sonstige&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-map-marker red"></i>&nbsp;nicht in der Nähe</small></span>
 			<span rel="search"><small>Gib einen Suchbegriff ein</small></span>
@@ -902,7 +1318,22 @@
 			appIsMobile = true;
 			
 			document.addEventListener("menubutton", app.menuKeyDown, true);
-			document.addEventListener("backbutton", app.backKeyDown, false);		
+			document.addEventListener("backbutton", app.backKeyDown, false);
+
+			// add device and App Infos in About screen
+			if(!device){
+				$("#aboutAppOS").html("Smartphones & Tablets");
+				$("#aboutAppVersion").html("v.0.0.1");
+			}
+			else{
+				$("#aboutDeviceModel").html(device.model);
+				$("#aboutDeviceOS").html(device.platform);
+				$("#aboutDeviceVersion").html(device.version);
+			}
+			//add versionnumber to the field in about - appversion needs appversion plugin 
+			cordova.getAppVersion(function (version) {
+				$("#aboutAppVersion").html(version);
+			});
 		}
 	</script>
 	<script src="phonegap.js"></script>
