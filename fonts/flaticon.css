@@ -1,0 +1,120 @@
+@font-face {
+	font-family: "Flaticon";
+	src: url("flaticon.eot");
+	src: url("flaticon.eot#iefix") format("embedded-opentype"),
+	url("flaticon.woff") format("woff"),
+	url("flaticon.ttf") format("truetype"),
+	url("flaticon.svg") format("svg");
+	font-weight: normal;
+	font-style: normal;
+}
+[class^="flaticon-"]:before, [class*=" flaticon-"]:before,
+[class^="flaticon-"]:after, [class*=" flaticon-"]:after {   
+	font-family: Flaticon;
+        font-size: 20px;
+font-style: normal;
+}.flaticon-apple54:before {
+	content: "\e000";
+}
+.flaticon-black331:before {
+	content: "\e001";
+}
+.flaticon-bottle24:before {
+	content: "\e002";
+}
+.flaticon-bottle26:before {
+	content: "\e003";
+}
+.flaticon-bottle42:before {
+	content: "\e004";
+}
+.flaticon-bread14:before {
+	content: "\e005";
+}
+.flaticon-carrot3:before {
+	content: "\e006";
+}
+.flaticon-creditcard8:before {
+	content: "\e007";
+}
+.flaticon-drink64:before {
+	content: "\e008";
+}
+.flaticon-eggs:before {
+	content: "\e009";
+}
+.flaticon-entertaining3:before {
+	content: "\e00a";
+}
+.flaticon-firewood:before {
+	content: "\e00b";
+}
+.flaticon-fish52:before {
+	content: "\e00c";
+}
+.flaticon-glass35:before {
+	content: "\e00d";
+}
+.flaticon-glass4:before {
+	content: "\e00e";
+}
+.flaticon-hand129:before {
+	content: "\e00f";
+}
+.flaticon-home82:before {
+	content: "\e010";
+}
+.flaticon-honey:before {
+	content: "\e011";
+}
+.flaticon-lipstick:before {
+	content: "\e012";
+}
+.flaticon-milk9:before {
+	content: "\e013";
+}
+.flaticon-packed:before {
+	content: "\e014";
+}
+.flaticon-payment:before {
+	content: "\e015";
+}
+.flaticon-paypal:before {
+	content: "\e016";
+}
+.flaticon-person92:before {
+	content: "\e017";
+}
+.flaticon-restaurant50:before {
+	content: "\e018";
+}
+.flaticon-shop3:before {
+	content: "\e019";
+}
+.flaticon-shopping82:before {
+	content: "\e01a";
+}
+.flaticon-soap2:before {
+	content: "\e01b";
+}
+.flaticon-sort:before {
+	content: "\e01c";
+}
+.flaticon-steak:before {
+	content: "\e01d";
+}
+.flaticon-store1:before {
+	content: "\e01e";
+}
+.flaticon-store9:before {
+	content: "\e01f";
+}
+.flaticon-thread2:before {
+	content: "\e020";
+}
+.flaticon-tree119:before {
+	content: "\e021";
+}
+.flaticon-wine47:before {
+	content: "\e022";
+}
