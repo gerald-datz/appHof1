@@ -1223,7 +1223,7 @@
 		
 		function helperDeviceReady(){
 			if (typeof helper == 'function') {
-				helper.deviceready();
+				helper.deviceready(false);
 			}
 			else{
 				setTimeout(function(){

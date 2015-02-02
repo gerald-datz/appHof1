@@ -100,7 +100,10 @@ ul {
 li {
 	margin-bottom:8px;
 }
-
+iframe{
+	background: url(img/spinner.gif) no-repeat;
+    background-position: center center;
+}
 /* ###################################################
 					helper styles
    ################################################### */
@@ -356,11 +359,9 @@ li {
 	}
 	.btn.action{
 		background-color:#d0d0d0;
-		color:#FFF;
 	}
 	.authOK  .btn.action{
 		background-color:#18A1A8;
-		color:#FFF;
 	}
 	.btn.auth{
 		cursor:not-allowed;
@@ -969,6 +970,12 @@ li {
 		}
 		#mapPanel.active{
 			display:block;
+			overflow:hidden;
+			position:relative;
+			top:0;
+			left:0;
+			width:100%,;
+			height:100%;
 		}
 			#map { 
 				height: 1000px;
@@ -1328,7 +1335,7 @@ img.lazy{
 					  main colors
    ################################################### */
 /* black */
-.black{
+.black, a.black{
 	color:#000;
 }
 .black-bg{
@@ -1351,7 +1358,7 @@ img.lazy{
 }
 
 /* white */
-.white{
+.white, a.white{
 	color:#FFF;
 }
 .white-bg{
@@ -1380,7 +1387,7 @@ img.lazy{
 }
 
 /* darkgray HEX: 585858 /  RGB: 88,88,88 / CMYK: 0,0,0,167 */
-.darkgray{
+.darkgray, a.darkgray{
 	color:#585858;
 }
 .darkgray-bg{
@@ -1400,7 +1407,7 @@ img.lazy{
 }
 
 /* lightgray HEX: A8A8A8 /  RGB: 168,168,168 / CMYK: 0,0,0,87 */
-.lightgray{
+.lightgray, a.lightgray{
 	color:#A8A8A8;
 }
 .lightgray-bg{
@@ -1420,7 +1427,7 @@ img.lazy{
 }
 
 /* extralightgray HEX: F0F0F0 /  RGB: 220,220,220 / CMYK:  */
-.extralightgray{
+.extralightgray, a.extralightgray{
 	color:#F0F0F0;
 }
 .extralightgray-bg{
@@ -1440,7 +1447,7 @@ img.lazy{
 }
 
 /* blue HEX: 18A1A8 /  RGB: 24,161,168 / CMYK: 219,11,0,87 ...(some more like turquise) */
-.blue{
+.blue, a.blue{
 	color:#18A1A8;
 }
 .blue-bg{
@@ -1460,7 +1467,7 @@ img.lazy{
 }
 
 /* red HEX: A73A51 /  RGB: 167,58,81 / CMYK: 0,166,131,88 */
-.red{
+.red, a.red{
 	color:#A73A51;
 }
 .red-bg{
@@ -1480,7 +1487,7 @@ img.lazy{
 }
 
 /* green HEX: 33AD6A /  RGB: 51,173,106 / CMYK: 180,0,99,82 */
-.green{
+.green, a.green{
 	color:#33AD6A;
 }
 .green-bg{
@@ -1500,7 +1507,7 @@ img.lazy{
 }
 
 /* orange HEX: EC7F4E /  RGB: 236,127,78  */
-.orange{
+.orange, a.orange{
 	color:#EC7F4E;
 }
 .orange-bg{
@@ -1520,7 +1527,7 @@ img.lazy{
 }
 
 /* yellow HEX: F0FF00 /  RGB: 240,255,0  */
-.yellow{
+.yellow, a.yellow{
 	color:#F0FF00;
 }
 .yellow-bg{

@@ -91,11 +91,11 @@ var app={
     },
     authenticated:function(){
 		if (app.auth != "" && app.auth != "anonymous" && app.authstate == true){
-			$("body").removeClass("noauth");
+			$("body").addClass("authOK");
 			$(".auth").prop('disabled',false);
 		}
 		else{
-			$("body").addClass("noauth");
+			$("body").removeClass("authOK");
 			//$(".auth").find('*').prop("disabled", true);	
 			$(".auth").prop('disabled',true);
 		}		
@@ -161,7 +161,7 @@ var app={
 		// login  buttons
 		$("#menu-login").off("click");
 		$("#menu-login").on("click",function(){
-			app.login.now();
+			app.login.handler();
 		});
 		
 		// register buttons
@@ -374,31 +374,59 @@ var app={
                     }
                 });
             },
-            getSum: function(wrapperID, objecttypeID, itemID, small){
+            getSum: function(wrapperID, objecttypeID, itemID, small, valueCommentSum){
                 //get the data and handle callback
                 var markup = "";
-                helper.dataAPI("getData","usercomments-c", {'i': itemID, 'o':objecttypeID},function(err,dataset){ 
-                    if(!err){
-                        var data = dataset[0];
-						var count = data.CommentCount;
-						if (isNaN(data.CommentCount) ){
-							count = "0";
-						}
-                        markup += "<span class='commentcount'";
-						if (typeof(small) != "undefined" && small == true){
-							markup += " class='small votingcount'><i class='fa fa-comments blue'></i>&nbsp;( " + data.CommentCount + " )</span>";
+				if(typeof(valueCommentSum) != "undefined" ){
+					try {
+						valueCommentSum = parseInt(valueCommentSum);
+					} 
+					catch (e) {
+						valueCommentSum = 0;
+					} 
+					// value is provided, no need to get data online					
+					markup += "<span class='commentcount'";
+					if (typeof(small) != "undefined" && small == true){
+						markup += " class='small votingcount'><i class='fa fa-comments blue'></i>&nbsp;( " + valueCommentSum + " )</span>";
+					}
+					else{
+						markup += " class='votingcount'>" + valueCommentSum + "</span>";
+					}
+					if( typeof(wrapperID) == "undefined" || wrapperID == ""){
+						return markup;
+					}
+					else{
+						$("#" + wrapperID ).html(markup);
+					}
+				}
+				else{
+					helper.dataAPI("getData","usercomments-c", {'i': itemID, 'o':objecttypeID},function(err,dataset){ 
+						if(!err){
+							var data = dataset[0];
+							var count = data.CommentCount;
+							if (isNaN(data.CommentCount) ){
+								count = "0";
+							}
+							markup += "<span class='commentcount'";
+							if (typeof(small) != "undefined" && small == true){
+								markup += " class='small votingcount'><i class='fa fa-comments blue'></i>&nbsp;( " + count + " )</span>";
+							}
+							else{
+								markup += " class='votingcount'>" + count + "</span>";
+							}
 						}
 						else{
-							markup += " class='votingcount'>" + data.CommentCount + "</span>";
+							helper.errorLog(err);
+							markup += "<span class='commentcount'>0</span>";
 						}
-                    }
-                    else{
-                        helper.errorLog(err);
-                        markup += "<span class='commentcount'>0</span>";
-                    }
-					
-                    $("#" + wrapperID ).html(markup);
-                });        
+						if( typeof(wrapperID) == "undefined" || wrapperID == ""){
+							return markup;
+						}
+						else{
+							$("#" + wrapperID ).html(markup);
+						}
+					});  
+				}
             }
         }
 	},
@@ -463,7 +491,7 @@ var app={
 										icon = " fa fa-info "
 										icontext = "<div class='small lightgray'>INFO</div>";
 									}
-									onclick = 	"app.tipp.show(" + favID + ");";
+									onclick = 	"app.tipp.details(" + favID + ");";
 									break;        	
 								default:
 									icon = 		"";
@@ -539,10 +567,10 @@ var app={
 							found = true;
 							delete theFavs[key];
 							if (tipptype != "" && dataType == "tipp"){
-								$(".favBtn[datatype='" + dataType + "'][rel='" + dataID + "'][tipptype='" + tipptype + "']").removeClass("red");
+								$(".favBtn[datatype='" + dataType + "'][rel='" + dataID + "'][tipptype='" + tipptype + "']").removeClass("red").addClass("white");
 							}
 							else{
-								$(".favBtn[datatype='" + dataType + "'][rel='" + dataID + "']").removeClass("red");
+								$(".favBtn[datatype='" + dataType + "'][rel='" + dataID + "']").removeClass("red").addClass("white");
 							}
 							//$("#popup .favBtn[datatype='" + dataType + "'][rel='" + dataID + "']").removeClass("red");
 							// found it - just exit the loop
@@ -554,10 +582,10 @@ var app={
 				if (found == false){
 					theFavs[fav] = favData; // add description title ... to it
 					if (tipptype != "" && dataType == "tipp"){
-								$(".favBtn[datatype='" + dataType + "'][rel='" + dataID + "'][tipptype='" + tipptype + "']").addClass("red");
+								$(".favBtn[datatype='" + dataType + "'][rel='" + dataID + "'][tipptype='" + tipptype + "']").removeClass("white").addClass("red");
 							}
 							else{
-								$(".favBtn[datatype='" + dataType + "'][rel='" + dataID + "']").addClass("red");
+								$(".favBtn[datatype='" + dataType + "'][rel='" + dataID + "']").removeClass("white").addClass("red");
 							}
 				}
 				// save back favs to localstorage
@@ -668,6 +696,25 @@ var app={
 				}
 			});
 			
+			/** ------------------------------------------------------------------
+					load all other background items - app is now ready to be used		
+				---------------------------------------------------------------------- */
+			//get the data for admin functions if applicable
+			helper.dataAPI("getData","adminpage", {},function(err,data){ 
+				if(!err){
+					$("#admin-page").empty();
+					$("#admin-page").append(data);
+					$("#menu-admin").removeClass("hidden");
+				}
+			});
+			//get the data for seller functions if applicable
+			helper.dataAPI("getData","sellerpage", {},function(err,data){ 
+				if(!err){
+					$("#seller-page").empty();
+					$("#seller-page").append(data);
+					$("#menu-seller").removeClass("hidden");
+				}
+			});
 			//load other app items - dependent on login and position
 			app.load(true);
 		}
@@ -704,25 +751,6 @@ var app={
 		helper.splash.hide();
 		helper.spinner.hide();
 		
-		/** ------------------------------------------------------------------
-				load all other background items - app is now ready to be used		
-			---------------------------------------------------------------------- */
-		//get the data for admin functions if applicable
-		helper.dataAPI("getData","adminpage", {},function(err,data){ 
-			if(!err){
-				$("#admin-page").empty();
-				$("#admin-page").append(data);
-				$("#menu-admin").removeClass("hidden");
-			}
-		});
-		//get the data for seller functions if applicable
-		helper.dataAPI("getData","sellerpage", {},function(err,data){ 
-			if(!err){
-				$("#seller-page").empty();
-				$("#seller-page").append(data);
-				$("#menu-seller").removeClass("hidden");
-			}
-		});
 		
 		// load fav-tipps which are not in radius -----------------  TODO ###############################################################
 			
@@ -828,7 +856,8 @@ var app={
 											actiontitle:"",
 											actionicon:"",
 											href:"#",
-											onclick:"event.preventDefault();"
+											onclick:"event.preventDefault();",
+											aclass:""
 										});
 						}
 						// Contact data and buttons		
@@ -840,7 +869,8 @@ var app={
 											actiontitle:"",
 											actionicon:"fa-phone",
 											href:"tel:" + data.Phone.replace(/\s+/g, ''),
-											onclick:""
+											onclick:"",
+											aclass:""
 										});
 						
 							
@@ -853,7 +883,8 @@ var app={
 											actiontitle:"",
 											actionicon:"fa-phone",
 											href:"tel:" + data.Cell.replace(/\s+/g, ''),
-											onclick:""
+											onclick:"",
+											aclass:""
 										});
 							
 						}                    
@@ -865,7 +896,8 @@ var app={
 											actiontitle:"",
 											actionicon:"fa-envelope",
 											href:"mailto:" + data.Mail.replace(/\s+/g, ''),
-											onclick:""
+											onclick:"",
+											aclass:""
 										});
 
 						}
@@ -886,7 +918,8 @@ var app={
 											actiontitle:"",
 											actionicon:"fa-chevron-right",
 											href:href,
-											onclick:onclick
+											onclick:onclick,
+											aclass:""
 										});
 						
 						}
@@ -916,7 +949,8 @@ var app={
 											actiontitle:"",
 											actionicon:"fa-chevron-right",
 											href:href,
-											onclick:onclick
+											onclick:onclick,
+											aclass:""
 										});
 						}
 						
@@ -928,7 +962,8 @@ var app={
 											actiontitle:"",
 											actionicon:"fa-plus",
 											href:"#",
-											onclick:"app.comment.add(5," + data.ID + ");"
+											onclick:"app.comment.add(5," + data.ID + ");",
+											aclass:" action auth "
 										});
 						
 						
@@ -956,8 +991,8 @@ var app={
 								var theLAT = theData.CenterLat;
 								var theLON = theData.CenterLon;
 								var theLocID = theData.ID;
-								app.voting.markup.getSum("votingswrapperSum" + theData.ID,5,theData.ID, true);
-								app.comment.markup.getSum("commentswrapperSum" + theData.ID,5,theData.ID, true);
+								//app.voting.markup.getSum("votingswrapperSum" + theData.ID,5,theData.ID, true);
+								//app.comment.markup.getSum("commentswrapperSum" + theData.ID,5,theData.ID, true);
 								app.comment.markup.get("commentswrapper",5,theData.ID, true);
 								app.location.details.mapupdate(theLAT,theLON, theLocID);
 												
@@ -1096,21 +1131,26 @@ var app={
 			var urlauth =  helper.url.param.get("a");
 			if (urlauth == ""){
 				// not called from website
-				$("body").removeClass("fromWebsite");				
+				$("body").removeClass("fromWebsite");		
+				helper.errorLog("no urlauth");
 			}
 			else if (urlauth == "noauth"){
 				// called from website, but not logged in
 				$("body").addClass("fromWebsite");
+				helper.errorLog("urlauth mode but noauth");
 			}
 			else{
 				//called from website with auth
+				helper.errorLog("urlauth with auth");
 				$("body").addClass("fromWebsite");				
 			}
 			
 			if(helper.settings.get("AutoLogin") == true || ( urlauth != "" && urlauth != "noauth" ) ){
+				helper.errorLog("urlauth and autologin");
 				// get logindata
 				if (urlauth != "" && urlauth != "noauth"){
 					app.auth = urlauth;
+					helper.errorLog("auth set from url - now try to login");
 					app.login.now(
 						function(result){
 							// callback from login function
@@ -1131,7 +1171,8 @@ var app={
 					helper.errorLog("login failed from url because user not logged in on website");
 					app.logout();			
 				}
-				else{
+				else{					
+					helper.errorLog("no urlauth provided - try to get login from locstore");
 					var us = helper.settings.get("UserName");
 					var pw = helper.settings.get("UserPass");
 					if	(us != "" && us != false && pw != "" && pw != false){
@@ -1170,8 +1211,11 @@ var app={
 		now:function(callback){
 			// try to login
 			// get the user info data
+			var theCallback = callback;
+			helper.errorLog("login now");
 			helper.dataAPI("getData","userdata",{},function(err,data){
 				if(!err){
+					helper.errorLog("login OK");			
 					app.obj.user.UserID = data.UserID;
 					app.obj.user.UserName = data.UserName;
 					app.obj.user.DisplayName = data.DisplayName;
@@ -1181,20 +1225,22 @@ var app={
 					app.menu.userinfo();
 					app.authstate = true;
 					app.authenticated();
-					// update user image and name in menu				
-					callback('ok');
+					// update user image and name in menu	
+					theCallback('ok');
 				}
 				else{
+					helper.errorLog("Login failed");
 					app.logout();
 					app.loginfail++;
 					helper.errorLog(err);
 					app.authstate = false;
 					app.authenticated();
-					callback('failed');
+					theCallback('failed');
 				}
 			});   
 		},
-		error:function(details){			
+		error:function(details){	
+			helper.errorLog("login error:" + details);		
 			var header = "Ungültige Anmeldedaten";
 			var markup = "<p class='red'>Du hast noch keine Zugangsdaten? Registriere Dich kostenlos und profitiere von vielen nützlichen Funktionen der App.</p><p class='blue'>Wenn Du bereits Zugangsdaten hast, dann speichere Sie in den Einstellungen der App.</p>";
 			var icon = "fa fa-user";
@@ -1314,7 +1360,7 @@ var app={
 						// failed from url(user not logged in on website)
 						if (helper.settings.get("DontShowLogInFromURL") != "true"){
 							header = "Nicht angemeldet";
-							markup = "<p class='red'>Anmeldung fehlgeschlagen.<br>Du hast noch keine Zugangsdaten? Registriere Dich kostenlos.</p><p class='blue'>Wenn Du bereits Zugangsdaten hast, dann gmelde Dich mit Deinen Zugangsdaten an.</p>";
+							markup = "<p class='red'>Anmeldung fehlgeschlagen.<br>Du hast noch keine Zugangsdaten? Registriere Dich kostenlos.</p><p class='blue'>Wenn Du bereits Zugangsdaten hast, dann melde Dich bitte mit Deinen Zugangsdaten an.</p>";
 							icon = "fa fa-lock";
 							showOk = false;
 							showCancel = false;
@@ -1449,6 +1495,7 @@ var app={
 	},
 	logout:function(){
 		// clear userinfo
+		helper.errorLog("logout called");
 		app.obj.user = {};
 		app.user = '';
 		app.auth = 'anonymous'
@@ -1494,8 +1541,13 @@ var app={
 		init: function(){		
 				helper.errorLog("map init ...");
 				// init Map - workaround for map size bug
+				$('#mapPanel').height($(document).height());
+				$('#mapPanel').width($(document).width());
+				
+				
 				$('#map').height($(document).height());
 				$('#map').width($(document).width());
+				
 				
 				// init minimap
 				$('#minimap').height($("div.home-map:first").height());
@@ -1553,19 +1605,21 @@ var app={
 		},
 		load: function(){				
 				// clear layers
+				if(markersGroup){
+					markersGroup.clearLayers();		
+				}
 				if (map.hasLayer(mePosMarker)){				
 					map.removeLayer(mePosMarker);
 				}
 				if (map.hasLayer(layerNotNear)){				
 					map.removeLayer(layerNotNear);
 				}
-				if (map.hasLayer(markersGroup)){				
+				if (map.hasLayer(markersGroup)){	
 					map.removeLayer(markersGroup);
 				}
 				if (map.hasLayer(circle)){				
 					map.removeLayer(circle);
 				}
-				
 				
 				// define meMarker - this is a special "updateable" marker for the users positon hat will be updated by a interval and not set over and over again 
 				var meIcon = L.Icon.extend(
@@ -1657,8 +1711,8 @@ var app={
 						var theWrapper = $("#mapinfo");
 						// bind events to the short markups
 						app.location.details.markupBind(theWrapper);
-						app.voting.markup.getSum("votingswrapperSumInfo" + theLocation.ID,5,theLocation.ID,true);
-						app.comment.markup.getSum("commentswrapperSumInfo" + theLocation.ID,5,theLocation.ID, true);
+						//app.voting.markup.getSum("votingswrapperSumInfo" + theLocation.ID,5,theLocation.ID,true);
+						//app.comment.markup.getSum("commentswrapperSumInfo" + theLocation.ID,5,theLocation.ID, true);
 						app.fav.update();
 					},helper.retryTimeOut);
 				}
@@ -1689,6 +1743,11 @@ var app={
 				if (typeof(markers) != "undefined"){
 					map.removeLayer(markers);
 					minimap.removeLayer(markers);
+				}
+				// fix for markercluster issue: markers still stay if only layer is removed - add "markersGroup.clearLayers() to also remove markers from the Group
+				// attribution to:http://stackoverflow.com/questions/18706743/cant-remove-layers-with-clusters-in-leaflet-js
+				if(markersGroup){
+					markersGroup.clearLayers();		
 				}
 			},
 			update: function(){			
@@ -1886,8 +1945,8 @@ var app={
 					app.location.details.markupBind(theWrapper);
 					$.each(app.obj.locations,function(){
 						var theLocationID = this.ID;						
-						app.voting.markup.getSum("votingswrapperSumList" + theLocationID,5,theLocationID, true);
-						app.comment.markup.getSum("commentswrapperSumList" + theLocationID,5,theLocationID, true);
+						//app.voting.markup.getSum("votingswrapperSumList" + theLocationID,5,theLocationID, true);
+						//app.comment.markup.getSum("commentswrapperSumList" + theLocationID,5,theLocationID, true);
 					});					
 				},helper.retryTimeOut);
 				
@@ -1963,8 +2022,16 @@ var app={
 				if(typeof(zoom) == "undefined"){
 					zoom = 8;
 				}
-				minimap.setView([parseFloat(helper.gps.lat), parseFloat(helper.gps.lon)], zoom);
-				minimePosMarker.setLatLng([parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)]).update();
+				if(minimePosMarker){
+					minimap.setView([parseFloat(helper.gps.lat), parseFloat(helper.gps.lon)], zoom);
+					minimePosMarker.setLatLng([parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)]).update();
+				}
+				else{
+					setTimeout(function(){
+						app.map.minimap.center();
+					},helper.retryTimeOut);
+				}
+				
 			}
 		},
 		refresh:function(){
@@ -2012,7 +2079,14 @@ var app={
 					app.map.user.position.modeupdate();
 				},
 				update:function(){
-					mePosMarker.setLatLng([parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)]).update();					
+					if(mePosMarker){
+						mePosMarker.setLatLng([parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)]).update();	
+					}
+					else{
+						setTimeout(function(){
+							app.map.user.position.update();
+						},helper.retryTimeOut);
+					}
 				}
 			}
 		},
@@ -2110,8 +2184,8 @@ var app={
 				markup +=	"					[|OPENING|]";
 				markup +=   "				</div>";
 				markup +=   "				<div class='align-left darkgray nomargin'>";
-				markup += 	"					<span id='votingswrapperSum[|ID|]' class='small'></span>&nbsp;&nbsp;";
-				markup += 	"					<span id='commentswrapperSum[|ID|]' class='small'></span>&nbsp;&nbsp;";
+				markup += 	"					<span id='votingswrapperSum[|ID|]' class='small'>[|VOTINGS|]</span>&nbsp;&nbsp;";
+				markup += 	"					<span id='commentswrapperSum[|ID|]' class='small'>[|COMMENTS|]</span>&nbsp;&nbsp;";
 				/*
 				markup += 	"					<span id='qualitywrapper[|ID|]' class='small'><i class='fa fa-check-circle green'></i><span class='votingcount'>&nbsp;( 0 )</span></span>";
 				*/
@@ -2168,7 +2242,7 @@ var app={
 				markup += "				<div class='td h40p vertical-middle align-center'>";		
 				markup += "					<p class='small align-center nomargin'>[|TEXT|]</p>";						
 				markup += "				</div>";
-				markup += "				<a href='[|HREF|]' class='td40 btn action auth vertical-middle align-center' title='[|ACTIONTITLE|]' onclick='[|ONCLICK|]'>";
+				markup += "				<a href='[|HREF|]' class='td40 btn  vertical-middle align-center blue-bg white [|ACLASS|]' title='[|ACTIONTITLE|]' onclick='[|ONCLICK|]'>";
 				markup += "					<i class='fa [|ACTIONICON|]'></i>";
 				markup += "				</a>";		
 				markup += "			</div>";									
@@ -2433,8 +2507,10 @@ var app={
 				dist = ""
 			}
 									
+			var votings = app.voting.markup.build("",item.VotingAvg,item.VotingCount,true);
+			var comments = app.comment.markup.getSum("",0,0, true, item.CommentCount);
 			
-			var result = {id:item.ID,sort:sortdist,statuscolor:statuscolor,icon:typeicon,icontext:typeicontext,name:item.Name,opening:item.OpeningHours,zip:item.Zip,city:item.City,address:item.Address,type:locType,categorys:categorysList,distance:dist,url:webshort };
+			var result = {id:item.ID,sort:sortdist,statuscolor:statuscolor,icon:typeicon,icontext:typeicontext,name:item.Name,opening:item.OpeningHours,zip:item.Zip,city:item.City,address:item.Address,type:locType,categorys:categorysList,distance:dist,url:webshort,votings:votings,comments:comments };
 			
 			return result;
 		}
@@ -3105,7 +3181,7 @@ var app={
 								
 								break;        
 							case 6: 
-								app.tipp.show(data.ObjectID);
+								app.tipp.details(data.ObjectID);
 								break;        
 							default:
 								alert("undefined objectTypeID");
@@ -3188,7 +3264,7 @@ var app={
 							});
 							break;        
 						case 6: 
-							app.tipp.show(data.ObjectID);
+							app.tipp.details(data.ObjectID);
 							break;        
 						default:
 							alert("undefined objectTypeID");
@@ -3231,7 +3307,7 @@ var app={
 							});
 							break;        
 						case 6: 
-							app.tipp.show(data.ObjectID);
+							app.tipp.details(data.ObjectID);
 							break;        
 						default:
 							alert("undefined objectTypeID");
@@ -3262,53 +3338,73 @@ var app={
                         "tipp" -> 6,
     */
         markup:{
-            getSum:function(wrapperID, objecttypeID, itemID, small){
+			build:function(wrapperID, valueVotingAvg, valueVotingCount, small){
+				var markup = "<span class='votingsum'>";
+					if (isNaN(valueVotingAvg) || valueVotingAvg == 0 || valueVotingCount <= 0 ){
+						// no number or zero = no voting
+						if (typeof(small) != "undefined" && small == true){	
+							for (var i = 0; i < 5; i++) {
+								markup += "<i class='fa fa-fw fa-star-o lightgray'></i>";
+							}
+														
+							markup += "<span class='votingcount'> ( 0 ) </span>";
+						}
+						else{
+							markup += "<span class='votingcount'>keine Bewertungen</span>";
+						}
+					}
+					else{
+						// calculate the stars - and add them to the markup
+						var voting = parseFloat(valueVotingAvg);
+						var votingFull = Math.floor(voting);
+						var count = 0
+						for (var i = 0; i < votingFull; i++) {
+							markup += "<i class='fa fa-fw fa-star orange'></i>";
+							count++;
+						}
+						var votingDecimal= (voting -votingFull) *100;
+						if (Math.floor(votingDecimal) >= 50){
+							markup += "<i class='fa fa-fw fa-star-half-o orange'></i>";
+							count++
+						}
+						for (var i = count; i < 5; i++) {
+							markup += "<i class='fa fa-fw fa-star-o lightgray'></i>";
+						}
+						if (typeof(small) != "undefined" && small == true){
+							markup += "&nbsp;<span class='votingcount'> ( " + valueVotingCount + " )</span>";
+						}
+						else{
+							markup += "&nbsp;<span class='votingcount'> aus " + valueVotingCount + " Bewertungen</span>";
+						}
+						
+					}  
+					markup += "</span>";
+					if (wrapperID == ""){
+						return markup;
+					}
+					else{
+						$("#" + wrapperID ).html(markup);
+					}
+			},
+            getSum:function(wrapperID, objecttypeID, itemID, small, valueVotingAvg, valueVotingCount){
                 //get the data and handle callback
-                helper.dataAPI("getData","uservotings-c", {'i': itemID, 'o':objecttypeID},function(err,dataset){ 
-                    if(!err){
-                        var markup = "<span class='votingsum'>";
-                        var data = dataset[0];
-                        if (isNaN(data.VotingAvg) || data.Voting <= -1 ){
-                            // no number - no voting
-							if (typeof(small) != "undefined" && small == true){								
-								markup += "<span class='votingcount'>0</span>";
-							}
-							else{
-								markup += "<span class='votingcount'>keine Bewertungen</span>";
-							}
-                        }
-                        else{
-                            // calculate the stars - and add them to the markup
-                            var voting = parseFloat(data.VotingAvg);
-                            var votingFull = Math.floor(voting);
-                            var count = 0
-                            for (var i = 0; i < votingFull; i++) {
-                                markup += "<i class='fa fa-fw fa-star orange'></i>";
-                                count++;
-                            }
-                            var votingDecimal= (voting -votingFull) *100;
-                            if (Math.floor(votingDecimal) >= 50){
-                                markup += "<i class='fa fa-fw fa-star-half-o orange'></i>";
-                                count++
-                            }
-                            for (var i = count; i < 5; i++) {
-                                markup += "<i class='fa fa-fw fa-star-o lightgray'></i>";
-                            }
-							if (typeof(small) != "undefined" && small == true){
-								markup += "&nbsp;<span class='small votingcount'> ( " + data.VotingCount + " )</span>";
-							}
-							else{
-								markup += "&nbsp;<span class='votingcount'> aus " + data.VotingCount + " Bewertungen</span>";
-							}
-                            
-                        }  
-                        markup += "</span>";
-                        $("#" + wrapperID ).html(markup);
-                    }
-                    else{
-                        helper.errorLog(err);
-                    }
-                });
+				if(typeof(valueVotingAvg) != "undefined" && typeof(valueVotingCount) != "undefined"){
+					// value is provided, no need to get data online
+					app.voting.markup.build(wrapperID, valueVotingAvg, valueVotingCount, small);
+				}
+				else{
+					helper.dataAPI("getData","uservotings-c", {'i': itemID, 'o':objecttypeID},function(err,dataset){ 
+						if(!err){
+							var data = dataset[0];
+							valueVotingAvg = data.VotingAvg;
+							valueVotingCount = data.VotingCount;
+							app.voting.markup.build(wrapperID, valueVotingAvg, valueVotingCount, small);
+						}
+						else{
+							helper.errorLog(err);
+						}
+					});
+				}
             }
         }
     }
@@ -3600,7 +3696,7 @@ var helper = {
 			$("#aboutAppOS").html("Smartphones & Tablets");
 			$("#aboutAppVersion").html("v.0.0.0");
 			helper.appIsMobile = false;	
-		}else{
+		}else if (notmob == false){
 			helper.errorLog('device ready...');	
 			helper.deviceState = true;
 			$("body").addClass("mobileApp");
@@ -3952,7 +4048,7 @@ var helper = {
 		if (found == false && key == "ID"){
 			// try to get it online                     # toDo ?????
 			if (obj == app.obj.locations){
-				helper.dataAPI("getData","locationdetails", {'i': value},function(err,dataObj){
+				helper.dataAPI("getData","locations", {'i': value},function(err,dataObj){
 					if(!err){
 						// dataObj holds Locationinfo
 						found = true
@@ -3979,8 +4075,8 @@ var helper = {
 	},
 	gps:{
 		interval:10000,
-		lat: 0.0,
-		lon: 0.0,
+		lat: 48.208348336288076,
+		lon: 16.372498869895935,
 		mode:"auto",
 		state: false,
 		errorcount: 0,
