@@ -857,7 +857,21 @@ var app={
 											actionicon:"",
 											href:"#",
 											onclick:"event.preventDefault();",
-											aclass:""
+											aclass:" noAction "
+										});
+						}
+						
+						// Produkte (general info on this location)		
+						if(data.Products && data.Products != "" && data.Products != " " && data.Products != "  "){
+							markup += app.markup.get("locationdetailrow",
+										{
+											icon:"fa-tags",
+											text:data.Products,
+											actiontitle:"",
+											actionicon:"",
+											href:"#",
+											onclick:"event.preventDefault();",
+											aclass:" noAction "
 										});
 						}
 						// Contact data and buttons		
@@ -1767,7 +1781,7 @@ var app={
 					color: '#18A1A8',
 					fillColor: '#F9F9F9',
 					weight: 2,
-					fillOpacity: 0.5
+					fillOpacity: 0.1
 				}).addTo(map);
 				
 				var coordOffset = helper.gps.calc.offset(radiusToShow);
@@ -2168,7 +2182,7 @@ var app={
 				var markup = "";
 				markup += "		<div class='markupShort white-bg-t9' rel='[|ID|]'>";
 				if($("#menu-admin").hasClass("hidden") == false){
-					markup += "<i class='btn w30p h30p vertical-middle align-center fa fa-edit [|STATUSCOLOR|] block' style='margin:3px 0 0 3px; z-index: 12; position: absolute; top: 0px; font-size: 1em; left: 0px;line-height:30px;' onclick='appadmin.location.edit([|ID|])'></i>";
+					markup += "<i class='btn w30p h30p vertical-middle align-center fa fa-edit [|STATUSCOLOR|] block' style='margin:3px 0 0 3px; z-index: 12; position: absolute; top: 0px; font-size: 1em; left: 20px;line-height:30px;' onclick='appadmin.location.edit([|ID|])'></i>[|HASWEB|]";					
 				}
 				//main table 
 				markup += "		<div class='table'>";
@@ -2183,6 +2197,8 @@ var app={
 				markup +=   "				<div class='align-left darkgray small nomargin'>";
 				markup +=	"					[|OPENING|]";
 				markup +=   "				</div>";
+				
+				
 				markup +=   "				<div class='align-left darkgray nomargin'>";
 				markup += 	"					<span id='votingswrapperSum[|ID|]' class='small'>[|VOTINGS|]</span>&nbsp;&nbsp;";
 				markup += 	"					<span id='commentswrapperSum[|ID|]' class='small'>[|COMMENTS|]</span>&nbsp;&nbsp;";
@@ -2414,7 +2430,7 @@ var app={
 		},
 		getlocationparams:function(locItem){
 			var item=locItem;
-			
+			var hasWeb = "";
 			var webshort ="";
 			if(item.Web && item.Web != "" && item.Web != " " && item.Web != "  "){
 				/* fix for InAppBrowser Issue on PG Build */							
@@ -2429,24 +2445,25 @@ var app={
 					// no valid URL prefix here ... so add http:
 					webshort = 'http://' + webshort;   
 				}  
+				hasWeb = "<i class='btn w30p h30p vertical-middle align-center fa fa-globe green-bg white block' style='margin:3px 0 0 3px; z-index: 12; position: absolute; top: 0px; font-size: 1em; left: -10px;line-height:30px;'></i>";
 			}
 					
 			var statuscolor = "";
 			if($("#menu-admin").hasClass("hidden") == false){	
 				if(item.Wert9 == 2){ //Friend
-					statuscolor = " yellow-bg-t7 darkgray ";
+					statuscolor = " yellow-bg darkgray ";
 				}
 				else if(item.Wert9 == 50){ //Self
-					statuscolor = " green-bg-t7 white ";
+					statuscolor = " green-bg white ";
 				}
 				else if(item.Wert9 == 80){	// noInfo
-					statuscolor = " lightgray-bg-t7 white ";
+					statuscolor = " orange-bg white ";
 				}
 				else if(item.Wert9 == 99){ // noCall
-					statuscolor = " red-bg-t7 white ";
+					statuscolor = " red-bg white ";
 				}
-				else{
-					statuscolor = " blue-bg-t7 white ";
+				else{ // not editied or verified 
+					statuscolor = " darkgray-bg white ";
 				}
 					
 			}
@@ -2494,7 +2511,7 @@ var app={
 						categorysList += "	<div class='td vertical-top align-left'>&nbsp;</div>";// empty col to span the rest of the row and prevent stretching the icon cells
 					categorysList += "</div></div>";	
 			}
-				
+			
 			var dist = helper.gps.calc.distance(parseFloat(item.CenterLat), parseFloat(item.CenterLon), helper.gps.lat,helper.gps.lon,"car");
 			
 			// distance factor for sorting
@@ -2510,7 +2527,7 @@ var app={
 			var votings = app.voting.markup.build("",item.VotingAvg,item.VotingCount,true);
 			var comments = app.comment.markup.getSum("",0,0, true, item.CommentCount);
 			
-			var result = {id:item.ID,sort:sortdist,statuscolor:statuscolor,icon:typeicon,icontext:typeicontext,name:item.Name,opening:item.OpeningHours,zip:item.Zip,city:item.City,address:item.Address,type:locType,categorys:categorysList,distance:dist,url:webshort,votings:votings,comments:comments };
+			var result = {id:item.ID,sort:sortdist,statuscolor:statuscolor,icon:typeicon,icontext:typeicontext,name:item.Name,opening:item.OpeningHours,zip:item.Zip,city:item.City,address:item.Address,type:locType,categorys:categorysList,distance:dist,url:webshort,votings:votings,comments:comments, hasWeb:hasWeb };
 			
 			return result;
 		}
@@ -3442,6 +3459,7 @@ var helper = {
 			helper.errorLog("isMobileApp");
 		},
 		online:{
+			info:false,
 			interval:60000, // check all n miliseconds
 			state:function(testurl){
 				if (typeof(testurl) == "undefined" ||  testurl == ""){			
@@ -4489,8 +4507,13 @@ var helper = {
 		// start onlinecheck
 		setInterval(function(){
 				var state = helper.check.online.state();
-				if (state == false){
+				var info = helper.check.online.info;
+				if (state == false && info == false){
 					helper.info.add("error","Kein Zugriff auf das Internet möglich. Bitte stelle eine Onlineverbindung her um die App weiter zu benutzen.",false);
+					helper.check.online.info = true;
+				}
+				if (state == true){
+					helper.check.online.info = false;
 				}
 		},helper.check.online.interval);
 		helper.check.online.state();
