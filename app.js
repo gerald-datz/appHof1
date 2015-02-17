@@ -71,11 +71,11 @@ var app={
 	user: '',
 	auth: 'anonymous',
 	authstate: false,
-    baseURL: 'http://fair.in-u.at/',
-	serviceURL: 'http://fair.in-u.at/DesktopModules/inuFair/API/WS/',
-	blogURL: 'http://fair.in-u.at/DesktopModules/DNNInfo_Classifieds/ClassifiedImages/',
-	imageURL: 'http://fair.in-u.at/bbimagehandler.ashx',
-    imageUserURL: 'http://fair.in-u.at/profilepic.ashx?portalid=0',
+    baseURL: 'http://apphof.at/',
+	serviceURL: 'http://apphof.at/DesktopModules/inuFair/API/WS/',
+	blogURL: 'http://apphof.at/DesktopModules/DNNInfo_Classifieds/ClassifiedImages/',
+	imageURL: 'http://apphof.at/bbimagehandler.ashx',
+    imageUserURL: 'http://apphof.at/profilepic.ashx?portalid=0',
 	viewMode: '',
 	debug: true,
 	version:"0.0.0",
@@ -110,7 +110,7 @@ var app={
 		else if ( $("#popup").hasClass("visible") ){
 			helper.popup.hide();
 		}
-		else if ( $(".page.active:first").attr("rel") == "start" && appIsMobile == true ){
+		else if ( $(".page.active:first").attr("rel") == "start" && helper.appIsMobile == true ){
 			// ask if to exit if app - sure ?
 			helper.popup.show(  "AppHOF beenden" ,                                        // overlay title
 						"<p>Sind Sie sicher, dass Sie die App beenden möchten ?<p>",     // overlay textarea
@@ -125,7 +125,9 @@ var app={
 		}
 		else{
 			// back in page history			
-		}		
+		}
+		//prevent exiting the app only ba pressing back key
+		return false;
 	},
 	bind:function(){		
 		helper.errorLog("app bind...");                
@@ -161,7 +163,7 @@ var app={
 		// login  buttons
 		$("#menu-login").off("click");
 		$("#menu-login").on("click",function(){
-			app.login.handler();
+			app.login.handler(true);
 		});
 		
 		// register buttons
@@ -503,7 +505,7 @@ var app={
 								text = ""
 							}
 							
-							markup = app.markup.get("favitem",{
+							markup += app.markup.get("favitem",{
 									onclick:onclick,
 									icon:icon,
 									icontext:icontext,
@@ -599,26 +601,34 @@ var app={
 		// app start procedure
 		if(helper.appIsOnline){	
 			// handle login
-			app.login.handler();
+			app.login.handler(false);
 			
 			// if online, prepare the main app items	
 			app.viewMode = helper.url.param.get("hp");	
-			
+						
 			// initially do not show password cleartext in settings
 			$("#settingsUserShowPass").prop("checked",false);
 				
 			$("#pageTitle").text($(".page.active").attr("pghead"));
 			app.page.setTitle("Startseite");
 			app.page.setHelp("start");
-			
+						
 			// check if only to show a single page in fullscreen
-			if (app.viewMode != ""){
+			if (app.viewMode != "" ){
 				$("#topbar, #statusbar, #mapswitch, #info, #spinner").hide();
 				$("<style type='text/css'> .apponly{ display:none!important;} </style>").appendTo("head");
 				$("li[rel='map']").css("padding","0");
 				$("li").css("padding","0");
 				$("#search-panel").css("top","0px");
-				app.page.show(app.viewMode);
+				
+				app.page.show(app.viewMode); // e.g "empty"
+				
+				var locationview = helper.url.param.get("loc");
+					if (locationview != ""){
+						app.location.details.show(locationview);
+						$("#popup .popup-close").hide();
+						$("#popup .popup-title").hide();				
+					}
 			}
 		
 			//bind handler for menu items click functions
@@ -759,7 +769,8 @@ var app={
 	location:  {
         details:{  
 			show:function(locID){			
-				if (typeof(app.obj.locations) !== "undefined" && typeof(app.obj.locations.length) !== "undefined" && app.obj.locations.length != 0 ){
+				//if (typeof(app.obj.locations) !== "undefined" && typeof(app.obj.locations.length) !== "undefined" && app.obj.locations.length != 0 ){
+				if (helper.appIsOnline){
 					// get info for this location offline
 					var data = helper.getObjItem(app.obj.locations, "ID", locID, function(data){
 						
@@ -793,10 +804,10 @@ var app={
 						if(data.WebShop && data.WebShop != "" && data.WebShop != " " && data.WebShop != "  "){
 							/* fix for InAppBrowser Issue on PG Build */							
 							webshop = data.WebShop.replace(/\s+/g, '');
-							if (  helper.left(webshop,5).toLowerCase() == "http:"  ){
+							if (  helper.text.left(webshop,5).toLowerCase() == "http:"  ){
 								// nothing to change
 							}
-							else if ( helper.left(webshop,4).toLowerCase() == "www." ){
+							else if ( helper.text.left(webshop,4).toLowerCase() == "www." ){
 								webshop = "http://" + webshop;   
 							}
 							else {
@@ -813,35 +824,37 @@ var app={
 							
 							markup += "		<div class='table'>";	
 							markup += "			<div class='tr'>";		
-							markup += "				<div class='td30 h40p vertical-middle align-center'>";		
+							markup += "				<div class='td40 h40p vertical-middle align-center'>";		
 							markup += "					<i class='fa fa-fw fa-map-marker fa-2x darkgray'></i>"						
 							markup += "				</div>";								
 							markup += "				<div class='td h40p vertical-middle align-center'>";		
 							markup += "					<span class='darkgray small'>" + data.Zip + " " + data.City + ", " + data.Address + "</span>";					
 							markup += "				</div>";
 							
-							markup += "				<a class='td40 btn action auth vertical-middle align-center' ";
-							if (helper.check.mobileapp){
-								var addressEncoded =  encodeURI(data.Address) + ",+" + encodeURI(data.Zip) + ",+" + encodeURI(data.City);
-								
-								if(app.authstate != false){
-									markup += " href='#'  onclick='event.preventDefault();app.location.navigate(&quot;" + addressEncoded + "&quot;);' ";
+							if (helper.url.param.get("loc") == ""){
+								markup += "				<a class='td40 btn action auth vertical-middle align-center blue ' ";
+								if (helper.check.mobileapp){
+									var addressEncoded =  encodeURI(data.Address) + ",+" + encodeURI(data.Zip) + ",+" + encodeURI(data.City);
+									
+									if(app.authstate != false){
+										markup += " href='#'  onclick='event.preventDefault();app.location.navigate(&quot;" + addressEncoded + "&quot;);' ";
+									}
+									else{
+										markup += " href='#' class='tr' onclick='event.preventDefault();' ";
+									}
 								}
 								else{
-									markup += " href='#' class='tr' onclick='event.preventDefault();' ";
-								}
+									if(app.authstate != false){
+										markup += " href='http://maps.google.at/maps?q=" + addressEncoded + "+Austria&z=10' target='_blank' ";
+									}
+									else{
+										markup += " href='#' class='tr' onclick='event.preventDefault();' ";
+									}
+								}	
+								markup += "				>";
+								markup += "				<i class='fa fa-location-arrow'></i>";
+								markup += "			</a>";		
 							}
-							else{
-								if(app.authstate != false){
-									markup += " href='http://maps.google.at/maps?q=" + addressEncoded + "+Austria&z=10' target='_blank' ";
-								}
-								else{
-									markup += " href='#' class='tr' onclick='event.preventDefault();' ";
-								}
-							}	
-							markup += "				>";
-							markup += "				<i class='fa fa-location-arrow'></i>";
-							markup += "			</a>";						
 							markup += "		</div>";
 						}					
 						markup += "		</div>";
@@ -1021,6 +1034,10 @@ var app={
 					
 					});
 				}
+				else{
+					helper.info.add("error","Kein Zugriff auf das Internet möglich. Bitte stelle eine Onlineverbindung her um die App weiter zu benutzen.",false);
+					helper.check.online.info = true;
+				}
 			},
 			markupBind:function(elemWrapper){
 				var theItems = elemWrapper.find("div.markupShort");
@@ -1124,13 +1141,21 @@ var app={
 				
 				detailmap.addLayer(marker); 
 				
-				detailmap.touchZoom.disable();
-				detailmap.doubleClickZoom.disable();
-				detailmap.scrollWheelZoom.disable();
-				detailmap.boxZoom.disable();
-				detailmap.keyboard.disable();
-				
-				detailmap.on('click', function(){app.location.details.showMap(locID);});		
+				var locationview = helper.url.param.get("loc");
+				if (locationview != ""){
+					detailmap.keyboard.disable();
+					
+					detailmap.on('click', function(){});	
+				}
+				else{
+					detailmap.touchZoom.disable();
+					detailmap.doubleClickZoom.disable();
+					detailmap.scrollWheelZoom.disable();
+					detailmap.boxZoom.disable();
+					detailmap.keyboard.disable();
+					
+					detailmap.on('click', function(){app.location.details.showMap(locID);});	
+				}
 			}
 		},
 		navigate:function(addressEncoded){
@@ -1140,7 +1165,10 @@ var app={
 		}
 	},
 	login:{
-		handler:function(){
+		handler:function(manual){
+		if (typeof(manual) == "undefined"){
+			manual = false;
+		}
 		// autologin ?
 			var urlauth =  helper.url.param.get("a");
 			if (urlauth == ""){
@@ -1216,9 +1244,41 @@ var app={
 				}
 			}
 			else{
-				// do not autologin - use anonymous
-				helper.errorLog("login not done - user wants to use anonymous");
-				app.logout();			
+				if (manual == true){
+					// manually login (loginbutton pressed) - ignore "no-autologin" setting.
+					var us = helper.settings.get("UserName");
+					var pw = helper.settings.get("UserPass");
+					if	(us != "" && us != false && pw != "" && pw != false){
+						// got login from local store - try to login
+						app.auth = Base64.encode(us + ":" + pw);
+						app.user = us;
+						app.login.now(
+							function(result){
+								// callback from login function
+								if (result != "failed"){
+									//nothing to do ... everyting ok
+									helper.errorLog("login success from stored data - manual login by buttonpress");
+								}
+								else{
+									//login failed - show message - show loginForm?
+									helper.errorLog("login failed from stored data");
+									app.logout();			
+									app.login.error("stored");			
+								}
+							}					
+						);
+					}
+					else{
+						// no login in local store
+						helper.errorLog("login failed - no login in stored data");
+						app.login.error("nostored");
+					}
+				}
+				else{
+					// do not autologin - use anonymous
+					helper.errorLog("login not done - user wants to use anonymous");
+					app.logout();	
+				}
 			}
 			
 		},
@@ -1412,6 +1472,8 @@ var app={
 		},
 		register:function(){
 			// getData{a:'anonymous',d:'register',fn:'',ln:'',dn:'don',em:'@gmail.com',pw:'xkcuna9s'}
+			
+			helper.spinner.show(true,false);
 			var dn= $("#registermask input[rel='DisplayName']").val();
 			var em= $("#registermask input[rel='Email']").val();
 			var pw= $("#registermask input[rel='Password']").val();
@@ -1494,9 +1556,13 @@ var app={
 								helper.info.add("error", "Leider ist bei der Registrierung Deines Benutzerkontos ein Fehler aufgetreten. Bitte starte die App neu und versuche es nochmals.", true);
 								break;
 						}
+						helper.spinner.hide();
+			
 					}
 					else{
 						helper.errorLog(err);
+						helper.spinner.hide();
+			
 					}
 				});   
 			}
@@ -1600,7 +1666,7 @@ var app={
 				 map,
 				 'btnSetPos'
 				)
-				
+								
 				if (app.viewMode != ""){
 					// workaround for iframe problems with leaflet
 					map.keyboard.disable();
@@ -1615,6 +1681,8 @@ var app={
 				minimap.keyboard.disable();
 		
 				//app.map.load();
+				
+				
 				
 		},
 		load: function(){				
@@ -2061,26 +2129,28 @@ var app={
 					
 				},
 				find:function(){
-					var actZoomLevel;
-					if (map.getZoom()){
-						actZoomLevel = map.getZoom()
-					}
-					else{
-						actZoomLevel = app.map.zoom;
-					}
-					map.setView(new L.LatLng(parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)),actZoomLevel);
+						var actZoomLevel;
+						if (map.getZoom()){
+							actZoomLevel = map.getZoom()
+						}
+						else{
+							actZoomLevel = app.map.zoom;
+						}
+						map.setView(new L.LatLng(parseFloat(helper.gps.lat),parseFloat(helper.gps.lon)),actZoomLevel);
 				},
 				modeupdate:function(){
-					if (helper.gps.mode == "manual"){
-						//set class of control to active (blink??)
-						$("#btnSetPos").addClass("blink");
-						$("#btnSetPos").addClass("activeLeafBtn");
-					}
-					else{			
-						//set class of control to inactive (no blink??)
-						$("#btnSetPos").removeClass("blink");
-						$("#btnSetPos").removeClass("activeLeafBtn");
-						
+					if (app.authstate == true){
+						if (helper.gps.mode == "manual"){
+							//set class of control to active (blink??)
+							$("#btnSetPos").addClass("blink");
+							$("#btnSetPos").addClass("activeLeafBtn");
+						}
+						else{			
+							//set class of control to inactive (no blink??)
+							$("#btnSetPos").removeClass("blink");
+							$("#btnSetPos").removeClass("activeLeafBtn");
+							
+						}
 					}
 				},
 				setmode:function(){
@@ -2163,8 +2233,8 @@ var app={
 				markup += 	"				<h4 class='blue nomargin'>[|NAME|]</h4>";
 				markup +=  "				<p class='align-left darkgray small nomargin'>[|TEXT|]</p>";
 				markup += 	"			</div><div class='td10'></div>";	
-				markup += 	"			<div class='td40 align-center vertical-middle blue-bg white'>";
-				markup += 	"				<i class='fa fa-chevron-right white'></i>";
+				markup += 	"			<div class='td40 align-center vertical-middle blue '>";
+				markup += 	"				<i class='fa fa-chevron-right'></i>";
 				markup += 	"			</div><div class='td5'></div>";						
 				markup += 	"		</div>";						
 				markup += 	"	</div>";		
@@ -2182,17 +2252,21 @@ var app={
 				var markup = "";
 				markup += "		<div class='markupShort white-bg-t9' rel='[|ID|]'>";
 				if($("#menu-admin").hasClass("hidden") == false){
-					markup += "<i class='btn w30p h30p vertical-middle align-center fa fa-edit [|STATUSCOLOR|] block' style='margin:3px 0 0 3px; z-index: 12; position: absolute; top: 0px; font-size: 1em; left: 20px;line-height:30px;' onclick='appadmin.location.edit([|ID|])'></i>[|HASWEB|]";					
+					markup += "<i class='btn w30p h30p vertical-middle align-center fa fa-edit [|STATUSCOLOR|] block' style='margin:3px 0 0 3px; z-index: 12; position: absolute; top: 30px; font-size: 1em; left: -5px;line-height:30px;' onclick='appadmin.location.edit([|ID|])'></i>";				
+					// markup += "<i class='btn w30p h30p vertical-middle align-center fa fa-edit [|STATUSCOLOR|] block' style='margin:3px 0 0 3px; z-index: 12; position: absolute; top: 0px; font-size: 1em; left: 20px;line-height:30px;' onclick='appadmin.location.edit([|ID|])'></i>[|HASWEB|]";				
 				}
 				//main table 
 				markup += "		<div class='table'>";
 				markup += 	"		<div class='tr vertical-middle'>";
-				markup += 	"			<div class='detail-btn td60 vertical-middle align-center'>";
+				markup += 	"			<div class='detail-btn td60 vertical-middle align-center nopadding '>";
+				markup += 	"				<p class='datastatus align-center [|DATACOLOR|] small ' style='margin:5px 0;'>";
+				markup += 	"					[|DATASTATUS|]";
+				markup += 	"				</p>";
 				markup +=	"				<i class='[|ICON|] block align-center vertical-middle'></i>";
 				markup += 	"					<div class='small'>[|ICONTEXT|]</div>";					
 				markup += 	"					<div class='small'>[|DISTANCE|]</div>";	
 				markup += 	"			</div>";			
-				markup += 	"			<div class='td align-left vertical-top'>";
+				markup += 	"			<div class='td align-left vertical-top pad-5'>";
 				markup += 	"				<h4 class='blue nomargin'>[|NAME|]</h4>";
 				markup +=   "				<div class='align-left darkgray small nomargin'>";
 				markup +=	"					[|OPENING|]";
@@ -2210,24 +2284,27 @@ var app={
 				markup += 	"			<div class='td10'></div>";	
 				markup += 	"			<div class='td40 align-center vertical-top '>";
 				// right buttons
-				markup += "					<div class='table'>";
-				markup += "						<div class='tr'>";
-				markup += "							<div class='td40 h40p vertical-middle align-center btn action auth favBtn blue-bg white' rel='[|ID|]' datatype='location' dataname='[|NAME|]' datatext='[|ZIP|] [|CITY|], [|ADDRESS|]' tipptype='[|TYPE|]'>";
-				markup += "								<i class='fa fa-heart'></i>";	
-				markup += "							</div>";		
-				markup += "						</div>";	
-				markup += "						<div class='tr vertical-middle'>";	
-				if (extrainfo && extrainfo == "forDetails"){ //map-
-					markup += "							<div class='td40 h40p vertical-middle align-center auth mapBtn blue-bg white'>";
-					markup += "								<i class='fa fa-map-marker'></i>";	
+				if (helper.url.param.get("loc") == ""){
+					markup += "					<div class='table'>";
+					markup += "						<div class='tr'>";
+					markup += "							<div class='td40 h40p vertical-middle align-center btn action auth favBtn blue ' rel='[|ID|]' datatype='location' dataname='[|NAME|]' datatext='[|ZIP|] [|CITY|], [|ADDRESS|]' tipptype='[|TYPE|]'>";
+					markup += "								<i class='fa fa-heart'></i>";	
+					markup += "							</div>";		
+					markup += "						</div>";	
+					markup += "						<div class='tr vertical-middle'>";	
+				
+					if (extrainfo && extrainfo == "forDetails"){ //map-
+						markup += "							<div class='td40 h40p vertical-middle align-center auth mapBtn blue '>";
+						markup += "								<i class='fa fa-map-marker'></i>";	
+					}
+					else{//detail button
+						markup += "							<div class='td40 h40p vertical-middle align-center auth detailBtn blue ' onclick='app.location.details.show([|ID|]);'>";
+						markup += "								<i class='fa fa-chevron-right'></i>";		
+					}
+					markup += "							</div>";		
+					markup += "						</div>";		
+					markup += "					</div>";
 				}
-				else{//detail button
-					markup += "							<div class='td40 h40p vertical-middle align-center auth detailBtn blue-bg white' onclick='app.location.details.show([|ID|]);'>";
-					markup += "								<i class='fa fa-chevron-right'></i>";		
-				}
-				markup += "							</div>";		
-				markup += "						</div>";		
-				markup += "					</div>";
 							
 				markup += 	"			</div>";
 				markup += 	"			<div class='td5'></div>";						
@@ -2237,6 +2314,9 @@ var app={
 				// categorys 
 				markup += "		<div class='table'>";
 				markup += 	"		<div class='tr vertical-middle'>";
+				markup += 	"			<div class='td60 align-center vertical-middle small'>";
+				markup += 	"				[|CERT|]";				
+				markup += 	"			</div>";	
 				markup += 	"			<div class='td align-left vertical-middle'>";				
 				markup += 	"				[|CATEGORYS|]";				
 				markup += 	"			</div>";	
@@ -2258,9 +2338,12 @@ var app={
 				markup += "				<div class='td h40p vertical-middle align-center'>";		
 				markup += "					<p class='small align-center nomargin'>[|TEXT|]</p>";						
 				markup += "				</div>";
-				markup += "				<a href='[|HREF|]' class='td40 btn  vertical-middle align-center blue-bg white [|ACLASS|]' title='[|ACTIONTITLE|]' onclick='[|ONCLICK|]'>";
-				markup += "					<i class='fa [|ACTIONICON|]'></i>";
-				markup += "				</a>";		
+				if (helper.url.param.get("loc") == ""){
+					
+					markup += "				<a href='[|HREF|]' class='td40 btn  vertical-middle align-center blue [|ACLASS|]' title='[|ACTIONTITLE|]' onclick='[|ONCLICK|]'>";
+					markup += "					<i class='fa [|ACTIONICON|]'></i>";
+					markup += "				</a>";		
+				}
 				markup += "			</div>";									
 				markup += "		</div>";						
 				markup += "</div>";
@@ -2274,7 +2357,7 @@ var app={
 				markup += "<i class='flaticon-[|ICON|]'></i>";
 				markup += "</span>";
 				return markup;
-			},
+			}, 
 			favitem:function(extrainfo){
 				var markup = "";
 				markup += "<li class='content-box searchItem favitem white-bg extralightgray-bd bd1 nopadding nomargin' onclick='[|ONCLICK|]'>";
@@ -2291,13 +2374,13 @@ var app={
 				markup += 	"			<div class='td40 align-center vertical-middle'>";													
 				markup += 	"				<span class='table'>";
 				markup += 	"					<span class='tr'>";
-				markup += 	"						<span class='td40 h40p blue-bg white vertical-middle align-center' >";
-				markup += 	"							<i class='fa fa-chevron-right white'></i>";
+				markup += 	"						<span class='td40 h40p blue  vertical-middle align-center' >";
+				markup += 	"							<i class='fa fa-chevron-right'></i>";
 				markup += 	"						</span>";	
 				markup += 	"					</span>";
 				markup += 	"					<span class='tr'>";
-				markup += 	"						<span id='delfav_[|FAVTYPE|]_[|FAVID|]' class='favBtn td40 h40p vertical-middle align-center red-bg white' tipptype='[|TIPPTYPE|]' datatext='[|TEXT|]' dataname='[|HEADLINE|]' datatype='[|FAVTYPE|]' rel='[|FAVID|]' >";
-				markup += 	"							<i class='fa fa-trash white'></i>";
+				markup += 	"						<span id='delfav_[|FAVTYPE|]_[|FAVID|]' class='favBtn td40 h40p vertical-middle align-center red ' tipptype='[|TIPPTYPE|]' datatext='[|TEXT|]' dataname='[|HEADLINE|]' datatype='[|FAVTYPE|]' rel='[|FAVID|]' >";
+				markup += 	"							<i class='fa fa-trash'></i>";
 				markup += 	"						</span>";
 				markup += 	"					</span>";
 				markup += 	"				</span>";							
@@ -2319,7 +2402,7 @@ var app={
 				markup += "	  <div class='tippsShader content-box white-bg-t8'>";				                      
 				markup += "	  </div>";
 				//Top
-				markup += "   <div class='table'>";
+				markup += "   <div class='table' style='position:absolute;top:0;left:0;z-index:3;'>";
 				markup += "   		<div class='tr'>";
 				markup += "   			<div class='td h40p align-left vertical-top'>";
 				markup += "   				<span class='tippsDate small darkgray'>";
@@ -2329,10 +2412,10 @@ var app={
 				markup += "   			<div class='td80 align-right vertical-middle'>";
 				markup += "   				<div class='table'>";
 				markup += "   					<div class='tr'>";
-				markup += "   						<div class='td40 h40p align-center vertical-middle favBtn blue-bg white auth ' rel='[|ID|]' datatype='tipp' dataname='[|NAME|]' datatext='[|SHORTDESC|]' tipptype='[|TYPE|]' style='position:relative;top:0;left:0;z-index:9;'>";
+				markup += "   						<div class='td40 h40p align-center vertical-middle btn action auth favBtn blue ' rel='[|ID|]' datatype='tipp' dataname='[|NAME|]' datatext='[|SHORTDESC|]' tipptype='[|TYPE|]' style='position:relative;top:0;left:0;z-index:9;'>";
 				markup += "   							<i class='vertical-middle w40p fa fa-heart'></i>";
 				markup += "	  						</div>";
-				markup += "   						<div class='td40 h40p align-center vertical-middle shareBtn blue-bg white ' rel='[|ID|]' tipptype='[|TYPE|]' style='position:relative;top:0;left:0;z-index:9;'>";
+				markup += "   						<div class='td40 h40p align-center vertical-middle shareBtn blue  ' rel='[|ID|]' tipptype='[|TYPE|]' style='position:relative;top:0;left:0;z-index:9;' onclick='helper.share(&quot;[|SHORTDESC|]&quot;, &quot;[|NAME|]&quot; ,&quot;[|IMGURL|]&quot;, &quot;[|LINKURL|]&quot;);'>";
 				markup += "   							<i class='vertical-middle w40p fa fa-share-alt'></i>";
 				markup += "	  						</div>";
 				markup += "	  					</div>";
@@ -2341,16 +2424,16 @@ var app={
 				markup += "	  		</div>";
 				markup += "	  </div>";
 				//Middle
-				markup += "   <div class='table optionsFunc' rel='[|ID|]' tipptype='[|TYPE|]' >";
+				markup += "   <div class='table optionsFunc' rel='[|ID|]' tipptype='[|TYPE|]' style='position:relative;top:10px;left:0;z-index:2;'>";
 				markup += "   		<div class='tr'>";
-				markup += "   			<div class='td h100p vertical-middle align-center'>";               
+				markup += "   			<div class='td h150p vertical-middle align-center'>";               
 				markup += "					<span class='tippsHead darkgray'>[|NAME|]</span>"; 
 				markup += "					<span class='tippsSubhead darkgray'>[|INFONAME|]</span>";  				
 				markup += "	  			</div>";
 				markup += "	  		</div>";
 				markup += "	  </div>";
 				//Bottom
-				markup += "   <div class='table optionsFunc' rel='[|ID|]' tipptype='[|TYPE|]' >";
+				markup += "   <div class='table optionsFunc' rel='[|ID|]' tipptype='[|TYPE|]' style='position:relative;bottom:0;left:0;z-index:2;'>";
 				markup += "   		<div class='tr'>";
 				markup += "   			<div class='td h40p vertical-bottom align-justify'>";   
 				markup += "       			<div class='tippsBottom darkgray'>";  
@@ -2367,7 +2450,7 @@ var app={
 				var markup = "";
 				
 				markup += "<div class='tippOptions table' id='shareOptions'>";
-				markup += "  <a class='tr btn darkgray' href='mailto:?subject=" + encodeURIComponent(theSubject) + "&amp;body=" + encodeURIComponent(theMessage) + "%20%20" + encodeURIComponent(theLink) + "' target='_blank'>";
+				markup += "  <a class='tr btn darkgray' href='mailto:?subject=[|SUBJECT|]&amp;body=[|MESSAGE|]%20%20[|LINK|]' target='_blank'>";
 				markup += "    <span class='td tippShareBrowser vertical-middle'>";
 				markup += "       Email";
 				markup += "    </span>";
@@ -2375,39 +2458,39 @@ var app={
 				markup += "      <i id='shareEM' class='btn fa fa-envelope'></i><br>";	
 				markup += "    </span>";				
 				markup += "  </a>";
-				markup += "  <a class='tr btn darkgray' href='https://twitter.com/intent/tweet?text=" + encodeURIComponent(theSubject) +"&amp;url=" + encodeURIComponent(theLink) + "&amp;via=AppHOF' target='_blank'>";
+				markup += "  <a class='tr btn darkgray' href='https://twitter.com/intent/tweet?text=[|SUBJECT|]&amp;url=[|LINK|]&amp;via=AppHOF' target='_blank'>";
 				markup += "    <span class='td tippShareBrowser vertical-middle'>";
 				markup += "       twitter";
 				markup += "    </span>";
 				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";
-				markup += "      <i id='shareTW' class='btn ets ets-twitter'></i><br>";	
+				markup += "      <i id='shareTW' class='btn fa fa-twitter'></i><br>";	
 				markup += "    </span>";				
 				markup += "  </a>";
-				markup += "  <a class='tr btn darkgray' href='http://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(theLink) + "' target='_blank'>";
+				markup += "  <a class='tr btn darkgray' href='http://www.facebook.com/sharer/sharer.php?u=[|LINK|]' target='_blank'>";
 				markup += "    <span class='td tippShareBrowser vertical-middle'>";
 				markup += "       facebook";
 				markup += "    </span>";
 				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";				
-				markup += "      <i id='shareFB' class='btn ets ets-facebook'></i><br>";
+				markup += "      <i id='shareFB' class='btn fa fa-facebook'></i><br>";
 				markup += "    </span>";				
 				markup += "  </a>";
-				markup += "  <a class='tr btn darkgray' href='https://plus.google.com/share?url=" + encodeURIComponent(theLink) + "' target='_blank'>";
+				markup += "  <a class='tr btn darkgray' href='https://plus.google.com/share?url=[|LINK|]' target='_blank'>";
 				markup += "    <span class='td tippShareBrowser vertical-middle'>";
 				markup += "       Google+";
 				markup += "    </span>";
 				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";					
-				markup += "      <i id='shareGP' class='btn ets ets-googleplus'></i><br>";	
+				markup += "      <i id='shareGP' class='btn fa fa-google-plus'></i><br>";	
 				markup += "    </span>";				
 				markup += "  </a>";
-				markup += "  <a class='tr btn darkgray' href='http://pinterest.com/pin/create/button/?url=" + encodeURIComponent(theLink) + "&amp;description=" + encodeURIComponent(theSubject) + "&amp;media=" + encodeURIComponent(theImage) + "' target='_blank'>";
+				markup += "  <a class='tr btn darkgray' href='http://pinterest.com/pin/create/button/?url=[|LINK|]&amp;description=[|SUBJECT|]&amp;media=[|IMAGE|]' target='_blank'>";
 				markup += "    <span class='td tippShareBrowser vertical-middle'>";
 				markup += "       pinterest";
 				markup += "    </span>";
 				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";				
-				markup += "      <i id='sharePI' class='btn ets ets-pinterest'></i><br>";
+				markup += "      <i id='sharePI' class='btn fa fa-pinterest'></i><br>";
 				markup += "    </span>";				
 				markup += "  </a>";
-				markup += "  <a class='tr btn darkgray' href='https://www.xing-share.com/app/user?op=share;sc_p=xing-share;url=" + encodeURIComponent(theLink) + "' target='_blank'>";
+				markup += "  <a class='tr btn darkgray' href='https://www.xing-share.com/app/user?op=share;sc_p=xing-share;url=[|LINK|]' target='_blank'>";
 				markup += "    <span class='td tippShareBrowser vertical-middle'>";
 				markup += "       XING";
 				markup += "    </span>";
@@ -2415,12 +2498,12 @@ var app={
 				markup += "      <i id='shareXI' class='btn fa fa-fw fa-xing'></i><br>";
 				markup += "    </span>";				
 				markup += "  </a>";
-				markup += "  <a class='tr btn darkgray' href='http://www.linkedin.com/shareArticle?mini=true&amp;url=" + encodeURIComponent(theLink) +"&amp;title=" + encodeURIComponent(theSubject) +"&amp;summary=" + encodeURIComponent(theMessage) + "&amp;source=AppHOF' target='_blank'>";
+				markup += "  <a class='tr btn darkgray' href='http://www.linkedin.com/shareArticle?mini=true&amp;url=[|LINK|]&amp;title=[|SUBJECT|]&amp;summary=[|MESSAGE|]&amp;source=AppHOF' target='_blank'>";
 				markup += "    <span class='td tippShareBrowser vertical-middle'>";
 				markup += "       linkedin";
 				markup += "    </span>";
 				markup += "    <span class='td tippShareBrowser align-center btn-icon'>";				
-				markup += "      <i id='shareLI' class='btn ets ets-linkedin'></i>";
+				markup += "      <i id='shareLI' class='btn fa fa-linkedin'></i>";
 				markup += "    </span>";			
 				markup += "  </a>";
 				markup += "</div>";
@@ -2447,11 +2530,14 @@ var app={
 				}  
 				hasWeb = "<i class='btn w30p h30p vertical-middle align-center fa fa-globe green-bg white block' style='margin:3px 0 0 3px; z-index: 12; position: absolute; top: 0px; font-size: 1em; left: -10px;line-height:30px;'></i>";
 			}
-					
+			
 			var statuscolor = "";
 			if($("#menu-admin").hasClass("hidden") == false){	
 				if(item.Wert9 == 2){ //Friend
 					statuscolor = " yellow-bg darkgray ";
+				}
+				else if(item.Wert9 == 3){ //Seller
+					statuscolor = " green-bg white ";
 				}
 				else if(item.Wert9 == 50){ //Self
 					statuscolor = " green-bg white ";
@@ -2467,6 +2553,26 @@ var app={
 				}
 					
 			}
+			
+			var datastatus = "";
+			var datacolor=""
+			if(item.Wert9 == 2 || item.Wert9 == 3 || item.Wert9 == 50){ //Self
+					datastatus = "Aktualisiert<br>" + item.Extra3 + "&nbsp;&nbsp;<i class='fa fa-check-square-o xsmall'></i>";
+					datacolor = " green-bg white ";
+				}
+				else if(item.Wert9 == 80){	// noInfo
+					datastatus = "";
+					datacolor = " orange-bg white ";
+				}
+				else if(item.Wert9 == 99){ // noCall
+					datastatus = "";
+					datacolor = " red-bg white "
+				}
+				else{ // not editied or verified 
+					datastatus = "";
+					datacolor = " lightgray-bg darkgray ";
+				}
+				
 			var typeicon = "";
 			var typeicontext = "";
 			var locType = item.LocationType;
@@ -2488,8 +2594,26 @@ var app={
 					typeicontext = "SONSTIGES";
 					break
 			}
-							
 				
+			var cert = "";
+			// "Mascherl"
+			if (item.Wert5 == 1){
+				// 001 = 1 -> Bio
+				cert="<span class='cert cert1 green'><i class='fa fa-leaf'></i><br>BIO</span>";
+				
+			}
+			else if (item.Wert5 == 2){
+				// 010 = 2 -> Demeter
+				cert="<span class='cert cert2 green'><i class='fa fa-leaf'></i><br>DEMETER</span>";
+			}
+			else if (item.Wert5 == 3){
+				//011 = 3 -> Bio and Demeter
+				cert="<span class='cert cert1 green'><i class='fa fa-leaf'></i>&nbsp;BIO</span><br><span class='cert cert2 green'>DEMETER</span>";
+			}
+			else{
+				//000 or NULL -> none
+				cert="";
+			}
 			var categorysList = "";
 			if(item.Categorys && item.Categorys != "" && item.Categorys != " " && item.Categorys != "  " && item.Categorys != "0"){
 					categorysList += "<div class='table'><div class='tr'>";
@@ -2527,7 +2651,7 @@ var app={
 			var votings = app.voting.markup.build("",item.VotingAvg,item.VotingCount,true);
 			var comments = app.comment.markup.getSum("",0,0, true, item.CommentCount);
 			
-			var result = {id:item.ID,sort:sortdist,statuscolor:statuscolor,icon:typeicon,icontext:typeicontext,name:item.Name,opening:item.OpeningHours,zip:item.Zip,city:item.City,address:item.Address,type:locType,categorys:categorysList,distance:dist,url:webshort,votings:votings,comments:comments, hasWeb:hasWeb };
+			var result = {id:item.ID,sort:sortdist,statuscolor:statuscolor,icon:typeicon,icontext:typeicontext,name:item.Name,opening:item.OpeningHours,zip:item.Zip,city:item.City,address:item.Address,type:locType,categorys:categorysList,distance:dist,url:webshort,votings:votings,comments:comments, hasWeb:hasWeb, cert:cert, datastatus:datastatus, datacolor:datacolor };
 			
 			return result;
 		}
@@ -2545,7 +2669,7 @@ var app={
 			else{
 				if (app.obj.user.UserID != 'undefined' && app.obj.user.UserID != undefined){
 					$("#menu-user-image").attr("src", app.imageUserURL + "&userId=" + app.obj.user.UserID + "&h=100&_=" + helper.datetime.actual.time());
-					$("#menu-user-name").text(app.obj.user.UserName);
+					$("#menu-user-name").text(app.obj.user.DisplayName);
 					// hide login, show logout
 					$("#menu-login").addClass("hidden");
 					$("#menu-register").addClass("hidden");
@@ -2608,7 +2732,7 @@ var app={
 					$("#map").css("height",mapHeight);
 					app.map.refresh();
                 }
-            }  
+            } 
 			else if(pageName == "fav"){
 				if(app.authstate==true){
 					app.fav.update();
@@ -2786,6 +2910,8 @@ var app={
 	},
 	// tipp functions     ##### TODO FROM HERE (SORT CODE AND REVIEW)
     tipp:{
+		shareURL: "http://apphof.at/tipps/ti/",
+		shareURLblog: "http://apphof.at/blog/id/",
 		newscount: 0,
 		blogscount: 0,
 		newsact: 1,
@@ -2821,10 +2947,8 @@ var app={
 						app.tipp.list("tippsList","box","TIPP",1);
 						app.tipp.list("blogsList","box","BLOG",1);
 						
-						
 						app.tipp.list("tippsListFull","box","TIPP",0,true);
-						app.tipp.list("blogsListFull","box","BLOG",0,true);
-						
+						app.tipp.list("blogsListFull","box","BLOG",0,true);						
 					}
 					if(returnData){
 						return dataset;
@@ -2898,20 +3022,6 @@ var app={
 					});
 				});
 				
-			
-				selector = $("#" + theWrapperID + " .shareBtn");
-				$.each(selector, function(){
-					var sel = $(this);
-					var theID = sel.attr("rel");
-					sel.off('click');
-					sel.on("click",function(){
-							/*var elemToHide = sel.closest("li.tipps");
-							app.tipp.trash(sel.attr("rel"),elemToHide);*/
-							
-							helper.share("TestMessage", "TestSubject" ,"http://in-u.at/Portals/0/inuLogoWEB.png", "http://in-u.at");
-					});
-				});				
-				
 				var theWrapper = $("#" + theWrapperID);
 				theWidth = theWrapper.find("li:first").width();
 				
@@ -2960,6 +3070,16 @@ var app={
 				imgNAME = data.ImageName;
 				imgUSER = data.UserID;
 			}
+			
+				if (data.Type == "BLOG"){
+					var imgurl = app.blogURL + "/" + data.UserID + "/med_" + data.ImageName;
+					var linkurl = app.tipp.shareURLblog + data.ID;
+				}
+				else{
+					var imgurl = app.imageURL + "?File=IMG/" + data.ImageName ;
+					var linkurl = app.tipp.shareURL + data.ID;
+				}
+					
 			var markup = app.markup.get("tippitem",{
 					id:data.ID, 
 					type:data.Type,
@@ -2970,7 +3090,9 @@ var app={
 					infoname:data.InfoName,
 					imageid:imgID,
 					imageuser:imgUSER,
-					imagename:imgNAME					
+					imagename:imgNAME,
+					imgurl:imgurl,
+					linkurl:linkurl					
 				});				
 			return markup;
 		},
@@ -3120,24 +3242,31 @@ var app={
 					//markup += "		<div class='page-content'>";
 					markup += "			<div class='table'>";
 					markup += "				<div class='tr'>";
-					markup += "					<span class='apponly detailBtn td vertical-middle align-center blue-bg white' onclick='app.tipp.location(" + data.ID + ");'>";
+					markup += "					<span class='apponly detailBtn td vertical-middle align-center blue ' onclick='app.tipp.location(" + data.ID + ");'>";
 					markup += "						&nbsp;";
 					markup += "					</span>";
-					markup += "					<span class='apponly favBtn td40 h40p vertical-middle align-center blue-bg white' rel='" + data.ID + "' tipptype='" + thetipptype + "'  datatype='tipp' onclick='app.fav.toggle($(this), " + '"tipp"' + ", " + data.ID + ", " + '"' + data.InfoDescShort +  '"' + ", " + '"' + data.Name +  '"' + ", " + '"TIPP"' + ");'>";
+					markup += "					<span class='apponly favBtn td40 h40p vertical-middle align-center btn action auth favBtn blue ' rel='" + data.ID + "' tipptype='" + thetipptype + "'  datatype='tipp' onclick='app.fav.toggle($(this), " + '"tipp"' + ", " + data.ID + ", " + '"' + data.InfoDescShort +  '"' + ", " + '"' + data.Name +  '"' + ", " + '"TIPP"' + ");'>";
 					markup += "						<i class='vertical-middle w40p fa fa-heart'></i>";
 					markup += "					</span>";
-					markup += "					<span class='apponly shareBtn td40 h40p vertical-middle align-center blue-bg white' onclick='app.tipp.location(" + data.ObjectID + ");'>";
+					
+					var message = data.InfoDescShort;
+					var subject = data.Name;
+					var image = app.imageURL + "?File=IMG/" + data.ImageName ;
+										
+					var link = app.tipp.shareURL + tippID;
+					
+					markup += "					<span class='apponly shareBtn td40 h40p vertical-middle align-center blue ' onclick='helper.share(&quot;" + message + "&quot;, &quot;" + subject + "&quot;, &quot;" + image + "&quot;, &quot;" + link + "&quot;);'>";
 					markup += "						<i class='vertical-middle w40p fa fa-share-alt'></i>";
 					markup += "					</span>";
-					markup += "					<span class='apponly detailBtn td40 h40p vertical-middle align-center blue-bg white' onclick='app.tipp.map(" + data.ObjectIDID + ");'>";
+					markup += "					<span class='apponly detailBtn td40 h40p vertical-middle align-center blue ' onclick='app.tipp.map(" + data.ID + ");'>";
 					markup += "						<i class='vertical-middle w40p fa fa-map-marker'></i>";
 					markup += "					</span>";
-					markup += "					<span class='apponly detailBtn td40 h40p vertical-middle align-center blue-bg white' onclick='app.tipp.location(" + data.ObjectIDID + ");'>";
+					markup += "					<span class='apponly detailBtn td40 h40p vertical-middle align-center blue ' onclick='app.tipp.location(" + data.ID + ");'>";
 					markup += "						<i class='vertical-middle w40p fa fa-chevron-right'></i>";
 					markup += "					</span>";
 					markup += "				</div>";
 					markup += "			</div>";
-					markup += "			<img width='100%' src='[IMAGEURL]' />";
+					markup += "			<img width='100%' src='" + image + "' />";
 					markup += "			<h2 class='nomargin'>" + data.Name + "</h2>";
 					markup += "			<h4>" + data.InfoName + "</h4>";
 					markup += "			<div>";
@@ -3209,7 +3338,7 @@ var app={
 						// classified details to show
 						var markup = "<div class='page-inner'>";
 						markup += "<div class='page-content'>";
-						markup += "<img width='100%' src='" + app.blogURL + data.UserID + "/med_" + data.ImageName + "' />";
+						markup += "<img width='100%' src='" + app.blogURL + "/" + data.UserID + "/med_" + data.ImageName + "' />";
 						markup += "	<h1>" + data.Name + "</h1>";
 						markup += "	<h2>" + data.InfoName + "</h2>";
 						markup += "	<div>";
@@ -4782,7 +4911,8 @@ var helper = {
 				if(settingValue == "false"){
 					settingValue = false;
 				}
-				if (settingValue != null && settingValue != "err" && settingValue != "" && settingValue != " " && settingValue != "undefined"){
+				if (settingValue != null && settingValue != "err"  && settingValue != "undefined"){ 
+				/* && settingValue != "" && settingValue != " " */
 					if (settingControl == "INPUT"){
 						var settingType = settingElem.attr("type");
 						switch(settingType){
@@ -4912,7 +5042,7 @@ var helper = {
 			var theSubject = null;
 			var theImage = null;
 			var theLink = null;
-			if (helper.appIsOnline){
+			if (helper.appIsOnline && helper.appIsMobile){
 				if (typeof(message) != "undefined"){ 
 					theMessage = message;
 				}
@@ -4928,7 +5058,7 @@ var helper = {
 				// call devices sharing dialogue
 				window.plugins.socialsharing.share(theMessage, theSubject, theImage, theLink);
 			}
-			else{				
+			else if(helper.appIsOnline){				
 				/** Sharing on Webbrowser
 					--------------------- */			
 				// for the sharing links prevent null values - replace by ""
@@ -4947,12 +5077,15 @@ var helper = {
 				
 				// for email URL encode the parts of the mailto link  ------- TODO ###############################
 				
-				var markup = app.markup.get(websharing,{link:encodeURIComponent(theLink),subject:encodeURIComponent(theSubject),message:encodeURIComponent(theMessage),image:encodeURIComponent(theImage)});
+				var markup = app.markup.get("websharing",{link:encodeURIComponent(theLink),subject:encodeURIComponent(theSubject),message:encodeURIComponent(theMessage),image:encodeURIComponent(theImage)});
 				helper.popup.show('Teilen über',                                      
 									markup,     
 									' fa fa-share-alt',
 									false,false,function(){},function(){}                    
 				);
+			}
+			else{
+				//not online
 			}
 	},
 	spinner:{

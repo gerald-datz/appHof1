@@ -27,8 +27,8 @@
 		<div id="popup" class="popup-modal darkgray">
 			<div class="popup-head table white">
 				<span class="tr">
-					<span class="td50 align-center vertical-top popup-icon"></span>
-					<span class="td align-left vertical-top popup-title"></span>
+					<span class="td50 align-center vertical-middle popup-icon"></span>
+					<span class="td align-left vertical-middle popup-title"></span>
 					<span class="td align-center vertical-middle popup-close btn" onclick="helper.popup.hide();">
 						<i class="btn fa fa-times"></i>
 					</span>
@@ -252,7 +252,7 @@
 					</div>
 				</li>
 				<li class="page" rel="search" pghead="Suchen">
-					<div class="page-inner">
+					<div class="page-inner nopadding">
 						<div id="search-panel" class="table white-bg">	
 							<div class="tr">
 								<input id="searchMain" class="td searchField darkgray lightgray-bd" style="border-radius:3px;" type="search" placeholder="Suchbegriff eingeben"/>
@@ -269,20 +269,20 @@
 					</div>
 				</li>
 				<li class="page" rel="fav" pghead="Favoriten">
-					<div class="page-inner">
+					<div class="page-inner nopadding">
 						<div class="page-content nomargin">
 							<ul id="favlist" class="nopadding"></ul>
 						</div>
 					</div>
 				</li>
 				<li class="page" rel="tipp" pghead="Aktuelles">					
-					<div class="page-inner">
+					<div class="page-inner nopadding">
 						<!-- News / Tipps -->
 							<ul id="tippsListFull" class="tippsList nomargin nopadding"></ul>
 					</div>
 				</li>
 				<li class="page" rel="blog" pghead="Infos">					
-					<div class="page-inner">			
+					<div class="page-inner nopadding">			
 							<ul id="blogsListFull" class="tippsList nomargin nopadding"></ul>
 					</div>
 				</li>
@@ -901,6 +901,9 @@
 				<li id="admin-page" class="page" rel="admin" pghead="Admin">
 					Admin
 				</li>
+				<li id="empty-page" class="page" rel="em" pghead="">
+					
+				</li>
 			</ul>
 		</div>
 		<!-- pages area end -->
@@ -1054,7 +1057,7 @@
 			<span rel="firststart">
 				<h2 class="blue nomargin">Willkommen in der AppHOF Community!<i class="fa fa-home float-right"></i></h2>
 				<p class="small">
-					Wir freuen uns, dass Du AppHOF nutzen möchtest und wollen Dir den Einstieg so einfach als möglich machen. Weiter unten findest Du einen Überblick der Startseite und ihrer Funktionen. Über das kleine, weiße "x" ganz rechts oben kannst du die Hilfe wieder verlassen.<br><br>Diese Seite wird nur beim ersten Start nach der Installation der App angezeigt. Die Hilfe mit allen wichtigen Infos zu AppHOF kannst Du jederzeit über den Menüpunkt <strong>"&nbsp;SO FUNKTIONIERT&apos;S"</strong> aufrufen.<br>
+					Wir freuen uns, dass Du AppHOF nutzen möchtest und wollen Dir den Einstieg so einfach als möglich machen. Weiter unten findest Du einen Überblick der Startseite und ihrer Funktionen. Über den <span style="display:inline-block;width:16px;height:16px;border-radius:50%;font-size:11px;font-weight:bold;line-height:16px;vertical-align:middle;" class="blue-bg white align-center">x</span>  - Button oben rechts kannst du die Hilfe verlassen.<br><br>Diese Seite wird nur beim ersten Start nach der Installation der App angezeigt. Die Hilfe mit allen wichtigen Infos zu AppHOF kannst Du jederzeit über den Menüpunkt <strong>"&nbsp;SO FUNKTIONIERT&apos;S"</strong> aufrufen.<br>
 					<p class="align-center">
 						<img src="img/help/01_Start.jpg" width="70%" style="margin:auto;"/>
 					</p>
@@ -1065,29 +1068,25 @@
 						<li class="small">Im oberen Teil des Menüs siehst Du Deinen aktuellen Anmeldestatus und hast die Möglichkeit Dich gleich anzumelden</li>
 						<li class="small">Im mittleren Menübereich findest Du die Hauptfunktionen der App.</li>
 						<li class="small">Unten im Menü findest Du die Hilfe, weitere Infos zu AppHOF und Deine persönlichen Einstellungen.</li>
-						<li class="small">Die Taste mit dem Fragezeichen ganz links unten ruft die Hilfe zur jeweils aktuellen Funktion auf.</li>
-						<li class="small">Die Schnellhilfe in der Mitte unten, zeigt wichtige Infos zur aktuellen Seite an.</li>
-						<li class="small">Der Statusbereich rechts unten zeigt an ob eine Verbindung mit dem Internet möglich ist und ob Deine Position von der App festgestellt werden kann.</li>
+						<li class="small">Die Taste mit dem Fragezeichen rechts oben ruft die Hilfe zur jeweils aktuellen Seite auf.</li>
 					</ul>					
 				</p>				
 			</span>
 			<span rel="start">
 				<h2 class="blue nomargin">Startseite<i class="fa fa-home float-right"></i></h2>
 				<p class="small">
-					Hier findest Du einen Überblick der Startseite und ihrer Funktionen. Über das kleine, weiße "x" ganz rechts oben kannst du die Hilfe wieder verlassen.<br> 
+					Hier findest Du einen Überblick der Startseite und ihrer Funktionen. Über den <span style="display:inline-block;width:16px;height:16px;border-radius:50%;font-size:11px;font-weight:bold;line-height:16px;vertical-align:middle;" class="blue-bg white align-center">x</span> - Button oben rechts kannst du die Hilfe wieder verlassen.<br> 
 					<p class="align-center">
 						<img src="img/help/01_Start.jpg" width="90%" style="margin:auto;"/>
 					</p>
 					<h4 class="blue nomargin">Details zu den Funktionen</h4>
-					<ul class="align-justify" style="padding-left:10px;">
+					<ul class="align-justify" style="padding-left:10px;">						
 						<li class="small">Wenn Du auf das AppHOF-Logo ganz links klickst, dann öffnet und schließt sich das Menü.</li>
 						<li class="small">Über die Schnellnavigation rechts oben gelangst Du schnell zu den wichtigsten Funktionen der App.</li>
 						<li class="small">Im oberen Teil des Menüs siehst Du Deinen aktuellen Anmeldestatus und hast die Möglichkeit Dich gleich anzumelden</li>
 						<li class="small">Im mittleren Menübereich findest Du die Hauptfunktionen der App.</li>
 						<li class="small">Unten im Menü findest Du die Hilfe, weitere Infos zu AppHOF und Deine persönlichen Einstellungen.</li>
-						<li class="small">Die Taste mit dem Fragezeichen ganz links unten ruft die Hilfe zur jeweils aktuellen Funktion auf.</li>
-						<li class="small">Die Schnellhilfe in der Mitte unten, zeigt wichtige Infos zur aktuellen Seite an.</li>
-						<li class="small">Der Statusbereich rechts unten zeigt an ob eine Verbindung mit dem Internet möglich ist und ob Deine Position von der App festgestellt werden kann.</li>
+						<li class="small">Die Taste mit dem Fragezeichen rechts oben ruft die Hilfe zur jeweils aktuellen Seite auf.</li>
 					</ul>					
 				</p>
 			</span>
