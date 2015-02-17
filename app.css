@@ -940,6 +940,9 @@ iframe{
 			}
 			.page[rel="map"]{
 				padding:90px 0px 0px 0px;
+			}	
+			.page[rel="settings"]{
+				padding:90px 0px 0px 0px;
 			}
 			
 				.content-box{
@@ -983,6 +986,7 @@ iframe{
 	/* ------------ map page ------------- */		
 	#mapswitch{
 		position:fixed;
+		-webkit-backface-visibility: hidden; 
 		top:50px;
 		left:0px;
 		z-index:14;
@@ -1286,6 +1290,7 @@ ul.comments{
 		max-width:100%;
 		min-width:100px;
 		position:fixed;
+		-webkit-backface-visibility: hidden;
 		top:50px;
 		left:0;
 		z-index:14;
@@ -1297,7 +1302,45 @@ ul.comments{
 		.detail-btn{
 			padding:0 10px 0 0;
 		}
+		
+	#searchMain{
+	    /*
+		background-attachment: scroll;
+		background-color: rgba(0, 0, 0, 0);
+		background-image: url("img/search.png");
+		background-origin: content-box;
+		background-position: right center;
+		background-repeat: no-repeat;
+		background-size: 18px auto;
+		*/
+	}
+	/* ---------------- settings Page ---------------- */
+	#settingsButtons{
+		position:fixed;
+		-webkit-backface-visibility: hidden; 
+		top:50px;
+		left:0px;
+		z-index:14;
+		border-bottom:1px solid #ccc;
+		width:100%;
+		background:#fff;
+	}
+	#settingsWrap{
+		padding-top:5px;
+	}
+	#settingsWrap .resp-tabs-container{
+		position:relative;
+	}
 	
+	#settingsWrap .resp-tab-active{
+		background:#fff;
+		position:relative;
+		z-index:3;
+	}
+	
+	#settingsSave, #settingsClose{
+		font-family: SourceSansPro-Regular;
+	}
 /* ----------- lazy load images - updated after inserted in DOM ----------- */
 img.lazy{
     background: url(img/spinner-small.gif) no-repeat;

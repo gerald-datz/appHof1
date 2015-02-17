@@ -2,14 +2,17 @@
 
 v.0.9.1	- 20.02.2015
 	Behobene Fehler:
-	- Es wurde in der Favoritenliste immer nur der zuletzt gespeicherte Favorit angezeigt.
-	- Bei Klick auf den Karten Button von Tipps wurde die Karte nicht richtig angezeigt (Kein Marker).
-	- Registrierung als neuer User aus der App heraus funktionierte nicht
-	- Zurück-Button beendete immer die App
+	- Nur der zuletzt gespeicherte Favorit in der Fav-Liste angezeigt.
+	- Klick auf Karten Button eines Tipps - Karte nicht richtig angezeigt (Kein Marker).
+	- Registrierung als neuer User aus der App heraus nicht möglich
+	- Zurück-Button beendet die App
+	- Loginbutton funktioniert nicht wenn Autologin in Settings ausgewählt ist
+	- iOS 7: Statusbar überlappt mit der App -> Top-Buttons schwer bedienbar
 	
 	Neue Features:
 	- Teilen von aktuelllen Tipps und Infos über verschiedene soziale Netzwerke
 	- Beenden Funktion im Menü hinzugefügt
 	- Neue Markierung für Bio und Demeter-Betriebe
-	- Anzeige der letzten Daten-Aktualisierung von Betrieben
+	- Anzeige der letzten Daten-Aktualisierung von Betrieben (Betriebe die Ihre Informationen aktualisiert haben)
+	- Suchergebnisse werden nach Entfernung sortiert (näheste zuerst)
 	

@@ -490,7 +490,7 @@ var app={
 										icontext =  "<div class='small lightgray'>TIPP</div>";
 									}
 									else if (tipptype == "BLOG"){
-										icon = 		" fa fa-paperclip ";
+										icon = 		" fa fa-newspaper-o ";
 										icontext =  "<div class='small lightgray'>ARTIKEL</div>"; 
 									}
 									else{
@@ -863,34 +863,6 @@ var app={
 						}					
 						markup += "		</div>";
 						markup += "</div>";
-						
-						// Extra Info 1 (general info on this location)		
-						if(data.Extra1 && data.Extra1 != "" && data.Extra1 != " " && data.Extra1 != "  "){
-							markup += app.markup.get("locationdetailrow",
-										{
-											icon:"fa-info",
-											text:data.Extra1,
-											actiontitle:"",
-											actionicon:"",
-											href:"#",
-											onclick:"event.preventDefault();",
-											aclass:" noAction "
-										});
-						}
-						
-						// Produkte (general info on this location)		
-						if(data.Products && data.Products != "" && data.Products != " " && data.Products != "  "){
-							markup += app.markup.get("locationdetailrow",
-										{
-											icon:"fa-tags",
-											text:data.Products,
-											actiontitle:"",
-											actionicon:"",
-											href:"#",
-											onclick:"event.preventDefault();",
-											aclass:" noAction "
-										});
-						}
 						// Contact data and buttons		
 						if(data.Phone && data.Phone != "" && data.Phone != " " && data.Phone != "  "){
 							markup += app.markup.get("locationdetailrow",
@@ -984,6 +956,48 @@ var app={
 											aclass:""
 										});
 						}
+						// Extra Info 1 (general info on this location)		
+						if(data.Extra1 && data.Extra1 != "" && data.Extra1 != " " && data.Extra1 != "  "){
+							markup += app.markup.get("locationdetailrow",
+										{
+											icon:"fa-info",
+											text:data.Extra1,
+											actiontitle:"",
+											actionicon:"",
+											href:"#",
+											onclick:"event.preventDefault();",
+											aclass:" noAction "
+										});
+						}
+						
+						// Maerkte Info = Extra2						
+						if(data.Extra2 && data.Extra2 != "" && data.Extra2 != " " && data.Extra2 != "  "){
+							markup += app.markup.get("locationdetailrow",
+										{
+											icon:"flaticon-entertaining3",
+											text:data.Extra2,
+											actiontitle:"",
+											actionicon:"",
+											href:"#",
+											onclick:"event.preventDefault();",
+											aclass:" noAction "
+										});
+						}
+						
+						// Produkte 	
+						if(data.Products && data.Products != "" && data.Products != " " && data.Products != "  "){
+							markup += app.markup.get("locationdetailrow",
+										{
+											icon:"fa-tags",
+											text:data.Products,
+											actiontitle:"",
+											actionicon:"",
+											href:"#",
+											onclick:"event.preventDefault();",
+											aclass:" noAction "
+										});
+						}
+						
 						
 						//commentswrap header item
 						markup += app.markup.get("locationdetailrow",
@@ -2227,7 +2241,7 @@ var app={
 		template:{
 			searchitem:function(extrainfo){
 				var markup = "";
-				markup += "<li class='content-box nomargin nopadding' onclick='[|ONCLICK|]'>";
+				markup += "<li class='content-box nomargin nopadding' onclick='[|ONCLICK|]' sort='[|DIST|]'>";
 				markup += 	"	<div class='table'>";							
 				markup += 	"		<div class='tr vertical-middle'>";
 				markup += 	"			<div class='td60 align-center vertical-middle'>";	
@@ -2837,6 +2851,9 @@ var app={
 									if( dist != "NaN" ){
 										icontext += "~" + dist + "km";
 									}
+									else{
+										icontext += "";
+									}
 									icontext += "</div>";
 									
 									onclick = 	"app.location.details.show(" + item.ObjectID + ");";
@@ -2850,8 +2867,8 @@ var app={
 									break;        
 									
 								case '62': 
-									icon = 		"fa fa-paperclip";
-									icontext = "<div class='small lightgray'>Artikel</div>";
+									icon = 		"fa fa-newspaper-o";
+									icontext = "<div class='small lightgray'>BLOG Artikel</div>";
 									text = 		item.InfoDescShort;		
 									var tipptype = '"BLOG"';
 									onclick = 	"app.tipp.details(" + item.ObjectID + "," + tipptype + ");";
@@ -2863,9 +2880,30 @@ var app={
 									onclick = 	"";
 									break;
 							}
-							suggestions += app.markup.get("searchitem",{"onclick":onclick,icon:icon,icontext:icontext,name:item.Name,text:text});
+							suggestions += app.markup.get("searchitem",{"onclick":onclick,icon:icon,icontext:icontext,name:item.Name,text:text, dist:dist});
 						});
 						$("#searchList").append(suggestions);
+						
+						// sort list by distance
+						var $searchLIST = $('#searchList');
+						var $searchLISTli = $searchLIST.children('li');
+
+						$searchLISTli.sort(function(a,b){
+							var an = parseInt(a.getAttribute('sort')),
+								bn = parseInt(b.getAttribute('sort'));
+
+							if(an > bn) {
+								return 1;
+							}
+							if(an < bn) {
+								return -1;
+							}
+							return 0;
+						});
+
+						$searchLISTli.detach().appendTo($searchLIST);
+
+						
 						$(".ellipsis").ellipsis();
 						helper.spinner.hide();
 					}
@@ -5060,6 +5098,7 @@ var helper = {
 					theLink = link;
 				}
 				// call devices sharing dialogue
+				helper.spinner.show(true,true);
 				window.plugins.socialsharing.share(theMessage, theSubject, theImage, theLink);
 			}
 			else if(helper.appIsOnline){				
