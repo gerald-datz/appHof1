@@ -1221,15 +1221,9 @@
 		}
 		
 		function helperDeviceReady(){		
-			console.log('calling helper.deviceready ...' + typeof(helper)) ;	
-			if (typeof(helper) == 'function') {
-				helper.deviceready(false);
-			}
-			else{
-				setTimeout(function(){
-					helperDeviceReady();
-				},100);
-			}
+			setTimeout(function(){
+				helperDeviceReady();
+			},1000);
 		}
 	</script>
 	<script src="phonegap.js"></script>
