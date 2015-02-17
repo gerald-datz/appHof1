@@ -3563,7 +3563,7 @@ var app={
 var helper = {
 	appIsOnline: false,
 	appIsMobile: false,
-	deviceTimeout:2000,
+	deviceTimeout:4000,
 	deviceState:false,
 	firststart:	true,
 	retryTimeOut: 500, // timeout for retrying to fetch remote data
@@ -3837,11 +3837,11 @@ var helper = {
 	deviceready:function(notmob){
 		// start tracking GPS if geolocation supported
 		helper.gps.position.get();		
-		if(typeof(notmob) != "undefined" && notmob == true){
+		if(typeof(notmob) != "undefined" && notmob == true && helper.deviceState == false){
 			helper.errorLog('device not ready after ' + (helper.deviceTimeout / 1000) + ' seconds...');
 			helper.deviceState = false;
 			$("#aboutAppOS").html("Smartphones & Tablets");
-			$("#aboutAppVersion").html("v.0.0.0");
+			$("#aboutAppVersion").html("v.1.0.0");
 			helper.appIsMobile = false;	
 		}else if (notmob == false){
 			helper.errorLog('device ready...');	
