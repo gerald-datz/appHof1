@@ -983,14 +983,17 @@ iframe{
 		max-height:130px;
 	}
 	
-	/* ------------ map page ------------- */		
-	#mapswitch{
+	/* ------------ map page ------------- */	
+	#mapswitchWrap{
 		position:fixed;
 		-webkit-backface-visibility: hidden; 
 		top:50px;
 		left:0px;
 		z-index:14;
 		border-bottom:1px solid #ccc;
+	}
+	#mapswitch{
+	
 	}
 		#mapPanel{
 			display:none;
@@ -1303,16 +1306,18 @@ ul.comments{
 			padding:0 10px 0 0;
 		}
 		
+	
+	#searchMainWrap{
+		position:fixed;
+		-webkit-backface-visibility: hidden; 
+		top:50px;
+		left:0px;
+		z-index:14;
+		border-bottom:1px solid #ccc;
+	}
+	
 	#searchMain{
-	    /*
-		background-attachment: scroll;
-		background-color: rgba(0, 0, 0, 0);
-		background-image: url("img/search.png");
-		background-origin: content-box;
-		background-position: right center;
-		background-repeat: no-repeat;
-		background-size: 18px auto;
-		*/
+	
 	}
 	/* ---------------- settings Page ---------------- */
 	#settingsButtons{

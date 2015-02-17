@@ -224,15 +224,17 @@
 						</div>
 				</li>
 				<li class="page" rel="map" pghead="Kartenansicht">
-					<div id="mapswitch" class="table white-bg">
-						<div class="tr">
-							<div class="btn small td w50perc h40p align-center vertical-middle bd-r1 lightgray-bd"  onclick="$('#listPanel').removeClass('active');$('#mapPanel').addClass('active');app.map.refresh();">
-								Kartenansicht
-							</div>
-							<div class="btn small td td50perc h40p align-center vertical-middle" onclick="$('#mapPanel').removeClass('active');$('#listPanel').addClass('active');">
-								Listenansicht
-							</div>
-						</div>					
+					<div ID="mapswitchWrap" >
+						<div id="mapswitch" class="table white-bg">
+							<div class="tr">
+								<div class="btn small td w50perc h40p align-center vertical-middle bd-r1 lightgray-bd"  onclick="$('#listPanel').removeClass('active');$('#mapPanel').addClass('active');app.map.refresh();">
+									Kartenansicht
+								</div>
+								<div class="btn small td td50perc h40p align-center vertical-middle" onclick="$('#mapPanel').removeClass('active');$('#listPanel').addClass('active');">
+									Listenansicht
+								</div>
+							</div>					
+						</div>
 					</div>
 					<div id="mapPanel" class="active">
 						<div id="map">	
@@ -253,15 +255,17 @@
 				</li>
 				<li class="page" rel="search" pghead="Suchen">
 					<div class="page-inner nopadding">
-						<div id="search-panel" class="table white-bg">	
-							<div class="tr">
-								<input id="searchMain" class="td searchField darkgray lightgray-bd" style="border-radius:3px;" type="search" placeholder="Suchbegriff eingeben"/>
-								<div class="td">
-									<span class="small vertical-middle">&nbsp;nur in der Nähe&nbsp;&nbsp;</span>
-									<input id="chkSearchNear" class="darkgray darkgray-bd vertical-middle" type="checkbox" />
+						<div id="searchMainWrap">
+							<div id="search-panel" class="table white-bg">	
+								<div class="tr">
+									<input id="searchMain" class="td searchField darkgray lightgray-bd" style="border-radius:3px;" type="search" placeholder="Suchbegriff eingeben"/>
+									<div class="td">
+										<span class="small vertical-middle">&nbsp;nur in der Nähe&nbsp;&nbsp;</span>
+										<input id="chkSearchNear" class="darkgray darkgray-bd vertical-middle" type="checkbox" />
+									</div>
 								</div>
 							</div>
-						</div>						
+						</div>
 						<div class="page-content nomargin" style="padding-top:45px;">		
 							<ul id="searchList" class="nopadding">
 							</ul>
