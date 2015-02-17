@@ -977,7 +977,7 @@
 									</span>
 									<span class="authhider">&nbsp;</span>
 								</div>
-								<div id="exitBtn" class="tr btn btn-pg menu-item mobile">
+								<div id="exitBtn" class="tr btn btn-pg menu-item mobile" onclick="app.exit();">
 									<span class="td50 align-center vertical-middle">
 										<i class="fa fa-sign-out"></i>
 									</span>
@@ -1221,7 +1221,7 @@
 		}
 		
 		function helperDeviceReady(){
-			console.log('calling helper.deviceready ...') ;			
+			console.log('calling helper.deviceready with 1s delay ...') ;			
 			setTimeout(function(){
 				helper.deviceready(false);
 			},1000);

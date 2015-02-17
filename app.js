@@ -137,16 +137,16 @@ var app={
         $("#btn-menu").on("click",function(){ 
 			app.menu.toggle();
         });
-		
+		/* To early for binding?
 		$("#exitBtn").off("click");
 		$("#exitBtn").on("click",function(){
 			navigator.app.exitApp();
-			/*
+			
 			app.menu.close();
 			app.exit();
-			*/
+			
         });
-		
+		*/
 		// bind menu items & header Buttons click handler
 		$(".btn-pg").off("click");
 		$(".btn-pg").on("click",function(){
