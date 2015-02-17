@@ -1220,10 +1220,19 @@
 			helperDeviceReady();
 		}
 		
-		function helperDeviceReady(){		
-			setTimeout(function(){
-				helperDeviceReady();
-			},1000);
+		function helperDeviceReady(){
+			console.log('calling helper.deviceready ...' + typeof(helper)) ;
+			helper.deviceready(false);
+			/*
+			if (typeof window.helper == 'function') {
+				window.helper.deviceready(false);
+			}
+			else{
+				setTimeout(function(){
+					helperDeviceReady();
+				},1000);
+			}
+			*/
 		}
 	</script>
 	<script src="phonegap.js"></script>
