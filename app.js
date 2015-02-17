@@ -140,8 +140,11 @@ var app={
 		
 		$("#exitBtn").off("click");
 		$("#exitBtn").on("click",function(){
-			app.exit();
+			navigator.app.exitApp();
+			/*
 			app.menu.close();
+			app.exit();
+			*/
         });
 		
 		// bind menu items & header Buttons click handler

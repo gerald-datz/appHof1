@@ -1221,8 +1221,10 @@
 		}
 		
 		function helperDeviceReady(){
-			console.log('calling helper.deviceready ...' + typeof(helper)) ;
-			helper.deviceready(false);
+			console.log('calling helper.deviceready ...') ;			
+			setTimeout(function(){
+				helper.deviceready(false);
+			},1000);
 			/*
 			if (typeof window.helper == 'function') {
 				window.helper.deviceready(false);
