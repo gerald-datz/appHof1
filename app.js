@@ -61,6 +61,7 @@ $(document).ready(function() {
 	helper.initialize();
 });
 
+
 /**###################################################
 					main app properties
 						& methods
@@ -3563,7 +3564,7 @@ var app={
 var helper = {
 	appIsOnline: false,
 	appIsMobile: false,
-	deviceTimeout:4000,
+	deviceTimeout:3000,
 	deviceState:false,
 	firststart:	true,
 	retryTimeOut: 500, // timeout for retrying to fetch remote data

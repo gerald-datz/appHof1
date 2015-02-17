@@ -19,26 +19,6 @@
 	<title>AppHOF</title> 
 </head>
 <body>
-	<script type="text/javascript">
-	// add deviceready event to bind the hardwarekeys (back, menu) to the proper functions and use phone functions safely now
-		document.addEventListener('deviceready', ondeviceready, false);
-		
-		function ondeviceready(){			
-			console.log('calling helper.deviceready ...');	
-			helperDeviceReady();
-		}
-		
-		function helperDeviceReady(){
-			if (typeof helper == 'function') {
-				helper.deviceready(false);
-			}
-			else{
-				setTimeout(function(){
-					helperDeviceReady();
-				},100);
-			}
-		}
-	</script>
 	<div id="splash" class="visible">
 	</div>
 	<!-- mask and overlays -->
@@ -1232,6 +1212,26 @@
 	</div>
 	<!-- main app frame end -->
 	<!-- app scripts -->
+	<script type="text/javascript">
+	// add deviceready event to bind the hardwarekeys (back, menu) to the proper functions and use phone functions safely now
+		document.addEventListener('deviceready', ondeviceready, false);
+		
+		function ondeviceready(){	
+			helperDeviceReady();
+		}
+		
+		function helperDeviceReady(){		
+			console.log('calling helper.deviceready ...' + typeof(helper)) ;	
+			if (typeof(helper) == 'function') {
+				helper.deviceready(false);
+			}
+			else{
+				setTimeout(function(){
+					helperDeviceReady();
+				},100);
+			}
+		}
+	</script>
 	<script src="phonegap.js"></script>
 	<script src="js/jQuery.js"></script><!-- initial Version v.1.11.1 -->
 	<script src="js/leaflet.js"></script>
