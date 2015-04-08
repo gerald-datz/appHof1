@@ -3441,8 +3441,9 @@ var app={
 									$.each($("#mainArticle a[target='_blank']"),function(){
 										var theLink = $(this);
 										var theHREF = theLink.attr("href");
-										theLink.attr("onclick","event.preventDefault();window.open(&quot;" + theHREF + "&quot;,&quot;_system&quot;);");
+										theLink.attr("onclick","event.preventDefault();window.open('" + theHREF + "','_system');");
 										theLink.attr("href","#");
+										theLink.removeAttr("target");
 									});
 								});
 								
@@ -3485,8 +3486,9 @@ var app={
 							$.each($("#mainArticle a[target='_blank']"),function(){
 								var theLink = $(this);
 								var theHREF = theLink.attr("href");
-								theLink.attr("onclick","event.preventDefault();window.open(&quot;" + theHREF + "&quot;,&quot;_system&quot;);");
+								theLink.attr("onclick","event.preventDefault();window.open('" + theHREF + "','_system');");
 								theLink.attr("href","#");
+								theLink.removeAttr("target");
 							});
 						},500);
 					}
