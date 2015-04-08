@@ -3436,8 +3436,14 @@ var app={
 												function(){// callback from CANCEL button
 												} 
 									);
-									app.fav.update();									
-									$("#mainArticle a[target='_blank']").attr("target","_system");
+									app.fav.update();
+									//onclick='event.preventDefault();window.open(&quot;https://plus.google.com/103220114702872906165&quot;,&quot;_system&quot;);'
+									$.each($("#mainArticle a[target='_blank']"),function(){
+										var theLink = $(this);
+										var theHREF = theLink.attr("href");
+										theLink.attr("onclick","event.preventDefault();window.open(&quot;" + theHREF + "&quot;,&quot;_system&quot;);");
+										theLink.attr("href","#");
+									});
 								});
 								
 								break;        
@@ -3475,7 +3481,13 @@ var app={
 						);
 						setTimeout(function(){
 							app.fav.update();
-							$("#mainArticle a[target='_blank']").attr("target","_system");
+							//onclick='event.preventDefault();window.open(&quot;https://plus.google.com/103220114702872906165&quot;,&quot;_system&quot;);'
+							$.each($("#mainArticle a[target='_blank']"),function(){
+								var theLink = $(this);
+								var theHREF = theLink.attr("href");
+								theLink.attr("onclick","event.preventDefault();window.open(&quot;" + theHREF + "&quot;,&quot;_system&quot;);");
+								theLink.attr("href","#");
+							});
 						},500);
 					}
 					else{
