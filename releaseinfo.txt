@@ -1,6 +1,17 @@
-
-
-v.0.9.5	- 18.02.2015
+v.1.0.5	- 07.04.2015
+	Behobene Fehler:
+	- Links in Blog-Artikeln werden nicht im Browser geöffnet
+	- GPS-Timeouts werden in zu kurzen Intervallen angezeigt
+	- Hilfetext Startseiteund Kartenansicht fehlerhaft.
+	- Android: Speichern der Einstellungen auf manchen Geräten nicht möglich (Samsung Galaxy...)
+	- WindwosPhone8: Icons werden nur als rechtecke angezeigt
+	- iOS: Status-Bar verdeckt Teile der Titelleiste der App.
+		
+	Neue Features:
+	- keine
+	
+	
+v.1.0.2	- 20.02.2015
 	Behobene Fehler:
 	- PopUp Fenster werden nicht ganz von Oben angezeigt
 	- Nur der zuletzt gespeicherte Favorit in der Fav-Liste angezeigt.

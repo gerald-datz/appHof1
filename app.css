@@ -1379,11 +1379,11 @@ ul.comments{
 	}
 	/* ---------------- settings Page ---------------- */
 	#settingsButtons{
-		position:fixed;
+		position:relative; /*fixed;*/
 		-webkit-backface-visibility: hidden; 
-		top:50px;
+		top:-35px; /*50px;*/
 		left:0px;
-		z-index:14;
+		z-index:34; /*14;*/
 		border-bottom:1px solid #ccc;
 		width:100%;
 		background:#fff;

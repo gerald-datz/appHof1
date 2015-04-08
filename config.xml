@@ -4,7 +4,7 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "at.inu.app"
-        version   = "1.0.2">
+        version   = "1.0.5">
     <name>AppHOF</name>
 
     <description>
@@ -46,6 +46,9 @@
     <preference name="android-minSdkVersion"      value="10" />             <!-- android: MIN SDK version supported on the target device. MAX version is blank by default. -->
     <preference name="android-installLocation"    value="auto" />           <!-- android: app install location. 'auto' will choose. 'internalOnly' is device memory. 'preferExternal' is SDCard. -->
 	<preference name="StatusBarOverlaysWebView"   value="false" />			<!-- ios7 depends on plugin org.apache.cordova.statusbar -->
+	<preference name="StatusBarBackgroundColor"   value="#FFFFFF"/>
+	<preference name="StatusBarStyle" 			  value="default" />
+
     <!-- Plugins can also be added here. -->
     <!--
         <gap:plugin name="Example" />

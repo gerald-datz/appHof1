@@ -1043,7 +1043,7 @@
 					</ul>	
 					<h4 class="blue nomargin">Details zur oberen Men&uuml;leiste</h4>
 					<p class="align-center">
-						<img src="img/help/01-Start-TopBar.jpg" width="90%" style="margin:auto;"/>
+						<img src="img/help/01-Start-Topbar.jpg" width="90%" style="margin:auto;"/>
 					</p>
 					<ul class="align-justify" style="padding-left:10px;">
 						<li class="small">Wenn Du auf das AppHOF-Logo ganz links klickst, dann öffnet und schließt sich das Menü.</li>
@@ -1125,8 +1125,8 @@
 					</p>
 					<p class="small">
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-location-arrow blue"></i> - Navigation starten
-							<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-phone blue"></i> - In der Nähe (Karte/Liste)
-							<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-envelope blue"></i> - Produkte und Standorte suchen
+							<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-phone blue"></i> - Anbieter anrufen
+							<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-envelope blue"></i> - Email an den Anbieter senden
 							<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-chevron-right blue"></i> - Webseite / Shop öffnen
 							<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-fw fa-plus blue"></i> - Kommentar oder Bewertung schreiben
 					</p>
@@ -1287,6 +1287,13 @@
 		document.addEventListener('deviceready', ondeviceready, false);
 		
 		function ondeviceready(){	
+			// workaround for iOS statusbar overlaying the webview and so hiding parts of title bar of the app
+			if(window.StatusBar) {
+			  // org.apache.cordova.statusbar required
+				StatusBar.styleDefault();
+				StatusBar.overlaysWebView(false);
+				//StatusBar.hide();
+			}
 			helperDeviceReady();
 		}
 		

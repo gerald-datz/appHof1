@@ -3383,7 +3383,7 @@ var app={
 					markup += "			<img width='100%' src='" + image + "' />";
 					markup += "			<h2 class='nomargin'>" + data.Name + "</h2>";
 					markup += "			<h4>" + data.InfoName + "</h4>";
-					markup += "			<div>";
+					markup += "			<div id='mainArticle'>";
 					markup += "				" + $('<textarea />').html(data.InfoDescLong).text();
 					markup += "			</div>";
 					markup += "			<div class='table'>";
@@ -3436,7 +3436,8 @@ var app={
 												function(){// callback from CANCEL button
 												} 
 									);
-									app.fav.update();
+									app.fav.update();									
+									$("#mainArticle a[target='_blank']").attr("target","_system");
 								});
 								
 								break;        
@@ -3474,6 +3475,7 @@ var app={
 						);
 						setTimeout(function(){
 							app.fav.update();
+							$("#mainArticle a[target='_blank']").attr("target","_system");
 						},500);
 					}
 					else{
@@ -3955,7 +3957,7 @@ var helper = {
 			helper.errorLog('device not ready after ' + (helper.deviceTimeout / 1000) + ' seconds...');
 			helper.deviceState = false;
 			$("#aboutAppOS").html("Smartphones & Tablets");
-			$("#aboutAppVersion").html("v.1.0.0");
+			$("#aboutAppVersion").html("v.1.0.5");
 			helper.appIsMobile = false;	
 		}else if (notmob == false){
 			helper.errorLog('device ready...');	
@@ -4342,7 +4344,7 @@ var helper = {
 		state: false,
 		errorcount: 0,
 		errortimeouts: 0,
-		errormax:3,
+		errormax:5,
 		successcallback:function(){app.map.gpsupdate();},
 		calc:{
 			distance: function(lat1a,lon1a,lat2a,lon2a,type){
@@ -4478,28 +4480,42 @@ var helper = {
 						systemErrorMsg = "GPS: PERMISSION_DENIED";
 						userPosErrorMsg = "Die App muss Deinen aktuellen Standort ermitteln um Informationen zu Anbietern in Deiner Nähe zu liefern<br>Bitte aktiviere die Standortdienste in den Einstellungen Deines Gerätes um diese App zu nutzen.";						
 						helper.gps.state = false;	
+						helper.info.add("warning",userPosErrorMsg ,true);	
+						helper.errorLog(systemErrorMsg);
 						break;
 					case error.POSITION_UNAVAILABLE: 
 						systemErrorMsg = "GPS: POSITION_UNAVAILABLE";
 						userPosErrorMsg = "Deine aktuelle Position konnte nicht ermittelt werden da keine Standortdaten von Deinem Gerät übermittelt wurden";			
 						helper.gps.state = false;
+						helper.info.add("warning",userPosErrorMsg ,true);	
+						helper.errorLog(systemErrorMsg);
 						break;
 					case error.TIMEOUT: 
 						systemErrorMsg = "GPS: TIMEOUT";
 						//self.showAlert("Positionsabfrage TimeOut");  
-						userPosErrorMsg = "Die Positionsbestimmung Deines Standortes konnte nicht durchgeführt werden (Timeout)";
+						userPosErrorMsg = "Die Positionsbestimmung Deines Standortes konnte mehrfach nicht durchgeführt werden (Timeouts)";
 						helper.gps.errortimeouts++;			
 						helper.gps.state = false;
 						// dont interrupt try again in next interval.
+						if (helper.gps.errortimeouts >= helper.gps.errormax){
+							helper.info.add("warning",userPosErrorMsg ,true);	
+							helper.errorLog(systemErrorMsg);
+							helper.gps.errorcount = 0;
+							helper.gps.errortimeouts = 0;
+						}
 						break;  
 					default: 
 						systemErrorMsg = "GPS: UNKNOWN ERROR";
 						userPosErrorMsg = "Bei der Bestimmung Deines Standortes ist ein Problem aufgetreten, bitte kontrolliere Die Standorteinstellungen Deines Gerätes";							
 						helper.gps.state = false;
+						if (helper.gps.errorcount >= helper.gps.errormax){
+							helper.info.add("warning",userPosErrorMsg ,true);	
+							helper.errorLog(systemErrorMsg);
+							helper.gps.errorcount = 0;
+							helper.gps.errortimeouts = 0;
+						}
 						break;  
 				}
-				helper.info.add("warning",userPosErrorMsg ,true);	
-				helper.errorLog(systemErrorMsg);
 			}
 		}
 	},
