@@ -3957,7 +3957,7 @@ var helper = {
 			helper.errorLog('device not ready after ' + (helper.deviceTimeout / 1000) + ' seconds...');
 			helper.deviceState = false;
 			$("#aboutAppOS").html("Smartphones & Tablets");
-			$("#aboutAppVersion").html("v.1.0.5");
+			$("#aboutAppVersion").html("v.1.0.5.1");
 			helper.appIsMobile = false;	
 		}else if (notmob == false){
 			helper.errorLog('device ready...');	
@@ -3973,13 +3973,17 @@ var helper = {
 			app.deviceModel = device.model;
 			$("#aboutDeviceOS").html(device.platform);
 			app.osName = device.platform;
+			
 			$("#aboutDeviceVersion").html(device.version);
 			app.osVersion = device.version;
 			//add versionnumber to the field in about - appversion needs appversion plugin 
 			cordova.getAppVersion(function (version) {
 				app.version = version;
 				$("#aboutAppVersion").html(version);
-			});
+			});	
+			if (app.osName != "iOS"){
+				$("body").css("padding-top","20px");
+			}
 		}
 		
 	},
@@ -4505,6 +4509,9 @@ var helper = {
 						}
 						break;  
 					default: 
+						
+					if (app.osName != "iOS"){
+			
 						systemErrorMsg = "GPS: UNKNOWN ERROR";
 						userPosErrorMsg = "Bei der Bestimmung Deines Standortes ist ein Problem aufgetreten, bitte kontrolliere Die Standorteinstellungen Deines Gerätes";							
 						helper.gps.state = false;
@@ -4514,7 +4521,8 @@ var helper = {
 							helper.gps.errorcount = 0;
 							helper.gps.errortimeouts = 0;
 						}
-						break;  
+					}	
+					break;  
 				}
 			}
 		}
