@@ -3971,7 +3971,7 @@ var helper = {
 			helper.errorLog('device not ready after ' + (helper.deviceTimeout / 1000) + ' seconds...');
 			helper.deviceState = false;
 			$("#aboutAppOS").html("Smartphones & Tablets");
-			$("#aboutAppVersion").html("v.1.0.5.1");
+			$("#aboutAppVersion").html("v.1.0.6");
 			helper.appIsMobile = false;	
 		}else if (notmob == false){
 			helper.errorLog('device ready...');	
@@ -4363,6 +4363,7 @@ var helper = {
 		errorcount: 0,
 		errortimeouts: 0,
 		errormax:5,
+		watchID:0, // needed to stop gps-positioning-tracking on request
 		successcallback:function(){app.map.gpsupdate();},
 		calc:{
 			distance: function(lat1a,lon1a,lat2a,lon2a,type){
@@ -4461,18 +4462,46 @@ var helper = {
 				return result
 			}
 		},
+		allowed:function(){
+			var gpsAllowed = helper.settings.get("GpsAllowed");
+			if ( gpsAllowed == null || gpsAllowed === "" || gpsAllowed == "1" || gpsAllowed === " " || gpsAllowed == true ){
+				return true;
+			}
+			else{
+				return false;
+			}
+		},
 		position:{		
+			stop:function(){
+				if (helper.gps.watchID > 0) {
+					navigator.geolocation.clearWatch(helper.gps.watchID);
+					helper.gps.watchID = 0;
+					helper.errorLog("GPS: tracking stopped on request");
+				}
+			},
 			get:function(){
 				var result = "";
 				// watch permanently users position by interval defined in settings
-				navigator.geolocation.watchPosition(helper.gps.position.success,helper.gps.position.error,{ 	enableHighAccuracy: true, maximumAge:(helper.gps.interval), timeout:((helper.gps.interval)-3000)}); 
-						
-				helper.errorLog("GPS: tracking started with interval " + (helper.gps.interval/1000) + " seconds" + result);
+				if(helper.gps.allowed()){
+					// stop eventually already present tracking 
+					helper.gps.position.stop();
+					// start new tracking session now
+					helper.gps.watchID = navigator.geolocation.watchPosition(helper.gps.position.success,helper.gps.position.error,{enableHighAccuracy: true, maximumAge:(helper.gps.interval), timeout:((helper.gps.interval)-3000)}); 
+					helper.errorLog("GPS: tracking started with interval " + (helper.gps.interval/1000) + " seconds" + result);
+				}
+				else{
+					helper.gps.position.stop();
+					helper.errorLog("GPS: tracking stopped because it was disabled in settings");
+				}
 			},
 			getonce:function(){
-				navigator.geolocation.getCurrentPosition(helper.gps.position.success,helper.gps.position.error,{ enableHighAccuracy: true });
-				
-				helper.errorLog("GPS: single update requested");
+				if(helper.gps.allowed){
+					navigator.geolocation.getCurrentPosition(helper.gps.position.success,helper.gps.position.error,{ enableHighAccuracy: true });				
+					helper.errorLog("GPS: single update requested");
+				}
+				else{
+					helper.errorLog("GPS: single update requested but not performed because it is disabled in settings");
+				}
 			},
 			success:function(position){
 				// positioning success so reset error count
@@ -4489,54 +4518,56 @@ var helper = {
 			},
 			error:function(error){
 				// count positioning errors up
-				helper.gps.errorcount++;
-				var userPosErrorMsg ="";
-				var systemErrorMsg="";
-				switch(error.code)  
-				{  
-					case error.PERMISSION_DENIED: 
-						systemErrorMsg = "GPS: PERMISSION_DENIED";
-						userPosErrorMsg = "Die App muss Deinen aktuellen Standort ermitteln um Informationen zu Anbietern in Deiner Nähe zu liefern<br>Bitte aktiviere die Standortdienste in den Einstellungen Deines Gerätes um diese App zu nutzen.";						
-						helper.gps.state = false;	
-						helper.info.add("warning",userPosErrorMsg ,true);	
-						helper.errorLog(systemErrorMsg);
-						break;
-					case error.POSITION_UNAVAILABLE: 
-						systemErrorMsg = "GPS: POSITION_UNAVAILABLE";
-						userPosErrorMsg = "Deine aktuelle Position konnte nicht ermittelt werden da keine Standortdaten von Deinem Gerät übermittelt wurden";			
-						helper.gps.state = false;
-						helper.info.add("warning",userPosErrorMsg ,true);	
-						helper.errorLog(systemErrorMsg);
-						break;
-					case error.TIMEOUT: 
-						systemErrorMsg = "GPS: TIMEOUT";
-						//self.showAlert("Positionsabfrage TimeOut");  
-						userPosErrorMsg = "Die Positionsbestimmung Deines Standortes konnte mehrfach nicht durchgeführt werden (Timeouts)";
-						helper.gps.errortimeouts++;			
-						helper.gps.state = false;
-						// dont interrupt try again in next interval.
-						if (helper.gps.errortimeouts >= helper.gps.errormax){
+				if(helper.gps.allowed){
+					helper.gps.errorcount++;
+					var userPosErrorMsg ="";
+					var systemErrorMsg="";
+					switch(error.code)  
+					{  
+						case error.PERMISSION_DENIED: 
+							systemErrorMsg = "GPS: PERMISSION_DENIED";
+							userPosErrorMsg = "Die App muss Deinen aktuellen Standort ermitteln um Informationen zu Anbietern in Deiner Nähe zu liefern<br>Bitte aktiviere die Standortdienste in den Einstellungen Deines Gerätes um diese App zu nutzen.";						
+							helper.gps.state = false;	
 							helper.info.add("warning",userPosErrorMsg ,true);	
 							helper.errorLog(systemErrorMsg);
-							helper.gps.errorcount = 0;
-							helper.gps.errortimeouts = 0;
-						}
+							break;
+						case error.POSITION_UNAVAILABLE: 
+							systemErrorMsg = "GPS: POSITION_UNAVAILABLE";
+							userPosErrorMsg = "Deine aktuelle Position konnte nicht ermittelt werden da keine Standortdaten von Deinem Gerät übermittelt wurden";			
+							helper.gps.state = false;
+							helper.info.add("warning",userPosErrorMsg ,true);	
+							helper.errorLog(systemErrorMsg);
+							break;
+						case error.TIMEOUT: 
+							systemErrorMsg = "GPS: TIMEOUT";
+							//self.showAlert("Positionsabfrage TimeOut");  
+							userPosErrorMsg = "Die Positionsbestimmung Deines Standortes konnte mehrfach nicht durchgeführt werden (Timeouts)";
+							helper.gps.errortimeouts++;			
+							helper.gps.state = false;
+							// dont interrupt try again in next interval.
+							if (helper.gps.errortimeouts >= helper.gps.errormax){
+								helper.info.add("warning",userPosErrorMsg ,true);	
+								helper.errorLog(systemErrorMsg);
+								helper.gps.errorcount = 0;
+								helper.gps.errortimeouts = 0;
+							}
+							break;  
+						default: 
+							
+						if (app.osName != "iOS"){
+				
+							systemErrorMsg = "GPS: UNKNOWN ERROR";
+							userPosErrorMsg = "Bei der Bestimmung Deines Standortes ist ein Problem aufgetreten, bitte kontrolliere Die Standorteinstellungen Deines Gerätes";							
+							helper.gps.state = false;
+							if (helper.gps.errorcount >= helper.gps.errormax){
+								helper.info.add("warning",userPosErrorMsg ,true);	
+								helper.errorLog(systemErrorMsg);
+								helper.gps.errorcount = 0;
+								helper.gps.errortimeouts = 0;
+							}
+						}	
 						break;  
-					default: 
-						
-					if (app.osName != "iOS"){
-			
-						systemErrorMsg = "GPS: UNKNOWN ERROR";
-						userPosErrorMsg = "Bei der Bestimmung Deines Standortes ist ein Problem aufgetreten, bitte kontrolliere Die Standorteinstellungen Deines Gerätes";							
-						helper.gps.state = false;
-						if (helper.gps.errorcount >= helper.gps.errormax){
-							helper.info.add("warning",userPosErrorMsg ,true);	
-							helper.errorLog(systemErrorMsg);
-							helper.gps.errorcount = 0;
-							helper.gps.errortimeouts = 0;
-						}
-					}	
-					break;  
+					}
 				}
 			}
 		}
@@ -5140,6 +5171,11 @@ var helper = {
 				}
 				helper.data.set(settingName,settingValue);
 			});
+			
+			// perform extra checks - necessary because of new dev guidelines
+			helper.gps.position.get(); 	// check if to disable tracking now ...
+			// --- end extra checks ---
+			
 			helper.errorLog("settings saved");
 			helper.info.add("success", "Die Einstellungen wurden gespeichert", true, false);
 			
