@@ -3971,7 +3971,7 @@ var helper = {
 			helper.errorLog('device not ready after ' + (helper.deviceTimeout / 1000) + ' seconds...');
 			helper.deviceState = false;
 			$("#aboutAppOS").html("Smartphones & Tablets");
-			$("#aboutAppVersion").html("v.1.0.6");
+			$("#aboutAppVersion").html("v.1.0.7");
 			helper.appIsMobile = false;	
 		}else if (notmob == false){
 			helper.errorLog('device ready...');	
