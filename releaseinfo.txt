@@ -1,3 +1,14 @@
+v.1.0.7 - 07.09.2015
+	Behobene Fehler
+	- Blocking Request verhinderte das laden der App auf manchen Geräten
+	
+	Updates
+	- Update Framework Codebase vPG.3.7.0
+		
+	Neue Features:
+	- keine
+
+	
 v.1.0.5	- 07.04.2015
 	Behobene Fehler:
 	- Links in Blog-Artikeln werden nicht im Browser geöffnet
