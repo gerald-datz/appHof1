@@ -3731,7 +3731,7 @@ var helper = {
 					"HEAD",
 					// append a random string to the current hostname,
 					// to make sure we're not hitting the cache
-					testurl + "/?rand=" + Math.random(),
+					testurl + "?rand=" + Math.random(),
 					// make a synchronous request
 					false
 				);
